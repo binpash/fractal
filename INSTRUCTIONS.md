@@ -80,10 +80,16 @@ Together these files (and the PaSh-JIT submodule they build upon) cover every co
 4. Run `git pull; git submodule update; pkill -f worker; pkill -f discovery; pkill -f filereader; sleep 2; bash /opt/dish/pash/compiler/dspash/worker.h &> /worker.log &`
 
 
- 
-
 <a id="results-reproducible"></a>  
-
 # Results Reproducible (ZZ minutes)
+The key results in this paper's evaluation section are the following:
+1. *Fault recovery execution*: FRACTAL provides *correct* and *efficient* recovery
+2. *Fault-free execution*: FRACTAL also delivers near state-of-the-art performance in failure-free executions (§6.1, Fig. 4).
+3. [Not urgent, nice to have] *Dynamic output persistence*: it demonstrates a subtle balance between accelerated fault recovery and overhead in fault-free execution (§6.3, Fig. 8).
 
-    ⏳ need to walkthrough them to double-check nothing's left
+    ⏳ TODO
+
+## [Optional] Hard faults
+As shown at the bottom of page 10,
+
+    ⏳ TODO
