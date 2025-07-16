@@ -56,14 +56,16 @@ Together these files (and the PaSh-JIT submodule they build upon) cover every co
 ### Pre-requisites
 1. Set up cloudlab account and have reserved a cluster (note: this will be done by the time ae is submitted)
 
+🚧 YZ: Do we expect users to run the following setup commands in a specific env, e.g., provided docker image? If not, add commands to install dependencies, e.g., installing `clush` using `pip` on MacOS. 
+
 ### Set up cloudlab cluster swarm
 1. Create a file at `docker-hadoop/manifest.xml` for pasting the cluster manifest from cloudlab
 2. Run `cd docker-hadoop`
-3. Run `./prepare-cloudlab-notes.sh manifest.xml [cloudlab-username]`
-4. Now the main node's info should be there in `hostnames.txt`
-5. Now ssh into that node with something like `ssh [username]@[ip]`
+3. Run `./prepare-cloudlab-notes.sh manifest.xml [cloudlab-username]` (🚧 YZ: 14:08.12 mins)
+4. Now all the hostnames in the cluster are in `hostnames.txt` with the first entry being the manager node.
+5. Now ssh into that node with something like `ssh [username]@$(head -n 1 hostnames.txt)` (🚧 YZ: explicitly say the first ip in the hostnames.txt?)
 6. Run `cd dish/docker-hadoop`
-7. Run `sudo ./start-client.sh -eval` where client is `nodemanager`
+7. Run `sudo ./start-client.sh --eval` where client is `nodemanager`
 8. Run `docker exec -it docker-hadoop-client-1 bash` to get inside the client node's container.
 
 ### Shutdown
