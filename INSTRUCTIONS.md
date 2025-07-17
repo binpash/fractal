@@ -127,12 +127,45 @@ $DISH_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!"
 
 <a id="results-reproducible"></a>  
 # Results Reproducible (ZZ minutes)
+
 The key results in this paper's evaluation section are the following:
-1. *Fault recovery execution*: FRACTAL provides *correct* and *efficient* recovery
-2. *Fault-free execution*: FRACTAL also delivers near state-of-the-art performance in failure-free executions (§6.1, Fig. 4).
+1. *Fault-free execution*: FRACTAL also delivers near state-of-the-art performance in failure-free executions (§6.1, Fig. 5).
+2. *Fault recovery execution*: FRACTAL provides *correct* and *efficient* recovery (§6.2, Fig.?).
 3. [Not urgent, nice to have] *Dynamic output persistence*: it demonstrates a subtle balance between accelerated fault recovery and overhead in fault-free execution (§6.3, Fig. 8).
 
-    ⏳ TODO
+**Terminology correspondence:** Here is the correspondence of flag names between the paper and the artifact:
+* Fractal (no fault): `--width 8 --r_split --distributed_exec --ft dynamic`
+* Fractal (regular-node fault): `--width 8 --r_split --distributed_exec --ft dynamic --kill regular`
+* Fractal (merger-node fault):`--width 8 --r_split --distributed_exec --ft dynamic --kill merger`
+
+**Execution and Plotting:** We provide two input load sizes for testing and evaluating Fractal:
+- `--small`: Uses a reduced input size, resulting in shorter execution time (~X hours).  
+- `--full`: Matches the input size used in the paper (~X hours).
+
+The `--small` option produces results that closely match those presented in the paper. All key performance differences between configurations are still clearly observable.
+
+This section also provide detailed instrauctions on how to replicate the figures of the experimental evaluation of Fractal as described in Table 2: [Classics](), [Unix50](), [NLP](), [Analytics](), and [Automation]().
+
+To run all the benchmarks with `--small` input from the control node:
+
+```bash
+# open the interactive shell for the client container
+docker exec -it docker-hadoop-client-1 bash
+
+# enter the eval folder
+cd $DISH_TOP/evaluation
+
+# There are two options here, either use --small or --full as an argument to determine the input size.
+bash run_all.sh --small
+
+# After the execution is finished, the raw data can be found
+cat eval_results/run.tmp
+
+# Generate the plots
+./generate_charts.py 
+```
+
+We have included in this repo sample data of the raw data timers (run.tmp), the final source data (data_final.csv) and the three output figures: [Fig. X](), [Fig. Y](), and [Fig. Z]()
 
 ## [Optional] Hard faults
 As shown at the bottom of page 10,
