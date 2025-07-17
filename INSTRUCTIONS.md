@@ -11,7 +11,10 @@ This artifact targets the following badges (mirroring [the NSDI26 artifact "eval
 * [ ] [Artifact available](#artifact-available): Reviewers are expected to confirm public availability of core components (XX minutes)  
 * [ ] [Artifact functional](#artifact-functional): Reviewers are expected to verify distributed execution workflow (YY minutes)  
 * [ ] [Results reproducible](#results-reproducible): Reviewers are expected to reproduce key fault tolerance metrics (ZZ hours)  
- 
+
+**To "kick the tires" for this artifact:**
+* Skim this README file to get an idea of the structure (2 minutes).
+* Jump straight into the [Exercisability](#exercisability) section of the README file (10 minutes).
 
 <a id="artifact-available"></a>  
 # Artifact Available (XX minutes)  
@@ -23,8 +26,6 @@ The implementation described in the NSDI26 paper (FRACTAL) has been incorporated
 - FRACTAL's command annotations conform to the format outlined in [PaSh](https://github.com/binpash/pash), a MIT-licensed open-source software.  
 - We have a publicly-accessible discord Server ([Invite](http://join.binpa.sh/)) for troubleshooting and feedback.  
  
- 
-
 <a id="artifact-functional"></a>  
 # Artifact Functional (YY minutes)  
 
@@ -73,8 +74,36 @@ Fig. 3 of the paper gives an overview of the interaction among different compone
 
 Together these files (and the PaSh-JIT submodule they build upon) cover every component shown in Fig. 3, demonstrating that the released code fully realises the design presented in the paper.
 
-## Exercisability
-### Pre-requisites
+## **Exercisability**
+
+**Scripts and Data:** Scripts to run experiments are provided in the `evaluation/` directory. To run all benchmarks, use `evaluation/run_all.sh`. To run a specific benchmark, use the `run.sh` script located within each benchmark folder (e.g., `evaluation/oneliners/run.sh`). The required input data for each benchmark can be downloaded using `inputs.sh`, which fetches datasets from persistent storage hosted on a Brown University cluster at `https://atlas.cs.brown.edu/data`.
+
+**Execution:** To facilitate evaluation, we pre-allocate and initialize both the 4-node and 30-node clusters with all input data pre-downloaded. We have created a `fractal-ae26` account on the two CloudLab clusters used in our evaluation of Fractal. 
+
+To connect to the control node of each cluster via:
+
+```bash
+# Connect to the 4-node cluster
+ssh -i ./evaluation/cloudlab.pem fractal-ae26@XXXX.XX
+# Connect to the 30-node cluster
+ssh -i ./evaluation/cloudlab.pem fractal-ae26@XXXX.XX
+```
+
+To start and connect to a client container:
+```bash 
+sudo ./dish/docker-hadoop/start-client.sh --eval # 🚧 this does not work as it's path-dependent
+docker exec -it docker-hadoop-client-1 bash
+```
+
+> Reviewers should coordinate to not run experiments at the same time.
+
+To run Fractal with a minimal `echo` example under a fault-free setting:
+```bash
+# 🚧 we can also do `$FRACTAL --distributed_exec -c ...`
+$DISH_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!" 
+```
+
+<!-- ### Pre-requisites
 1. Set up cloudlab account and have reserved a cluster (note: this will be done by the time ae is submitted)
 
 🚧 YZ: Do we expect users to run the following setup commands in a specific env, e.g., provided docker image? If not, add commands to install dependencies, e.g., installing `clush` using `pip` on MacOS. 
@@ -92,11 +121,9 @@ Together these files (and the PaSh-JIT submodule they build upon) cover every co
 ### Shutdown
 1. Run `sudo docker compose -f docker-compose-client.yml down` to shutdown the client docker image
 2. Run `./stop-swarm`
-3. Run `docker swarm leave -force`
+3. Run `docker swarm leave -force` -->
 
-
-
-*(Developer note moved to CONTRIBUTING.md)*
+<!-- *(Developer note moved to CONTRIBUTING.md)* -->
 
 <a id="results-reproducible"></a>  
 # Results Reproducible (ZZ minutes)
