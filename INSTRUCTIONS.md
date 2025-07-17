@@ -31,6 +31,23 @@ The implementation described in the NSDI26 paper (FRACTAL) has been incorporated
 Confirm sufficient documentation, key components as described in the paper, and execution with min inputs (about 20 minutes).  
 
 ## Documentation
+Below is a map of all additional README files that explain specific subsystems.
+
+* **Top-level overview**: `README.md` (root)  
+  quick intro, install, architecture figure.
+* **Control-plane internals**: `pash/compiler/dspash/README.md`: coordinator scheduler, executor event loop, dynamic persistence flow, and health/progress monitors (A1, A3–A6; §4–5)
+* **Remote Pipe family**  
+  * `runtime/pipe/README.md`: high-level channel semantics  
+  * `runtime/pipe/datastream/README.md`: buffered-I/O implementation  
+  * `runtime/pipe/discovery/README.md`: endpoint registry / progress monitor
+* **DFS split reader**: `runtime/dfs/README.md`: block-aligned HDFS reader used by executors for parallel ingestion (§4)
+* **Executor helper scripts**: `runtime/scripts/README.md`: build helpers, fault-injection utilities, and cluster maintenance shell tools (§4, §6)
+* **Runtime README (Go services)**: `runtime/README.md`: build & run instructions for Go daemons powering Remote Pipes, Discovery, and DFS (§4)
+* **Cluster bootstrap**: `docker-hadoop/README.md`: Docker-Compose/Swarm recipes for spinning up a multi-node FRACTAL+HDFS cluster locally or on CloudLab (§7)
+* **Benchmark & evaluation**: `evaluation/README.md`: scripts and guidance to reproduce functional, performance, and fault-tolerance experiments (§7)
+
+For running the evaluation scripts refer to `evaluation/README.md`; for fault
+injection see `runtime/scripts/README.md`.
 
 For developer-focused instructions (e.g.
 adding benchmark suites or rebuilding cluster workers) see
@@ -41,13 +58,13 @@ Fig. 3 of the paper gives an overview of the interaction among different compone
 
 - **Execution engine (§4)**
   - *DFG construction & fault-aware partitioning*: FRACTAL reuses the PaSh-JIT front-end to parse the user script and consult the JSON annotation corpus in `pash/annotations/`.  We then extend that pipeline in
-    • `pash/compiler/dspash/ir_helper.py` – `prepare_graph_for_remote_exec`, `split_main_graph`, `add_singular_flags` (edge IDs, remote-pipe vertices, singular tagging, subgraph carving).  
-    • `pash/compiler/dspash/worker_manager.py` – subgraph-to-node mapping, dependency tracking, selective re-execution.
+    • `pash/compiler/dspash/ir_helper.py`: `prepare_graph_for_remote_exec`, `split_main_graph`, `add_singular_flags` (edge IDs, remote-pipe vertices, singular tagging, subgraph carving).  
+    • `pash/compiler/dspash/worker_manager.py`: subgraph-to-node mapping, dependency tracking, selective re-execution.
   - *Remote pipe* & *Dynamic output persistence*: FRACTAL decides at run time, **per sub-graph**, whether to spill a stream to disk.  The choice is encoded via the `--ft dynamic` flag and a `-s` (singular) tag in each `RemotePipe`.  If dynamic FT is on and the subgraph is not singular, `datastream.go::writeOptimized()` writes to a spill-file whose path is registered in Discovery.  Upon a fault `worker_manager.check_persisted_discovery()` queries Discovery and re-executes only the subgraphs whose outputs were not already persisted.
   - *Executor runtime* & *Progress/Health monitors*: each node runs `pash/compiler/dspash/worker.py` where `EventLoop` launches up to *N* subgraphs and `TimeRecorder` logs execution.  Completion of every send/receive emits a 17-byte event (bottom of `datastream.go`) that `worker_manager.py::__manage_connection` consumes.  Cluster liveness comes from JMX polling in `pash/compiler/dspash/hdfs_utils.py` with callbacks wired into the scheduler.
 
 - **Performance optimizations (§5)**
-  - *Event-driven architecture*: `EventLoop` in `worker.py` is lock-free (list ops + atomics) and polls every 0.1 s – precisely the design described in §5.1.
+  - *Event-driven architecture*: `EventLoop` in `worker.py` is lock-free (list ops + atomics) and polls every 0.1 s, precisely the design described in §5.1.
   - *Buffered-IO sentinel stripping*: the 8-byte EOF token is removed on-the-fly inside `datastream.go::read` (≈ 70-130) using a single 4096-byte buffer, matching §5.2.
   - *Batched scheduling*: `worker_manager.py` builds `worker_to_batches` and issues one `Batch-Exec-Graph` RPC per worker, implementing the optimisation in §5.3.
 
@@ -94,28 +111,3 @@ The key results in this paper's evaluation section are the following:
 As shown at the bottom of page 10,
 
     ⏳ TODO
-
-<a id="meta-documentation"></a>
-# Meta-Documentation: Navigating the FRACTAL Codebase
-
-The table below maps the high-level blocks from Fig. 3 of the paper to concrete
-code directories and their respective README files.  Reviewers can skim the
-first column to decide which internals they wish to dive into.
-
-| Paper Label | Functionality | Source Directory | Detailed README |
-|-------------|---------------|------------------|-----------------|
-| A1          | DFG augmentation, unsafe-main splitting | `pash/compiler/dspash/ir_helper.py` | [dspash README](pash/compiler/dspash/README.md) |
-| A2          | Remote Pipe instrumentation | `runtime/pipe/` | [Remote Pipe](runtime/pipe/README.md) |
-| A3          | Dynamic output persistence | `pash/compiler/dspash/worker_manager.py` | [dspash README](pash/compiler/dspash/README.md) |
-| A4          | Scheduler & batched dispatch | `pash/compiler/dspash/worker_manager.py` | same |
-| A5          | Progress monitor & Discovery | `runtime/pipe/discovery/` | [Discovery README](runtime/pipe/discovery/README.md) |
-| A6          | Health monitor | `pash/compiler/dspash/hdfs_utils.py` | [dspash README](pash/compiler/dspash/README.md) |
-| B1-4        | Executor event loop & IPC | `pash/compiler/dspash/worker.py` | same |
-
-Minimum reading path (≈15 min): top-level [README](README.md) → Remote Pipe →
-dspash.
-
-Full deep dive (≈45-60 min): follow the table left-to-right.
-
-For running the evaluation scripts refer to `evaluation/README.md`; for fault
-injection see `runtime/scripts/README.md` and the upcoming `frac` tool docs.
