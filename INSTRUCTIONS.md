@@ -32,6 +32,10 @@ Confirm sufficient documentation, key components as described in the paper, and 
 
 ## Documentation
 
+For developer-focused instructions (e.g.
+adding benchmark suites or rebuilding cluster workers) see
+[CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Completeness
 Fig. 3 of the paper gives an overview of the interaction among different components. Below we map every component to the source code in this repository.
 
@@ -39,7 +43,7 @@ Fig. 3 of the paper gives an overview of the interaction among different compone
   - *DFG construction & fault-aware partitioning*: FRACTAL reuses the PaSh-JIT front-end to parse the user script and consult the JSON annotation corpus in `pash/annotations/`.  We then extend that pipeline in
     • `pash/compiler/dspash/ir_helper.py` – `prepare_graph_for_remote_exec`, `split_main_graph`, `add_singular_flags` (edge IDs, remote-pipe vertices, singular tagging, subgraph carving).  
     • `pash/compiler/dspash/worker_manager.py` – subgraph-to-node mapping, dependency tracking, selective re-execution.
-  - *Remote pipe* & *Dynamic output persistence*: fault-tolerant data channels implemented in `runtime/pipe/datastream/datastream.go` (`read*` / `write*`, `writeOptimized`) with discovery service in `runtime/pipe/discovery/` and thin shell wrappers in `runtime/scripts/remote_read.sh` and `runtime/scripts/remote_write.sh`.  When `--ft dynamic` is active `writeOptimized` persists the stream under `$FISH_OUT_PREFIX`; `worker_manager.py::check_persisted_discovery` skips recomputation on recovery.
+  - *Remote pipe* & *Dynamic output persistence*: FRACTAL decides at run time, **per sub-graph**, whether to spill a stream to disk.  The choice is encoded via the `--ft dynamic` flag and a `-s` (singular) tag in each `RemotePipe`.  If dynamic FT is on and the subgraph is not singular, `datastream.go::writeOptimized()` writes to a spill-file whose path is registered in Discovery.  Upon a fault `worker_manager.check_persisted_discovery()` queries Discovery and re-executes only the subgraphs whose outputs were not already persisted.
   - *Executor runtime* & *Progress/Health monitors*: each node runs `pash/compiler/dspash/worker.py` where `EventLoop` launches up to *N* subgraphs and `TimeRecorder` logs execution.  Completion of every send/receive emits a 17-byte event (bottom of `datastream.go`) that `worker_manager.py::__manage_connection` consumes.  Cluster liveness comes from JMX polling in `pash/compiler/dspash/hdfs_utils.py` with callbacks wired into the scheduler.
 
 - **Performance optimizations (§5)**
@@ -75,12 +79,7 @@ Together these files (and the PaSh-JIT submodule they build upon) cover every co
 
 
 
-### When updating `worker.py`
-1. Ssh into each remote node (that is not a manager node)
-2. Run `docker ps` to get the id for `datanode`, then get inside the `datanode` container
-3. Run `cd dish`
-4. Run `git pull; git submodule update; pkill -f worker; pkill -f discovery; pkill -f filereader; sleep 2; bash /opt/dish/pash/compiler/dspash/worker.h &> /worker.log &`
-
+*(Developer note moved to CONTRIBUTING.md)*
 
 <a id="results-reproducible"></a>  
 # Results Reproducible (ZZ minutes)
@@ -95,3 +94,28 @@ The key results in this paper's evaluation section are the following:
 As shown at the bottom of page 10,
 
     ⏳ TODO
+
+<a id="meta-documentation"></a>
+# Meta-Documentation: Navigating the FRACTAL Codebase
+
+The table below maps the high-level blocks from Fig. 3 of the paper to concrete
+code directories and their respective README files.  Reviewers can skim the
+first column to decide which internals they wish to dive into.
+
+| Paper Label | Functionality | Source Directory | Detailed README |
+|-------------|---------------|------------------|-----------------|
+| A1          | DFG augmentation, unsafe-main splitting | `pash/compiler/dspash/ir_helper.py` | [dspash README](pash/compiler/dspash/README.md) |
+| A2          | Remote Pipe instrumentation | `runtime/pipe/` | [Remote Pipe](runtime/pipe/README.md) |
+| A3          | Dynamic output persistence | `pash/compiler/dspash/worker_manager.py` | [dspash README](pash/compiler/dspash/README.md) |
+| A4          | Scheduler & batched dispatch | `pash/compiler/dspash/worker_manager.py` | same |
+| A5          | Progress monitor & Discovery | `runtime/pipe/discovery/` | [Discovery README](runtime/pipe/discovery/README.md) |
+| A6          | Health monitor | `pash/compiler/dspash/hdfs_utils.py` | [dspash README](pash/compiler/dspash/README.md) |
+| B1-4        | Executor event loop & IPC | `pash/compiler/dspash/worker.py` | same |
+
+Minimum reading path (≈15 min): top-level [README](README.md) → Remote Pipe →
+dspash.
+
+Full deep dive (≈45-60 min): follow the table left-to-right.
+
+For running the evaluation scripts refer to `evaluation/README.md`; for fault
+injection see `runtime/scripts/README.md` and the upcoming `frac` tool docs.

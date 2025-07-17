@@ -1,91 +1,100 @@
-# DiSh: Dynamic Shell-Script Distribution 
+# Fractal: Fault-Tolerant Shell-Script Distribution
 
-> _A system for scaling out POSIX shell scripts on distributed file systems._
-> _DiSh is part of the PaSh project, which is hosted by the [Linux Foundation](https://linuxfoundation.org/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases/)._
+> **Meta-header** – Fractal is integrated into the `dish` codebase. The implementation you see here matches the artifact submitted for NSDI’26.
 
-DiSh builds heavily on and extends [PaSh](https://github.com/binpash/pash) (command annotations, compiler infrastructure, and JIT orchestration).
+---
 
-Quick Jump: [Installation](#installation) | [Running DiSh](#running-dish) | [Repo Structure](#repo-structure) | [Evaluation](#evaluation) | [Community & More](#community--more) | [Citing](#citing)
+## 1  What is Fractal?
+Fractal executes *unmodified* POSIX shell scripts across a cluster **and** recovers automatically from node failures.  It leverages PaSh-JIT to build a data-flow graph (DFG), inserts Remote Pipes for exactly-once delivery, and re-runs only the fragments affected by a fault using byte-level progress metadata.
 
-## Installation
+Key points:
+• No script changes – full shell semantics.  
+• Exactly-once via Remote Pipe & replay suppression.  
+• Per-subgraph *dynamic* decision to persist or just stream.  
+• Millisecond-scale re-scheduling driven by HDFS heartbeats + 17-byte events.
 
-The easiest way to play with DiSh is using docker.
+---
 
-The following steps commands will create a virtual cluster on one machine allow you to experiment with DiSh. If you have multiple machines, you can setup [docker-swarm](https://docs.docker.com/engine/swarm/swarm-tutorial/) and use the swarm instruction in [docker-hadoop](./docker-hadoop).
-
-```sh
-## Clone the repo
-git clone --recurse-submodules https://github.com/binpash/dish.git
-
-## Install docker using our script (tested on Ubuntu)
-## Alternatively see https://docs.docker.com/engine/install/ to install docker.
-(cd dish; ./scripts/setup-docker.sh)
-
-
-## Create the virtual cluster on the host machine
-(cd docker-hadoop; ./setup-compose.sh) # currently takes several minutes due to rebuilding the images
-## The cluster can be torn down using `docker compose down`
-
-## Create a shell on the client
-docker exec -it nodemanager1 bash
+## 2  Quick Installation
+> ⏳ Placeholder for now, to be confirmed!
+Single-host demo (Docker Compose, tested on Linux):
+```bash
+# Clone with submodule so PaSh code is present
+$ git clone --recurse-submodules https://github.com/binpash/dish.git -b nsdi26-ae
+$ cd dish/docker-hadoop
+# Spin up 1 namenode, 1 datanode, 1 client container
+$ ./setup-compose.sh
 ```
+Tear-down: `./stop-compose.sh` (add `-v` to prune volumes).
 
-## Running DiSh
+---
 
-Let's run a very simple example using DiSh:
+## 3  Running Fractal
+> ⏳ Placeholder for now, to be confirmed!
 
-```sh
-cd $DISH_TOP
-hdfs dfs -put README.md /README.md # Copies the readme to hdfs
+Inside the client container:
+```bash
+# put a sample file in HDFS
+hdfs dfs -put /etc/hosts /hosts
+# Execute a tiny script with fault tolerance on (dynamic persistence)
+cd /opt/dish
+./di.sh --ft dynamic scripts/sample.sh   # output identical to bash
 ```
+Inject a fail-stop fault: `./di.sh --ft dynamic --kill regular scripts/sample.sh`.
 
-Now, you can run [this sample script](./scripts/sample.sh) (or create a script of your own). Run both DiSh and Bash and compare the results!
+---
 
-```sh
-./di.sh ./scripts/sample.sh
-bash ./scripts/sample.sh
-```
+## 4  Repository Structure & Architecture
+| Path | Purpose |
+|------|---------|
+| `pash/` | PaSh submodule – compiler & JIT groundwork |
+| `runtime/` | Remote Pipe, DFS reader, Go libs |
+| `pash/compiler/dspash/` | Fractal scheduler, executor, health/progress monitors |
+| `docker-hadoop/` | Local / CloudLab cluster bootstrap |
+| `evaluation/` | Benchmarks & fault-injection scripts |
+| `scripts/` | Misc helper scripts |
 
-<!-- We first want to download some input data and populate hdfs.
+![Fractal architecture](ae-data/tech-outline.pdf)
 
-```sh
-cd $DISH_TOP
-./setup.sh # Takes several minutes
-``` -->
+*Fig. 3 — FRACTAL architecture (paper).*  A1–A6 annotate control-plane stages; B1-4 run on each executor.
 
+### Fig. 3 Component Cheat-Sheet
 
-## Repo Structure
+| Label | Role in the system | Key code locations |
+|-------|--------------------|--------------------|
+| **A1** | DFG augmentation & isolation of the *unsafe-main* subgraph | `pash/compiler/dspash/ir_helper.py::prepare_graph_for_remote_exec` |
+| **A2** | Remote Pipe instrumentation – injects read/write nodes that track byte offsets | `definitions/ir/nodes/remote_pipe.py`, `runtime/pipe/` |
+| **A3** | Dynamic output persistence – heuristic chooses spill-to-disk vs. stream | `pash/compiler/dspash/add_singular_flags`, `worker_manager.py::check_persisted_discovery`, `runtime/pipe/datastream/writeOptimized()` |
+| **A4** | Scheduler & batched dispatch of subgraphs to executors | `pash/compiler/dspash/worker_manager.py` |
+| **A5** | Progress monitor + Discovery: 17-byte completion events & endpoint registry | `runtime/pipe/discovery/`, `runtime/pipe/datastream/datastream.go` (EmitCompletion) |
+| **A6** | Health monitor – polls HDFS Namenode JMX and flags slow/failed nodes | `pash/compiler/dspash/hdfs_utils.py` |
+| **B1** | Executor event loop – non-blocking, launches subgraphs | `pash/compiler/dspash/worker.py::EventLoop` |
+| **B2** | Remote Pipe data path within executor (socket/file, buffered I/O) | `runtime/pipe/datastream/datastream.go` |
+| **B3** | Distributed File Reader – streams HDFS splits locally | `runtime/dfs/` |
+| **B4** | On-node cache of persisted outputs; avoids re-computation after faults | `writeOptimized()` spill files under `$FISH_OUT_PREFIX`
 
-This repo hosts most of the components of the `dish` development. Some of them are incorporated in [PaSh](https://github.com/binpash/pash) The structure is as follows:
+---
 
-* [pash](./pash): Contains the complete PaSh repo as a submodule. DiSh uses and extends its annotations, compiler, and JIT orchestration infrastructure.
-* [evaluation](./evaluation): Shell scripts used for evaluation.
-* [runtime](./runtime): Runtime component — e.g., remote fifo channels.
-* [scripts](./scripts): Scripts related to installation, deployment, and continuous integration.
+## 5  Community & More
+Chat: [Discord](http://join.binpa.sh/) •  GitHub issues welcome.  
 
-<!-- ## Evaluation -->
+---
 
-<!-- __TODO:__ Describe how to run DiSh's evaluation (also setting up a cluster etc). -->
+## 6  Citing
+Fractal has been incorporated into an earlier system **DiSh**;
+> ⏳ Placeholder for now, to be confirmed!
 
-## Community & More
+```bibtex
+@inproceedings{fractal2026nsdi,
+  booktitle = {USENIX NSDI '26},
+  year      = {2026},
+  note      = {Conditionally accepted.  DOI & pages TBD}
+}
 
-Chat:
-* [Discord Server](ttps://discord.com/channels/947328962739187753/) ([Invite](http://join.binpa.sh/))
-
-## Citing
-
-If you used DiSh, consider citing the following paper:
-```
 @inproceedings{dish2023nsdi,
-author = {Mustafa, Tammam and Kallas, Konstantinos and Das, Pratyush and Vasilakis, Nikos},
-title = {{DiSh}: Dynamic {Shell-Script} Distribution},
-booktitle = {20th USENIX Symposium on Networked Systems Design and Implementation (NSDI 23)},
-year = {2023},
-isbn = {978-1-939133-33-5},
-address = {Boston, MA},
-pages = {341--356},
-url = {https://www.usenix.org/conference/nsdi23/presentation/mustafa},
-publisher = {USENIX Association},
-month = apr,
+  author    = {Mustafa, Tammam and Kallas, Konstantinos and Das, Pratyush and Vasilakis, Nikos},
+  title     = {{DiSh}: Dynamic {Shell-Script} Distribution},
+  booktitle = {USENIX NSDI '23},
+  pages     = {341--356}
 }
 ```

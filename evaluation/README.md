@@ -38,37 +38,21 @@
     ./cleanup.sh
     ```
 
-### Notes
+### Benchmark Suites (Paper Tab. 2)
 
+| Benchmark | Scripts | LoC | Input (full) | Description & Why it matters |
+|-----------|---------|-----|--------------|--------------------------------|
+| Classics  | 10 | 103 | 3 GB | Collection of canonical UNIX one-liners.  Exercises built-in utilities and measures FRACTAL overhead on small pipelines. |
+| Unix50    | 34 | 34  | 10 GB | Bell Labs “Unix50” scripts; lots of short command chains with `sort`, `uniq`, etc.; good for Remote-Pipe fan-out. |
+| NLP       | 22 | 280 | 10 GB | Natural-language processing tutorial pipelines over Project Gutenberg; highlights **parallel pipelines** and dynamic persistence benefits. |
+| Analytics | 5  | 62  | 33.4 GB | Mass-transit COVID telemetry & NOAA weather analytics; large join + sort workloads that stress the Distributed File Reader and merger subgraphs. |
+| Automation| 6  | 68  | 2.1–30 GB | Media conversion, encryption/compression, log parsing – heavy **black-box binaries** showcase FRACTAL’s language-agnostic support.
 
-## How to Convert a Button from the Benchmark Repo to a Fish-Specific Repo
+Each suite sits under `evaluation/<dir>` with the canonical 5 helper scripts (`dependencies.sh`, `inputs.sh`, `run.sh`, `verify.sh`, `cleanup.sh`).
+Run with `run.sh --small` for a <1 h check or without flags for full paper-scale inputs.
 
-1. **In `inputs.sh`, store input files to HDFS**
-    ```bash
-    # Example command to store input files to HDFS
-    hdfs dfs -put local_input_file.txt /path/in/hdfs/
-    ```
-
-2. **In `run.sh`, make sure to call pash/dish/fish with the relevant flags (can refer to existing buttons)**
-    ```bash
-    # Example command to run Fish with relevant flags
-    fish -flag1 -flag2 /path/in/hdfs/input_file.txt
-    ```
-
-3. **In each script, make sure to read inputs from HDFS**
-    ```bash
-    # Example for reading input from HDFS in a script
-    hdfs dfs -cat /path/in/hdfs/input_file.txt > local_input_file.txt
-    
-    # Rest of the script
-    ```
-
-4. **In `cleanup.sh`, make sure to also remove the files stored in HDFS**
-    ```bash
-    # Example command to remove files from HDFS
-    hdfs dfs -rm /path/in/hdfs/input_file.txt
-    ```
-
-## For parallel pipeline suites, refer to to nlp, covid-mts, file-enc, media-conv, and log-analysis buttons.
+### Contributing
+See the top-level [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines on adding
+new suites or adjusting runtime code.
 
 
