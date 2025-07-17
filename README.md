@@ -54,7 +54,7 @@ Inject a fail-stop fault: `./di.sh --ft dynamic --kill regular scripts/sample.sh
 | `evaluation/` | Benchmarks & fault-injection scripts |
 | `scripts/` | Misc helper scripts |
 
-![Fractal architecture](ae-data/tech-outline.pdf)
+![Fractal architecture](ae-data/tech-outline.png)
 
 *Fig. 3 — FRACTAL architecture (paper).*  A1–A6 annotate control-plane stages; B1-4 run on each executor.
 
