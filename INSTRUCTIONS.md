@@ -147,6 +147,9 @@ The `--small` option produces results that closely match those presented in the 
 
 This section also provide detailed instrauctions on how to replicate the figures of the experimental evaluation of Fractal as described in Table 2: [Classics](), [Unix50](), [NLP](), [Analytics](), and [Automation]().
 
+Issues:
+* unix50 bash (3, 20, 34): hdfs broken pipe when using `head`: `cat: Unable to write to output stream.`, maybe removing the err msg?
+
 To run all the benchmarks with `--small` input from the control node:
 
 ```bash
