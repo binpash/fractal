@@ -1,4 +1,19 @@
 
+### Benchmark Suites (Paper Tab. 2)
+
+| Benchmark | Scripts | LoC | Input (full) | Description & Why it matters |
+|-----------|---------|-----|--------------|--------------------------------|
+| Classics  | 10 | 103 | 3 GB | Collection of canonical UNIX one-liners.  Exercises built-in utilities and measures FRACTAL overhead on small pipelines. |
+| Unix50    | 34 | 34  | 10 GB | Bell Labs “Unix50” scripts; lots of short command chains with `sort`, `uniq`, etc.; good for Remote-Pipe fan-out. |
+| NLP       | 22 | 280 | 10 GB | Natural-language processing tutorial pipelines over Project Gutenberg; highlights **parallel pipelines** and dynamic persistence benefits. |
+| Analytics | 5  | 62  | 33.4 GB | Mass-transit COVID telemetry & NOAA weather analytics; large join + sort workloads that stress the Distributed File Reader and merger subgraphs. |
+| Automation| 6  | 68  | 2.1–30 GB | Media conversion, encryption/compression, log parsing – heavy **black-box binaries** showcase FRACTAL’s language-agnostic support.
+| Microbench| 4 cases | – | 0.5–33 GB | Runs NLP & Analytics under four dynamic-persistence settings; reproduces Fig. 8 trade-off.
+
+Each suite sits under `evaluation/<dir>` with the canonical 5 helper scripts (`dependencies.sh`, `inputs.sh`, `run.sh`, `verify.sh`, `cleanup.sh`).
+Run with `run.sh --small` for a <1 h check or without flags for full paper-scale inputs.
+
+
 ### Description of Contents
 
 - **suite/**: Contains all the scripts and utilities for the project.
@@ -14,6 +29,7 @@
 
 > For a detailed explanation of how our automated **fault-injection** and **resurrection** experiments are wired up (the `--kill` flag, 50 %-runtime crash, node comeback, etc.), see [fault_injection_flow.md](fault_injection_flow.md).
 
+First `cd evaluation/<suite>` and use the 5 helper scripts below:
 1. **Setup Dependencies**: First, ensure you have all dependencies and environment variables set up (Some suites has no dependencies).
     ```bash
     cd suite
@@ -39,20 +55,14 @@
     ```bash
     ./cleanup.sh
     ```
-
-### Benchmark Suites (Paper Tab. 2)
-
-| Benchmark | Scripts | LoC | Input (full) | Description & Why it matters |
-|-----------|---------|-----|--------------|--------------------------------|
-| Classics  | 10 | 103 | 3 GB | Collection of canonical UNIX one-liners.  Exercises built-in utilities and measures FRACTAL overhead on small pipelines. |
-| Unix50    | 34 | 34  | 10 GB | Bell Labs “Unix50” scripts; lots of short command chains with `sort`, `uniq`, etc.; good for Remote-Pipe fan-out. |
-| NLP       | 22 | 280 | 10 GB | Natural-language processing tutorial pipelines over Project Gutenberg; highlights **parallel pipelines** and dynamic persistence benefits. |
-| Analytics | 5  | 62  | 33.4 GB | Mass-transit COVID telemetry & NOAA weather analytics; large join + sort workloads that stress the Distributed File Reader and merger subgraphs. |
-| Automation| 6  | 68  | 2.1–30 GB | Media conversion, encryption/compression, log parsing – heavy **black-box binaries** showcase FRACTAL’s language-agnostic support.
-| Microbench| 4 cases | – | 0.5–33 GB | Runs NLP & Analytics under four dynamic-persistence settings; reproduces Fig. 8 trade-off.
-
-Each suite sits under `evaluation/<dir>` with the canonical 5 helper scripts (`dependencies.sh`, `inputs.sh`, `run.sh`, `verify.sh`, `cleanup.sh`).
-Run with `run.sh --small` for a <1 h check or without flags for full paper-scale inputs.
+Alternatively, **all suites can be run at once** with
+```bash
+cd evaluation
+./run_all.sh --small      # or omit --small for full inputs
+```
+The orchestration script calls the same `inputs.sh/run.sh/verify.sh`
+in every suite sequentially and stores consolidated logs under
+`evaluation/outputs/`.
 
 ### Retrieving results and plot
 After all benchmarks finish you can regenerate the figure datasets:

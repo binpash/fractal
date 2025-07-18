@@ -8,8 +8,8 @@ The paper makes the following claims requiring artifact evaluation on page 2 (Co
 
 This artifact targets the following badges (mirroring [the NSDI26 artifact "evaluation process"](https://www.usenix.org/conference/nsdi26/call-for-artifacts)):  
 
-* [ ] [Artifact available](#artifact-available): Reviewers are expected to confirm public availability of core components (XX minutes)  
-* [ ] [Artifact functional](#artifact-functional): Reviewers are expected to verify distributed execution workflow (YY minutes)  
+* [ ] [Artifact available](#artifact-available): Reviewers are expected to confirm public availability of core components (10 minutes)  
+* [ ] [Artifact functional](#artifact-functional): Reviewers are expected to verify distributed execution workflow (30 minutes)  
 * [ ] [Results reproducible](#results-reproducible): Reviewers are expected to reproduce key fault tolerance metrics (ZZ hours)  
 
 **To "kick the tires" for this artifact:**
@@ -17,7 +17,7 @@ This artifact targets the following badges (mirroring [the NSDI26 artifact "eval
 * Jump straight into the [Exercisability](#exercisability) section of the README file (10 minutes).
 
 <a id="artifact-available"></a>  
-# Artifact Available (XX minutes)  
+# Artifact Available (10 minutes)  
 Confirm core components are publicly available.  
 
 The implementation described in the NSDI26 paper (FRACTAL) has been incorporated into DiSh, MIT-licensed open-source software. It is part of the PaSh project, hosted by the [Linux Foundation](https://www.linuxfoundation.org/press/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases). Below are some relevant links:  
@@ -27,9 +27,9 @@ The implementation described in the NSDI26 paper (FRACTAL) has been incorporated
 - We have a publicly-accessible discord Server ([Invite](http://join.binpa.sh/)) for troubleshooting and feedback.  
  
 <a id="artifact-functional"></a>  
-# Artifact Functional (YY minutes)  
+# Artifact Functional (30 minutes)  
 
-Confirm sufficient documentation, key components as described in the paper, and execution with min inputs (about 20 minutes).  
+Confirm sufficient documentation, key components as described in the paper, and execution with min inputs (about 30 minutes).  
 
 ## Documentation
 Below is a map of all additional README files that explain specific subsystems.
