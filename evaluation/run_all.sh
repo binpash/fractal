@@ -15,9 +15,7 @@ dirs=(
     "unix50"
     "analytics"
     "nlp"
-    "media-conv"
-    "log-analysis"
-    "file-enc"
+    "automation"
 )
 
 # Initialize output files
