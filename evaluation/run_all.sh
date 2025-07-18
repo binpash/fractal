@@ -11,11 +11,10 @@ mkdir -p "$output_dir"
 
 # List of directories to process, you can comment out any directory as needed
 dirs=(
-    "oneliners"
+    "classics"
     "unix50"
-    "covid-mts" 
+    "analytics"
     "nlp"
-    "max-temp"
     "media-conv"
     "log-analysis"
     "file-enc"
