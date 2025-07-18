@@ -112,6 +112,7 @@ classics_hadoopstreaming() {
     hdfs dfs -mkdir -p "$outputs_dir"
     mkdir -p "outputs/hadoop"
     source ./scripts/bi-gram.aux.sh
+    source ./scripts/hadoop-streaming/to_shell_cmd.sh
     cd scripts/hadoop-streaming
     mode_res_file="../../outputs/hadoop/classics.res"
     > $mode_res_file
@@ -124,7 +125,11 @@ classics_hadoopstreaming() {
         IFS=";" read -r -a parsed <<< "${script_input}"
         script_name="${parsed[0]}.sh"
         input_file="${parsed[1]}.txt"
-        line="./run_single.sh $script_name $input_file"
+        line=$(get_hadoopstreaming_cmd $script_name)
+        if [ $? -ne 0 ]; then
+            echo "Error generating Hadoop Streaming command for $script_name"
+            exit 1
+        fi
         # output_file="../../outputs/hadoop/$name.out"
         time_file="../../outputs/hadoop/${parsed[0]}.time"
         log_file="../../outputs/hadoop/${parsed[0]}.log"
