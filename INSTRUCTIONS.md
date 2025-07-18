@@ -80,7 +80,7 @@ Together these files (and the PaSh-JIT submodule they build upon) cover every co
 
 **Execution:** To facilitate evaluation, we pre-allocate and initialize both the 4-node and 30-node clusters with all input data pre-downloaded. We have created a `fractal-ae26` account on the two CloudLab clusters used in our evaluation of Fractal. 
 
-To connect to the control node of each cluster via:
+To connect to the control node of each cluster:
 
 ```bash
 # Connect to the 4-node cluster
