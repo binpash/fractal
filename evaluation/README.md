@@ -58,4 +58,22 @@ Run with `run.sh --small` for a <1 h check or without flags for full paper-scale
 See the top-level [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines on adding
 new suites or adjusting runtime code.
 
+After all benchmarks finish you can regenerate the figure datasets:
+
+```bash
+# Inside the client container (or on your local machine if ran locally)
+python $DISH_TOP/evaluation/plotting/scripts/build_csvs.py   # rewrites fault_free / fault_soft / microbench
+# (hard-fault CSV must be edited manually if you collected new hard-fault runs)
+python $DISH_TOP/evaluation/plotting/scripts/plot.py          # produces PDFs under evaluation/plotting/figures/
+```
+
+If you executed the benchmarks **inside the Docker client container on a remote CloudLab/AWS VM**, retrieve the PDFs to your laptop:
+
+```bash
+# On the VM host (outside container)
+docker cp docker-hadoop-client-1:/opt/dish/evaluation/plotting/figures ./plots
+# From your laptop
+scp -i <pem> user@<vm-host>:~/plots/*.pdf ./local_plots/
+```
+
 

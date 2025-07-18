@@ -134,6 +134,20 @@ unix50() {
         shasum -a 256 "$output_file" | awk '{ print $1 }' > "$hash_file"
         rm "$output_file"
 
+        # Record timing for plotting
+        t=$(cat "$time_file")
+        benchmark="Unix50"
+        system="$1"
+        nodes=$(hdfs dfsadmin -report 2>/dev/null | awk '/Datanodes available/{print $4}' | cut -d'(' -f1)
+        nodes=${nodes:-4}
+        fault_mode="none"; fault_pct=0
+        if [[ $2 == *"--kill merger"* ]]; then fault_mode="merger"; fault_pct=50; fi
+        if [[ $2 == *"--kill regular"* ]]; then fault_mode="regular"; fault_pct=50; fi
+        persistence="dynamic"
+        if [[ $2 == *"--dynamic_switch_force on"* ]]; then persistence="enabled"; fi
+        if [[ $2 == *"--dynamic_switch_force off"* ]]; then persistence="disabled"; fi
+        $DISH_TOP/evaluation/record_time.sh "$benchmark" "$(basename $script_file)" "$system" "$nodes" "$fault_mode" "$fault_pct" "${parsed[1]}" "$t" "$persistence"
+
         cat "${time_file}" >> $all_res_file
         echo "$script_file $(cat "$time_file")" | tee -a $mode_res_file
     done

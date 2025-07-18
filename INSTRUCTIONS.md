@@ -167,6 +167,19 @@ cat eval_results/run.tmp
 
 We have included in this repo sample data of the raw data timers (run.tmp), the final source data (data_final.csv) and the three output figures: [Fig. X](), [Fig. Y](), and [Fig. Z]()
 
+> After benchmarks complete, rebuild plotting datasets and figures:
+> ```bash
+> python evaluation/plotting/scripts/build_csvs.py   # generates 3 CSVs
+> # edit evaluation/plotting/data/fault_hard.csv manually if you gathered hard-fault numbers
+> python evaluation/plotting/scripts/plot.py          # writes PDFs to plotting/figures/
+> ```
+>
+> If you ran inside Docker on a remote VM, copy the PDFs out:
+> ```bash
+> docker cp docker-hadoop-client-1:/opt/dish/evaluation/plotting/figures ./plots
+> scp -i <pem> user@<vm-host>:~/plots/*.pdf ./local_plots/
+> ```
+
 ## [Optional] Hard faults
 As shown at the bottom of page 10,
 
