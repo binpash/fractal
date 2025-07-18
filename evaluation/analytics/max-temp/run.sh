@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export DISH_TOP=$(realpath $(dirname "$0")/../..)
+export DISH_TOP=$(realpath $(dirname "$0")/../../..)
 export PASH_TOP=$(realpath $DISH_TOP/pash)
 export TIMEFORMAT=%R
 cd "$(realpath $(dirname "$0"))"
@@ -74,7 +74,11 @@ max-temp() {
 max-temp_hadoopstreaming() {
     # used by run_all.sh, adjust as required
     export jarpath="/opt/hadoop-3.4.0/share/hadoop/tools/lib/hadoop-streaming-3.4.0.jar"
-    export infile="/max-temp/temperatures.txt"
+    if [[ "$@" == *"--small"* ]]; then
+        export infile="/max-temp/temperatures_small.txt"
+    else
+        export infile="/max-temp/temperatures.txt"
+    fi
     export outputs_dir="/outputs/hadoop-streaming/max-temp"
 
     hdfs dfs -rm -r "$outputs_dir"

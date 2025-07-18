@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export DISH_TOP=$(realpath $(dirname "$0")/../..)
+export DISH_TOP=$(realpath $(dirname "$0")/../../..)
 export PASH_TOP=$(realpath $DISH_TOP/pash)
 export TIMEFORMAT=%R
 cd "$(realpath $(dirname "$0"))"
@@ -108,8 +108,8 @@ covid-mts "dynamic"          "--width 8 --r_split -d $d --distributed_exec --ft 
 covid-mts "dynamic-m"        "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill merger"
 covid-mts "dynamic-r"        "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill regular"
 
-# # For microbenchmarks
-covid-mts "dynamic-on-m"     "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force on --kill merger"
-covid-mts "dynamic-off-m"    "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force off --kill merger"
+# # # For microbenchmarks
+# covid-mts "dynamic-on-m"     "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force on --kill merger"
+# covid-mts "dynamic-off-m"    "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force off --kill merger"
 
 covid-mts_hadoopstreaming
