@@ -118,19 +118,21 @@ classics_hadoopstreaming() {
     all_res_file="../../outputs/classics.res"
 
     echo executing classics hadoop $(date) | tee -a $mode_res_file $all_res_file
-    while IFS= read -r line; do
-        name=$(cut -d "#" -f2- <<< "$line")
-        name=$(sed "s/ //g" <<< $name)
 
+    for script_input in ${scripts_inputs[@]}
+    do
+        IFS=";" read -r -a parsed <<< "${script_input}"
+        script_name="${parsed[0]}.sh"
+        input_file="${parsed[1]}.txt"
+        line="./run_single.sh $script_name $input_file"
         # output_file="../../outputs/hadoop/$name.out"
-        time_file="../../outputs/hadoop/$name.time"
-        log_file="../../outputs/hadoop/$name.log"
+        time_file="../../outputs/hadoop/${parsed[0]}.time"
+        log_file="../../outputs/hadoop/${parsed[0]}.log"
 
         (time eval $line &> $log_file) 2> $time_file
 
         cat "${time_file}" >> $all_res_file
-        echo "./scripts/hadoop-streaming/$name.sh $(cat "$time_file")" | tee -a $mode_res_file
-    done <"run_all.sh"
+        echo "./scripts/hadoop-streaming/${parsed[0]}.sh $(cat "$time_file")" | tee -a $mode_res_file
 
     cd "../.."
 }
@@ -145,9 +147,9 @@ classics "dynamic"     "--width 8 --r_split -d $d --distributed_exec --ft dynami
 classics "dynamic-m"   "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill merger"
 classics "dynamic-r"   "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill regular"
 
-# For microbenchmarks
-classics "dynamic-on-m"     "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force on --kill merger"
-classics "dynamic-off-m"    "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force off --kill merger"
+# # For microbenchmarks
+# classics "dynamic-on-m"     "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force on --kill merger"
+# classics "dynamic-off-m"    "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force off --kill merger"
 
 classics_hadoopstreaming
 
