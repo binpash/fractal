@@ -180,7 +180,26 @@ We have included in this repo sample data of the raw data timers (run.tmp), the 
 > scp -i <pem> user@<vm-host>:~/plots/*.pdf ./local_plots/
 > ```
 
-## [Optional] Hard faults
-As shown at the bottom of page 10,
+## [Optional] Hard faults (~1 week of manual effort)
+Optionally, you may try to introduce *hard faults*. However, despite its conceptual simplicity, introducing and monitoring *hard faults* requires significant time and effort. 
 
-  ⏳ TODO
+As shown at the bottom of page 10, replicating the presented hard faults experiment involves `3 completion percents × 3 system configs (AHS, regular ,
+merger ) × 2 failure modes × 5 repetitions × 3 benchmarks = 270 experiments`, which took about a week of manual effort.
+
+The procedures are listed below (let's set the experiment config for classics/top-n.sh, fault at 50%, merger fault):
+
+1. Prerequisites: set up a cloud deployment for Fractal
+2. Follow the [Exercisability](#exercisability) section of the instruction file to enter the interactive shell for the client node
+2. Set up benchmark input: `cd $DISH_TOP/evaluation/classics; ./inputs.sh`
+3. To simplify the experiment, comment out all lines from L23-32 except for L25 in run.sh file to run only top-n
+3. Run the fault-free execution to record the fault-free time: `./run.sh`
+4. Collect the ip address for all other remote nodes' datanode container. One simple way is to do `hostname -i`
+5. When the fault-free run is complete, run `./run.sh` again and *start a timer on the side*
+6. During scheduling the worker-manager stores the IP of the machine that will run the merger sub-graph in a small helper file. `cat $PASH_TOP/compiler/dspash/hard_kill_ip_path.log` contains two lines:
+- Line 1 -> IP (or hostname) of the merger node.
+- Line 2 -> IP of one regular (non-merger) nod
+7. Now when the timer has reached 0.5*{fault-free time}, shutdown the remote node corresponding to the merger node's ip. If you are using a cloudlab deployment, one way to do so is through cloudlab's web console for the corresponding log. Click the corresponding GUI and select the "terminate" option for non-graceful shutdown
+8. When Fractal detects, recovers, and eventually completes this run (in the client's container), reboot the just-shutdown node, and wait until it's back up
+9. To make sure it is back and stable, we need to check whether all of its data blocks are back online (i.e., whether replication factor is satisfied)
+
+
