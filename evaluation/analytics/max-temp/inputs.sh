@@ -25,10 +25,14 @@ download_data() {
         gunzip > $2
 }
 
-download_data 1 temperatures_small.txt
-download_data 14420 temperatures.txt
-
 hdfs dfs -mkdir -p /max-temp
 
-hdfs dfs -put temperatures_small.txt /max-temp/temperatures_small.txt
-hdfs dfs -put temperatures.txt /max-temp/temperatures.txt
+
+if [[ "$@" == *"--small"* ]]; then
+    download_data 1 temperatures_small.txt
+    hdfs dfs -put temperatures_small.txt /max-temp/temperatures_small.txt
+
+else
+    download_data 14420 temperatures.txt
+    hdfs dfs -put temperatures.txt /max-temp/temperatures.txt
+fi
