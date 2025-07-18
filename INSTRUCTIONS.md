@@ -91,6 +91,7 @@ ssh -i ./evaluation/cloudlab.pem fractal-ae26@XXXX.XX
 
 To start and connect to a client container:
 ```bash 
+# 🚧 TODO: client rebuild to use nsdi26-ae branch
 sudo ./dish/docker-hadoop/start-client.sh --eval # 🚧 this does not work as it's path-dependent
 docker exec -it docker-hadoop-client-1 bash
 ```

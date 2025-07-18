@@ -162,7 +162,7 @@ unix50_hadoopstreaming() {
         size="1M"
     else
         size="10G"
-    fis
+    fi
 
     hdfs dfs -rm -r "$outputs_dir"
     hdfs dfs -mkdir -p "$outputs_dir"
