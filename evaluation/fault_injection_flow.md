@@ -1,6 +1,6 @@
 # Fault Injection & Resurrection Workflow in Fractal Evaluations
 
-This document explains the end-to-end control-flow for the fault-injection experiments that appear in the evaluation scripts (e.g., `evaluation/oneliners/run.sh`).  It covers:
+This document explains the end-to-end control-flow for the fault-injection experiments that appear in the evaluation scripts (e.g., `evaluation/classics/run.sh`).  It covers:
 
 1. How the `--kill` command-line flag is propagated from the benchmark driver to the runtime.
 2. How and *when* the selected worker process terminates (≈ 50 % of the fault-free runtime).
@@ -12,9 +12,9 @@ This document explains the end-to-end control-flow for the fault-injection exper
 
 ### 1.1 Benchmark driver adds the flag
 The evaluation script appends `--kill {merger|regular}` to the PaSh command when it wants to inject a failure:
-```115:129:evaluation/oneliners/run.sh
-oneliners "dynamic-m"   "--width 8 ... --ft dynamic --kill merger"
-oneliners "dynamic-r"   "--width 8 ... --ft dynamic --kill regular"
+```115:129:evaluation/classics/run.sh
+classics "dynamic-m"   "--width 8 ... --ft dynamic --kill merger"
+classics "dynamic-r"   "--width 8 ... --ft dynamic --kill regular"
 ```
 
 ### 1.2 PaSh argument parsing
@@ -73,7 +73,7 @@ removed = old_state - new_state  # ← crashed node appears here
 ## 4. Resurrection – bringing the node back
 ### 4.1 Benchmark driver triggers resurrection
 After a job that included `--kill` finishes, the driver waits ten seconds and then executes:
-```60:68:evaluation/oneliners/run.sh
+```60:68:evaluation/classics/run.sh
 python3 "$DISH_TOP/evaluation/notify_worker.py" resurrect
 ```
 `notify_worker.py` reads the victim’s IP from `kill_witness.log` and sends a `{'type': 'resurrect'}` message to that worker process.

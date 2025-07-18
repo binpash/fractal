@@ -76,7 +76,7 @@ Together these files (and the PaSh-JIT submodule they build upon) cover every co
 
 ## **Exercisability**
 
-**Scripts and Data:** Scripts to run experiments are provided in the `evaluation/` directory. To run all benchmarks, use `evaluation/run_all.sh`. To run a specific benchmark, use the `run.sh` script located within each benchmark folder (e.g., `evaluation/oneliners/run.sh`). The required input data for each benchmark can be downloaded using `inputs.sh`, which fetches datasets from persistent storage hosted on a Brown University cluster at `https://atlas.cs.brown.edu/data`.
+**Scripts and Data:** Scripts to run experiments are provided in the `evaluation/` directory. To run all benchmarks, use `evaluation/run_all.sh`. To run a specific benchmark, use the `run.sh` script located within each benchmark folder (e.g., `evaluation/classics/run.sh`). The required input data for each benchmark can be downloaded using `inputs.sh`, which fetches datasets from persistent storage hosted on a Brown University cluster at `https://atlas.cs.brown.edu/data`.
 
 **Execution:** To facilitate evaluation, we pre-allocate and initialize both the 4-node and 30-node clusters with all input data pre-downloaded. We have created a `fractal-ae26` account on the two CloudLab clusters used in our evaluation of Fractal. 
 
