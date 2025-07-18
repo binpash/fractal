@@ -4,7 +4,7 @@ The paper makes the following claims requiring artifact evaluation on page 2 (Co
 1. **Execution engine**:  FRACTAL's light-weight instrumentation, progress and health monitors, and the executor runtime work together to offer efficient and precise recovery.  
 2. **Performance optimizations**: FRACTAL's critical-path components that reduces runtime overhead, including an *event-driven executor design*, *buffered-io sentinel striping*, and *batched scheduling*.  
 3. **Fault injection**:  an internal subsystem, *frac*, that enables precise, large-scale characterization of fault recovery behaviors.  
- 
+
 
 This artifact targets the following badges (mirroring [the NSDI26 artifact "evaluation process"](https://www.usenix.org/conference/nsdi26/call-for-artifacts)):  
 
@@ -19,7 +19,7 @@ This artifact targets the following badges (mirroring [the NSDI26 artifact "eval
 <a id="artifact-available"></a>  
 # Artifact Available (XX minutes)  
 Confirm core components are publicly available.  
- 
+
 The implementation described in the NSDI26 paper (FRACTAL) has been incorporated into DiSh, MIT-licensed open-source software. It is part of the PaSh project, hosted by the [Linux Foundation](https://www.linuxfoundation.org/press/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases). Below are some relevant links:  
 
 - FRACTAL is permanently hosted on the GitHub [binpash](https://github.com/binpash/) organization.  
@@ -35,12 +35,12 @@ Confirm sufficient documentation, key components as described in the paper, and 
 Below is a map of all additional README files that explain specific subsystems.
 
 * **Top-level overview**: `README.md` (root)  
-  quick intro, install, architecture figure.
+quick intro, install, architecture figure.
 * **Control-plane internals**: `pash/compiler/dspash/README.md`: coordinator scheduler, executor event loop, dynamic persistence flow, and health/progress monitors (A1, A3–A6; §4–5)
 * **Remote Pipe family**  
-  * `runtime/pipe/README.md`: high-level channel semantics  
-  * `runtime/pipe/datastream/README.md`: buffered-I/O implementation  
-  * `runtime/pipe/discovery/README.md`: endpoint registry / progress monitor
+* `runtime/pipe/README.md`: high-level channel semantics  
+* `runtime/pipe/datastream/README.md`: buffered-I/O implementation  
+* `runtime/pipe/discovery/README.md`: endpoint registry / progress monitor
 * **DFS split reader**: `runtime/dfs/README.md`: block-aligned HDFS reader used by executors for parallel ingestion (§4)
 * **Executor helper scripts**: `runtime/scripts/README.md`: build helpers, fault-injection utilities, and cluster maintenance shell tools (§4, §6)
 * **Runtime README (Go services)**: `runtime/README.md`: build & run instructions for Go daemons powering Remote Pipes, Discovery, and DFS (§4)
@@ -58,19 +58,19 @@ adding benchmark suites or rebuilding cluster workers) see
 Fig. 3 of the paper gives an overview of the interaction among different components. Below we map every component to the source code in this repository.
 
 - **Execution engine (§4)**
-  - *DFG construction & fault-aware partitioning*: FRACTAL reuses the PaSh-JIT front-end to parse the user script and consult the JSON annotation corpus in `pash/annotations/`.  We then extend that pipeline in
-    • `pash/compiler/dspash/ir_helper.py`: `prepare_graph_for_remote_exec`, `split_main_graph`, `add_singular_flags` (edge IDs, remote-pipe vertices, singular tagging, subgraph carving).  
-    • `pash/compiler/dspash/worker_manager.py`: subgraph-to-node mapping, dependency tracking, selective re-execution.
-  - *Remote pipe* & *Dynamic output persistence*: FRACTAL decides at run time, **per sub-graph**, whether to spill a stream to disk.  The choice is encoded via the `--ft dynamic` flag and a `-s` (singular) tag in each `RemotePipe`.  If dynamic FT is on and the subgraph is not singular, `datastream.go::writeOptimized()` writes to a spill-file whose path is registered in Discovery.  Upon a fault `worker_manager.check_persisted_discovery()` queries Discovery and re-executes only the subgraphs whose outputs were not already persisted.
-  - *Executor runtime* & *Progress/Health monitors*: each node runs `pash/compiler/dspash/worker.py` where `EventLoop` launches up to *N* subgraphs and `TimeRecorder` logs execution.  Completion of every send/receive emits a 17-byte event (bottom of `datastream.go`) that `worker_manager.py::__manage_connection` consumes.  Cluster liveness comes from JMX polling in `pash/compiler/dspash/hdfs_utils.py` with callbacks wired into the scheduler.
+- *DFG construction & fault-aware partitioning*: FRACTAL reuses the PaSh-JIT front-end to parse the user script and consult the JSON annotation corpus in `pash/annotations/`.  We then extend that pipeline in
+  • `pash/compiler/dspash/ir_helper.py`: `prepare_graph_for_remote_exec`, `split_main_graph`, `add_singular_flags` (edge IDs, remote-pipe vertices, singular tagging, subgraph carving).  
+  • `pash/compiler/dspash/worker_manager.py`: subgraph-to-node mapping, dependency tracking, selective re-execution.
+- *Remote pipe* & *Dynamic output persistence*: FRACTAL decides at run time, **per sub-graph**, whether to spill a stream to disk.  The choice is encoded via the `--ft dynamic` flag and a `-s` (singular) tag in each `RemotePipe`.  If dynamic FT is on and the subgraph is not singular, `datastream.go::writeOptimized()` writes to a spill-file whose path is registered in Discovery.  Upon a fault `worker_manager.check_persisted_discovery()` queries Discovery and re-executes only the subgraphs whose outputs were not already persisted.
+- *Executor runtime* & *Progress/Health monitors*: each node runs `pash/compiler/dspash/worker.py` where `EventLoop` launches up to *N* subgraphs and `TimeRecorder` logs execution.  Completion of every send/receive emits a 17-byte event (bottom of `datastream.go`) that `worker_manager.py::__manage_connection` consumes.  Cluster liveness comes from JMX polling in `pash/compiler/dspash/hdfs_utils.py` with callbacks wired into the scheduler.
 
 - **Performance optimizations (§5)**
-  - *Event-driven architecture*: `EventLoop` in `worker.py` is lock-free (list ops + atomics) and polls every 0.1 s, precisely the design described in §5.1.
-  - *Buffered-IO sentinel stripping*: the 8-byte EOF token is removed on-the-fly inside `datastream.go::read` (≈ 70-130) using a single 4096-byte buffer, matching §5.2.
-  - *Batched scheduling*: `worker_manager.py` builds `worker_to_batches` and issues one `Batch-Exec-Graph` RPC per worker, implementing the optimisation in §5.3.
+- *Event-driven architecture*: `EventLoop` in `worker.py` is lock-free (list ops + atomics) and polls every 0.1 s, precisely the design described in §5.1.
+- *Buffered-IO sentinel stripping*: the 8-byte EOF token is removed on-the-fly inside `datastream.go::read` (≈ 70-130) using a single 4096-byte buffer, matching §5.2.
+- *Batched scheduling*: `worker_manager.py` builds `worker_to_batches` and issues one `Batch-Exec-Graph` RPC per worker, implementing the optimisation in §5.3.
 
 - **Fault injection (§6)**
-  - *frac subsystem*: the coordinator exposes `--kill` knobs handled in `worker_manager.py::handle_kill_node`; helpers in `runtime/scripts/killall.sh` terminate full process trees.  Evaluation scripts drive these hooks to reproduce the fault-tolerance experiments of §6.
+- *frac subsystem*: the coordinator exposes `--kill` knobs handled in `worker_manager.py::handle_kill_node`; helpers in `runtime/scripts/killall.sh` terminate full process trees.  Evaluation scripts drive these hooks to reproduce the fault-tolerance experiments of §6.
 
 Together these files (and the PaSh-JIT submodule they build upon) cover every component shown in Fig. 3, demonstrating that the released code fully realises the design presented in the paper.
 
@@ -170,4 +170,4 @@ We have included in this repo sample data of the raw data timers (run.tmp), the 
 ## [Optional] Hard faults
 As shown at the bottom of page 10,
 
-    ⏳ TODO
+  ⏳ TODO

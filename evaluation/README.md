@@ -12,6 +12,8 @@
 
 ### How to Use
 
+> For a detailed explanation of how our automated **fault-injection** and **resurrection** experiments are wired up (the `--kill` flag, 50 %-runtime crash, node comeback, etc.), see [fault_injection_flow.md](fault_injection_flow.md).
+
 1. **Setup Dependencies**: First, ensure you have all dependencies and environment variables set up (Some suites has no dependencies).
     ```bash
     cd suite
