@@ -8,15 +8,15 @@ cd "$(realpath $(dirname "$0"))"
 if [[ "$@" == *"--small"* ]]; then
     scripts_inputs=(
         "nfa-regex;1M"
-        # "sort;1M"
-        # "top-n;1M"
-        # "wf;1M"
-        # "spell;1M"
-        # "diff;1M"
-        # "bi-grams;1M"
-        # "set-diff;1M"
-        # "sort-sort;1M"
-        # "shortest-scripts;all_cmds"
+        "sort;1M"
+        "top-n;1M"
+        "wf;1M"
+        "spell;1M"
+        "diff;1M"
+        "bi-grams;1M"
+        "set-diff;1M"
+        "sort-sort;1M"
+        "shortest-scripts;all_cmds"
     )
 else
     scripts_inputs=(
