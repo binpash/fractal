@@ -54,10 +54,7 @@
 Each suite sits under `evaluation/<dir>` with the canonical 5 helper scripts (`dependencies.sh`, `inputs.sh`, `run.sh`, `verify.sh`, `cleanup.sh`).
 Run with `run.sh --small` for a <1 h check or without flags for full paper-scale inputs.
 
-### Contributing
-See the top-level [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines on adding
-new suites or adjusting runtime code.
-
+### Retrieving results and plot
 After all benchmarks finish you can regenerate the figure datasets:
 
 ```bash
@@ -76,4 +73,6 @@ docker cp docker-hadoop-client-1:/opt/dish/evaluation/plotting/figures ./plots
 scp -i <pem> user@<vm-host>:~/plots/*.pdf ./local_plots/
 ```
 
-
+### Contributing
+See the top-level [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines on adding
+new suites or adjusting runtime code.
