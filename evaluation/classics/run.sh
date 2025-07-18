@@ -133,6 +133,7 @@ classics_hadoopstreaming() {
 
         cat "${time_file}" >> $all_res_file
         echo "./scripts/hadoop-streaming/${parsed[0]}.sh $(cat "$time_file")" | tee -a $mode_res_file
+    done
 
     cd "../.."
 }
