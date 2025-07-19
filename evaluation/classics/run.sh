@@ -140,6 +140,16 @@ classics_hadoopstreaming() {
 
         (time eval $line &> $log_file) 2> $time_file
 
+        # Record timing for plotting
+        t=$(cat "$time_file")
+        benchmark="Classics"
+        system="ahs"
+        # Detect nodes (fallback 4)
+        nodes=$(hdfs dfsadmin -report 2>/dev/null | awk '/Datanodes available/{print $4}' | cut -d'(' -f1)
+        nodes=${nodes:-4}
+        persistence=""
+        $DISH_TOP/evaluation/record_time.sh "$benchmark" "$(basename $script_name)" "$system" "$persistence" "$t"
+
         cat "${time_file}" >> $all_res_file
         echo "./scripts/hadoop-streaming/${parsed[0]}.sh $(cat "$time_file")" | tee -a $mode_res_file
     done
