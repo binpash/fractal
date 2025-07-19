@@ -25,6 +25,14 @@ exec 2> >(tee -a "$output_dir/run_all.all" "$output_dir/run_all.err" >&2)
 # Start timing the script
 start_time=$(date +%s)
 
+if [[ "$@" == *"--small"* ]]; then
+    echo "Running in small mode"
+    params="--small"
+else
+    echo "Running in full mode"
+    params="--full"
+fi
+
 # Loop through each directory in the list
 for dir in "${dirs[@]}"; do
     # Change to the directory
@@ -33,9 +41,9 @@ for dir in "${dirs[@]}"; do
     # Run the evaluation scripts
     ./cleanup.sh
     sleep 10
-    ./inputs.sh
+    ./inputs.sh $params
     sleep 60
-    ./run.sh
+    ./run.sh $params
 
     # Generate and verify hashes
     rm -rf hashes/
