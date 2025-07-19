@@ -19,6 +19,10 @@ mkdir -p "outputs"
 all_res_file="./outputs/max-temp.res"
 > $all_res_file
 
+# Per-suite timing CSV
+export SUITE_CSV_PATH="$(pwd)/outputs/time.csv"
+mkdir -p "$(dirname "$SUITE_CSV_PATH")"
+
 # time_file stores the time taken for each script
 # mode_res_file stores the time taken and the script name for every script in a mode (e.g. bash, pash, dish, fish)
 # all_res_file stores the time taken for each script for every script run, making it easy to copy and paste into the spreadsheet

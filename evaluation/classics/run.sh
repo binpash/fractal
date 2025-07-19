@@ -172,4 +172,3 @@ classics "dynamic-r"   "--width 8 --r_split -d $d --distributed_exec --ft dynami
 # classics "dynamic-off-m"    "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force off --kill merger"
 
 classics_hadoopstreaming
-
