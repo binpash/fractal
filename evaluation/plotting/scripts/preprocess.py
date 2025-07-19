@@ -1,131 +1,132 @@
-#!/usr/bin/env python3
-"""Pre-process raw benchmark timings into the four figure-ready CSVs.
+#! /usr/bin/env python3
+import pandas as pd, argparse, pathlib, sys
 
-Usage:
-  python preprocess.py [--raw path/to/raw_times.csv]
+DATA = pathlib.Path(__file__).resolve().parent.parent / 'data'
+RAW  = DATA / 'intermediary' / 'raw_times.csv'
 
-Takes the consolidated raw_times.csv generated via
-  merge_sites.sh
-and rewrites three files in ../data/ (plus keeps the manual hard-fault CSV):
-  fault_free.csv   --- fault-free speedups (Fig. 4/5)
-  fault_soft.csv   --- soft-fault absolute timings (Fig. 7)
-  microbench.csv   --- dynamic-persistence microbenchmark (Fig. 8)
+FREE_SET  = {'bash','ahs','dish','fractal'}
+SOFT_SET  = {'dish','fractal','fractal-m','fractal-r'}
 
-The hard-fault dataset (fault_hard.csv) involves manual fault injection and
-is **NOT** generated automatically; edit it by hand if you collect extra runs.
-"""
+def reshape_one_script(df):
+    """
+    df == the eight rows belonging to one (benchmark, script, run) group
+    columns: benchmark,script,system,nodes,persistence_mode,time,run
+    returns a single wide-format row.
+    """
+    # build a column key like  bash|4   dish|30 ...
+    df['key'] = df['system'] + '|' + df['nodes'].astype(str)
 
-import argparse
-import pathlib
-import sys
-import pandas as pd
+    # reshape to two Series: time  and run
+    time_wide = df.set_index('key')['time']
+    run_wide  = df.set_index('key')['run']
 
-BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / 'data'
-RESULTS_DIR = BASE_DIR.parent / 'results'  # evaluation/results/
-RAW_DEFAULT = RESULTS_DIR / 'raw_times.csv'
+    # interleave:  bash|4,time , bash|4,run , ahs|4,time , ahs|4,run …
+    wide = {}
+    for k in time_wide.index:          # keeps deterministic order
+        wide[f'{k}']   = time_wide[k]
+        wide[f'{k}_run'] = run_wide[k]
 
-SYSTEM_ORDER = [
-    'bash', 'ahs', 'dish', 'fractal', 'fractal-m', 'fractal-r'
-]
+    # skeleton columns
+    wide.update({
+        'benchmark': df['benchmark'].iloc[0],
+        'script'   : df['script'].iloc[0]
+    })
+    return pd.Series(wide)
 
-# ----------------------------------------------------------------------
+# ------------------------------------------------------------------
 
-def fault_free(df: pd.DataFrame):
-    """Return DataFrame in wide format ready for fault_free.csv"""
-    df = df[df['fault_mode'] == 'none'].copy()
-    # pivot: rows keyed by (size,run,benchmark,script)
-    df['run'] = df.groupby(['benchmark', 'script']).cumcount() + 1
-    index_cols = ['size', 'run', 'benchmark', 'script']
-    pivot = df.pivot_table(index=index_cols, columns=['system', 'nodes'], values='time', aggfunc='min')
-    # compute speedup columns relative to dish
-    speed_cols = {}
-    for sys in SYSTEM_ORDER:
-        if sys == 'dish':
-            continue
-        for nodes in [4, 30]:
-            if ('dish', nodes) in pivot.columns and (sys, nodes) in pivot.columns:
-                speed = pivot[('dish', nodes)] / pivot[(sys, nodes)]
-                speed_cols[(sys, nodes)] = speed
-    # build final DataFrame with multi-value headers similar to original
-    wide = pivot.copy()
-    for col, series in speed_cols.items():
-        wide[(col[0], col[1], 's')] = series
-    # Flatten to composite headers like 'bash|4|t'
-    wide.columns = [f"{c[0]}|{c[1]}|{'t' if len(c)==2 else c[2]}" if isinstance(c, tuple) else str(c) for c in wide.columns]
+FREE_SYSTEMS  = {'bash','ahs','dish','fractal'}
+SOFT_SYSTEMS  = {'dish','fractal','fractal-m','fractal-r'}
+BENCH_ORDER   = ['Classics','Unix50','Analytics','NLP','Automation']
+ORDER_MAP     = {b:i for i,b in enumerate(BENCH_ORDER)}
+
+def add_run_index(df: pd.DataFrame) -> pd.DataFrame:
+    """Tag duplicate measurements with cumulative run index."""
+    df['run'] = (
+        df.groupby(['benchmark','script','nodes','system','persistence_mode'])
+          .cumcount() + 1
+    )
+    return df
+
+
+def build_fault_free(df: pd.DataFrame) -> pd.DataFrame:
+    df = df[df['system'].isin(FREE_SYSTEMS)].copy()
+
+    index_cols = ['size','run','benchmark','script']
+    wide = df.pivot_table(index=index_cols,
+                          columns=['system','nodes'],
+                          values='time',
+                          aggfunc='min')
+
+    # rename timing columns to system|site|t
+    wide.columns = [f"{sys}|{nodes}|t" for (sys,nodes) in wide.columns]
+
+    # compute speedups versus bash for each system except bash
+    for sys in ['ahs','dish','fractal']:
+        for nodes in [4,30]:
+            base_col = f"bash|{nodes}|t"
+            tgt_col  = f"{sys}|{nodes}|t"
+            if base_col in wide.columns and tgt_col in wide.columns:
+                wide[f"{sys}|{nodes}|s"] = wide[base_col] / wide[tgt_col]
+
+    # order: timings then speedups (deterministic)
+    time_cols  = [f"bash|4|t","ahs|4|t","dish|4|t","fractal|4|t",
+                  f"bash|30|t","ahs|30|t","dish|30|t","fractal|30|t"]
+    speed_cols = [f"ahs|4|s","dish|4|s","fractal|4|s",
+                  f"ahs|30|s","dish|30|s","fractal|30|s"]
+    ordered = [c for c in time_cols+speed_cols if c in wide.columns]
+    wide = wide.reindex(columns=ordered, level=None)
+
     wide.reset_index(inplace=True)
+    wide = wide.sort_values(by=['benchmark'], key=lambda s: s.map(ORDER_MAP))
     return wide
 
 
-def fault_soft(df: pd.DataFrame):
-    df = df[df['fault_mode'].isin(['regular', 'merger'])].copy()
-    index_cols = ['run', 'benchmark', 'script']
-    pivot = df.pivot_table(index=index_cols, columns=['system', 'nodes'], values='time', aggfunc='min')
-    # Order the columns similarly
-    ordered = []
-    for nodes in [4, 30]:
-        for sys in ['dish', 'fractal', 'fractal-m', 'fractal-r']:
-            col = (sys, nodes)
-            if col in pivot.columns:
-                ordered.append(col)
-    pivot = pivot[ordered]
-    pivot.columns = [f"{c[0]}|{c[1]}" for c in pivot.columns]
-    pivot.reset_index(inplace=True)
-    return pivot
+def build_fault_soft(df: pd.DataFrame) -> pd.DataFrame:
+    df = df[df['system'].isin(SOFT_SYSTEMS)].copy()
+
+    index_cols = ['run','benchmark','script']
+    wide = df.pivot_table(index=index_cols,
+                          columns=['system','nodes'],
+                          values='time',
+                          aggfunc='min')
+
+    wide.columns = [f"{c[0]}|{c[1]}" for c in wide.columns]
+    wide.reset_index(inplace=True)
+    wide = wide.sort_values(by=['benchmark'], key=lambda s: s.map(ORDER_MAP))
+    return wide
 
 
-def microbench(df: pd.DataFrame):
-    df = df[(df['benchmark'].isin(['NLP', 'Analytics'])) & (df['persistence_mode'].notna())].copy()
-    # pivot to enabled/disabled/dynamic columns
-    pivot = df.pivot_table(index=['benchmark', 'script'], columns='persistence_mode', values='time', aggfunc='min')
-    pivot.reset_index(inplace=True)
-    return pivot
-
-
-# ----------------------------------------------------------------------
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--raw', type=pathlib.Path, default=RAW_DEFAULT, help='raw_times.csv path')
-    args = parser.parse_args()
-
-    if not args.raw.exists():
-        sys.exit(f"[preprocess] Raw timing file not found: {args.raw}\nRun benchmarks first.")
-
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-    raw = pd.read_csv(args.raw)
+def main(raw_path):
+    df = pd.read_csv(raw_path)
 
     # Ensure required columns exist (fill with defaults if missing)
-    defaults = {
-        'fault_mode': 'none',
-        'fault_pct' : 0,
-        'size'      : '',
-        'persistence_mode': ''
-    }
-    for col, default in defaults.items():
-        if col not in raw.columns:
-            raw[col] = default
-    # Minimal required columns must now be present
-    required = {'benchmark', 'script', 'system', 'nodes', 'time'}
-    missing = required - set(raw.columns)
-    if missing:
-        sys.exit(f"[preprocess] Missing mandatory columns in raw_times.csv: {missing}")
+    if 'persistence_mode' not in df.columns:
+        df['persistence_mode'] = ''
+    df['persistence_mode'] = df['persistence_mode'].fillna('').astype(str)
+    if 'size' not in df.columns:
+        df['size'] = 'N/A'
 
-    # Generate
+    df = add_run_index(df)
+
     print('[preprocess] Generating fault_free.csv')
-    fault_free(raw).to_csv(DATA_DIR / 'fault_free.csv', index=False)
+    ff_path = DATA / 'fault_free.csv'
+    ff_df = build_fault_free(df)
+    with ff_path.open('w') as f:
+        f.write('# fault_free dataset: per-script timings & speedups\n')
+        ff_df.to_csv(f, index=False)
 
     print('[preprocess] Generating fault_soft.csv')
-    fault_soft(raw).to_csv(DATA_DIR / 'fault_soft.csv', index=False)
-
-    print('[preprocess] Generating microbench.csv')
-    if 'persistence_mode' in raw.columns:
-        microbench(raw).to_csv(DATA_DIR / 'microbench.csv', index=False)
-    else:
-        print('[preprocess] Skipped microbench --- persistence_mode column missing')
-
-    print('\n  Hard-fault dataset (fault_hard.csv) is unchanged --- edit manually if you collected extra hard-fault runs.')
+    fs_path = DATA / 'fault_soft.csv'
+    fs_df = build_fault_soft(df)
+    with fs_path.open('w') as f:
+        f.write('# fault_soft dataset: per-script timings (fault runs)\n')
+        fs_df.to_csv(f, index=False)
 
 if __name__ == '__main__':
-    main() 
+    p = argparse.ArgumentParser()
+    p.add_argument('--raw', default=RAW, type=pathlib.Path)
+    a = p.parse_args()
+    if not a.raw.exists():
+        sys.exit(f'raw file {a.raw} not found')
+    main(a.raw)

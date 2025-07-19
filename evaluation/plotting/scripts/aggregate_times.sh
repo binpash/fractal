@@ -12,8 +12,8 @@ if [ "$#" -ne 2 ] || [ "$1" != "--site" ]; then usage; fi
 SITE_NODES="$2"
 shift 2
 
-# Destination file labelled per site
-DEST="$ROOT_DIR/../results/raw_times_site${SITE_NODES}.csv"
+# Destination file labelled per site under data/intermediary/
+DEST="$ROOT_DIR/data/intermediary/raw_times_site${SITE_NODES}.csv"
 HEADER="benchmark,script,system,nodes,persistence_mode,time"
 
 mkdir -p "$(dirname "$DEST")"

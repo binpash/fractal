@@ -3,16 +3,19 @@
 # Usage: merge_sites.sh <out.csv> <site1.csv> <site2.csv> [...]
 set -euo pipefail
 
-# If first arg is --out <file> use it, else default to ../results/raw_times.csv
+# If first arg is --out <file> use it, else default to ../data/raw_times.csv
 if [ "$1" == "--out" ]; then
   out="$2"; shift 2
 else
-  out="$(dirname "$0")/../results/raw_times.csv"
+  out="$(dirname "$0")/../data/intermediary/raw_times.csv"
 fi
 
 if [ $# -lt 2 ]; then
   echo "Usage: $0 [--out merged.csv] <site1.csv> <site2.csv> [...]" >&2; exit 1;
 fi
+
+# ensure dir
+mkdir -p "$(dirname "$out")"
 
 header="benchmark,script,system,nodes,persistence_mode,time"
 

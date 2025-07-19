@@ -81,7 +81,7 @@ client node.  Follow the steps **on every site** and then merge locally:
     ```bash
     cd evaluation/plotting/scripts
     ./aggregate_times.sh --site 4      # or 30 on the other cluster
-    # → ../results/raw_times_site4.csv
+    # → ../data/intermediary/raw_times_site4.csv
     ```
 3.  Download the resulting `raw_times_site*.csv` to your laptop.
 
@@ -90,7 +90,7 @@ On your **local workstation** (or inside the client if you prefer):
 ```bash
 # Merge the two site files -> raw_times.csv
 cd evaluation/plotting/scripts
-./merge_sites.sh ../results/raw_times_site4.csv ../results/raw_times_site30.csv
+./merge_sites.sh ../data/intermediary/raw_times_site4.csv ../data/intermediary/raw_times_site30.csv
 
 # 1) pre-process into figure datasets
 python preprocess.py                  # rewrites fault_free.csv, fault_soft.csv, microbench.csv

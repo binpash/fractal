@@ -39,7 +39,7 @@ plotting/
    cd scripts
    python plot.py
    ```
-   The following PDFs will be produced under `figures/`:
+   The following PDFs will be produced under `figures/{timestamp}`:
    * `eval1dist.pdf`   – Fault-free speed-up distribution (Fig. 5a)
    * `eval1violin.pdf` – Fault-free violin plot (Fig. 5b)
    * `eval2scatter.pdf`– Hard-fault scatter (Fig. 6)

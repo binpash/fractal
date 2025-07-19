@@ -1,4 +1,0 @@
-script,ahs|normal|0,fractal|normal|0,fractal|regular|10,fractal|regular|50,fractal|regular|90,fractal|merger|10,fractal|merger|50,fractal|merger|90,ahs|fault|10,ahs|fault|50,ahs|fault|90
-classics/top-n.sh,704.034,210.652,246.949,210.943,210.973,248.372,350.112,432.345,798.375,1697.523,1869.598
-analytics/vpd.sh,762,56.668,77.939,110.823,56.804,78.179,110.596,126.539,1245.201,1538.336,1867.162
-analytics/temp.sh,1346.703,89.415,154.847,87.693,88.585,116.527,139.849,174.425,1702.717,1731.634,2123.368
