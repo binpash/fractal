@@ -15,6 +15,10 @@ else
     )
 fi
 
+# Per-suite timing CSV
+export SUITE_CSV_PATH="$(pwd)/../outputs/time.csv"
+mkdir -p "$(dirname "$SUITE_CSV_PATH")"
+
 mkdir -p "outputs"
 all_res_file="./outputs/max-temp.res"
 > $all_res_file
@@ -70,6 +74,21 @@ max-temp() {
             sha256sum "$file" | awk '{print $1}' > "$hashfile"
         done
 
+        # Record timing for plotting
+        t=$(cat "$time_file")
+        benchmark="Analytics"
+        system="$1"
+        # Detect nodes (fallback 4)
+        nodes=$(hdfs dfsadmin -report 2>/dev/null | awk '/Datanodes available/{print $4}' | cut -d'(' -f1)
+        nodes=${nodes:-4}
+        fault_mode="none"; fault_pct=0
+        if [[ $2 == *"--kill merger"* ]]; then fault_mode="merger"; fault_pct=50; fi
+        if [[ $2 == *"--kill regular"* ]]; then fault_mode="regular"; fault_pct=50; fi
+        persistence="dynamic"
+        if [[ $2 == *"--dynamic_switch_force on"* ]]; then persistence="enabled"; fi
+        if [[ $2 == *"--dynamic_switch_force off"* ]]; then persistence="disabled"; fi
+        $DISH_TOP/evaluation/record_time.sh "$benchmark" "$(basename $script_file)" "$system" "$persistence" "$t"
+
         cat "${time_file}" >> $all_res_file
         echo "$script_file $(cat "$time_file")" | tee -a $mode_res_file
     done
@@ -100,6 +119,16 @@ max-temp_hadoopstreaming() {
     log_file="../../outputs/hadoop/temp-analytics.log"
 
     (time eval "./run_all.sh" &> $log_file) 2> $time_file
+
+    # Record timing for plotting
+    t=$(cat "$time_file")
+    benchmark="Analytics"
+    system="ahs"
+    # Detect nodes (fallback 4)
+    nodes=$(hdfs dfsadmin -report 2>/dev/null | awk '/Datanodes available/{print $4}' | cut -d'(' -f1)
+    nodes=${nodes:-4}
+    persistence=""
+    $DISH_TOP/evaluation/record_time.sh "$benchmark" "${name}.sh" "$system" "$persistence" "$t"
 
     cat "${time_file}" >> $all_res_file
     echo "./scripts/hadoop-streaming/temp-analytics.sh $(cat "$time_file")" | tee -a $mode_res_file

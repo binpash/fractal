@@ -12,11 +12,14 @@ else
     input_dir="/file-enc/pcap_data"
 fi
 
-
 names_scripts=(
     "FileEnc1;compress_files"
     "FileEnc2;encrypt_files"
   )
+
+# Per-suite timing CSV
+export SUITE_CSV_PATH="$(pwd)/../outputs/time.csv"
+mkdir -p "$(dirname "$SUITE_CSV_PATH")"
 
 mkdir -p "outputs"
 all_res_file="./outputs/file-enc.res"
@@ -61,6 +64,21 @@ file-enc() {
 
             sleep 10
         fi
+
+        # Record timing for plotting
+        t=$(cat "$time_file")
+        benchmark="Automation"
+        system="$1"
+        # Detect nodes (fallback 4)
+        nodes=$(hdfs dfsadmin -report 2>/dev/null | awk '/Datanodes available/{print $4}' | cut -d'(' -f1)
+        nodes=${nodes:-4}
+        fault_mode="none"; fault_pct=0
+        if [[ $2 == *"--kill merger"* ]]; then fault_mode="merger"; fault_pct=50; fi
+        if [[ $2 == *"--kill regular"* ]]; then fault_mode="regular"; fault_pct=50; fi
+        persistence="dynamic"
+        if [[ $2 == *"--dynamic_switch_force on"* ]]; then persistence="enabled"; fi
+        if [[ $2 == *"--dynamic_switch_force off"* ]]; then persistence="disabled"; fi
+        $DISH_TOP/evaluation/record_time.sh "$benchmark" "$(basename $script_file)" "$system" "$persistence" "$t"
 
         rm -rf "$output_dir"
         cat "${time_file}" >> $all_res_file
