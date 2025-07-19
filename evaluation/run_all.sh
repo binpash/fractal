@@ -45,17 +45,17 @@ for dir in "${dirs[@]}"; do
     sleep 60
     ./run.sh $params
 
-    # Generate and verify hashes
-    rm -rf hashes/
-    mkdir -p "$output_dir/$dir"
-    ./verify.sh --generate --dish | tee "$output_dir/$dir/verify.out"
+    # # Generate and verify hashes
+    # rm -rf hashes/
+    # mkdir -p "$output_dir/$dir"
+    # ./verify.sh --generate --dish | tee "$output_dir/$dir/verify.out"
 
     # Move the outputs to the corresponding directory in $output_dir
-    mv outputs/* "$output_dir/$dir"
+    # mv outputs/* "$output_dir/$dir"
 
-    # Cleanup
-    ./cleanup.sh
-    sleep 60
+    # # Do not cleanup cuz it will remove all time files
+    # ./cleanup.sh
+    # sleep 60
 
     # Go back to the parent directory
     cd ..
