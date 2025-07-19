@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
-"""Build plotting CSVs from raw benchmark timings.
+"""Pre-process raw benchmark timings into the four figure-ready CSVs.
 
 Usage:
-  python build_csvs.py [--raw path/to/raw_times.csv]
+  python preprocess.py [--raw path/to/raw_times.csv]
 
-It regenerates three files in ../data/:
-  fault_free.csv   (fault-free speedups)
-  fault_soft.csv   (soft-fault absolute timings)
-  microbench.csv   (dynamic persistence microbenchmark)
+Takes the consolidated raw_times.csv generated via
+  merge_sites.sh
+and rewrites three files in ../data/ (plus keeps the manual hard-fault CSV):
+  fault_free.csv   --- fault-free speedups (Fig. 4/5)
+  fault_soft.csv   --- soft-fault absolute timings (Fig. 7)
+  microbench.csv   --- dynamic-persistence microbenchmark (Fig. 8)
 
-The hard-fault dataset (fault_hard.csv) involves manual fault injection
-and is **NOT** generated automatically --- edit it by hand if you collected
-additional hard-fault runs.
+The hard-fault dataset (fault_hard.csv) involves manual fault injection and
+is **NOT** generated automatically; edit it by hand if you collect extra runs.
 """
 
 import argparse
@@ -89,30 +90,40 @@ def main():
     args = parser.parse_args()
 
     if not args.raw.exists():
-        sys.exit(f"[build_csvs] Raw timing file not found: {args.raw}\nRun benchmarks first.")
+        sys.exit(f"[preprocess] Raw timing file not found: {args.raw}\nRun benchmarks first.")
 
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
     raw = pd.read_csv(args.raw)
 
-    # Sanity: required columns
-    required = {'benchmark', 'script', 'system', 'nodes', 'fault_mode', 'fault_pct', 'time', 'size'}
+    # Ensure required columns exist (fill with defaults if missing)
+    defaults = {
+        'fault_mode': 'none',
+        'fault_pct' : 0,
+        'size'      : '',
+        'persistence_mode': ''
+    }
+    for col, default in defaults.items():
+        if col not in raw.columns:
+            raw[col] = default
+    # Minimal required columns must now be present
+    required = {'benchmark', 'script', 'system', 'nodes', 'time'}
     missing = required - set(raw.columns)
     if missing:
-        sys.exit(f"[build_csvs] Missing columns in raw_times.csv: {missing}")
+        sys.exit(f"[preprocess] Missing mandatory columns in raw_times.csv: {missing}")
 
     # Generate
-    print('[build_csvs] Generating fault_free.csv')
+    print('[preprocess] Generating fault_free.csv')
     fault_free(raw).to_csv(DATA_DIR / 'fault_free.csv', index=False)
 
-    print('[build_csvs] Generating fault_soft.csv')
+    print('[preprocess] Generating fault_soft.csv')
     fault_soft(raw).to_csv(DATA_DIR / 'fault_soft.csv', index=False)
 
-    print('[build_csvs] Generating microbench.csv')
+    print('[preprocess] Generating microbench.csv')
     if 'persistence_mode' in raw.columns:
         microbench(raw).to_csv(DATA_DIR / 'microbench.csv', index=False)
     else:
-        print('[build_csvs] Skipped microbench --- persistence_mode column missing')
+        print('[preprocess] Skipped microbench --- persistence_mode column missing')
 
     print('\n  Hard-fault dataset (fault_hard.csv) is unchanged --- edit manually if you collected extra hard-fault runs.')
 

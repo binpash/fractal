@@ -173,9 +173,15 @@ We have included in this repo sample data of the raw data timers (run.tmp), the 
 
 > After benchmarks complete, rebuild plotting datasets and figures:
 > ```bash
-> python evaluation/plotting/scripts/build_csvs.py   # generates 3 CSVs
-> # edit evaluation/plotting/data/fault_hard.csv manually if you gathered hard-fault numbers
-> python evaluation/plotting/scripts/plot.py          # writes PDFs to plotting/figures/
+> # Merge raw_times_site*.csv first if you collected results on both clusters
+> evaluation/plotting/scripts/merge_sites.sh \
+>     evaluation/results/raw_times_site4.csv evaluation/results/raw_times_site30.csv
+>
+> # Pre-process into the three figure datasets
+> python evaluation/plotting/scripts/preprocess.py
+>
+> # Generate PDFs (figures/<timestamp>/)
+> python evaluation/plotting/scripts/plot.py
 > ```
 >
 > If you ran inside Docker on a remote VM, copy the PDFs out:

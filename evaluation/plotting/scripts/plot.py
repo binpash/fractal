@@ -7,7 +7,9 @@ import pathlib
 # Base directories
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / 'data'
-FIG_DIR = BASE_DIR / 'figures'
+# Store figures under timestamped sub-directory to avoid overwriting
+import datetime as _dt
+FIG_DIR = BASE_DIR / 'figures' / _dt.datetime.now().strftime('%Y%m%d-%H%M%S')
 FIG_DIR.mkdir(parents=True, exist_ok=True)
 
 # Helper to load csv

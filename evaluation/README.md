@@ -64,23 +64,51 @@ The orchestration script calls the same `inputs.sh/run.sh/verify.sh`
 in every suite sequentially and stores consolidated logs under
 `evaluation/outputs/`.
 
-### Retrieving results and plot
-After all benchmarks finish you can regenerate the figure datasets:
+### Consolidating Results & Plotting Figures
+
+The evaluation uses **two pre-provisioned clusters**:
+
+| Label | Nodes | Purpose |
+|-------|-------|------------------------------------------------|
+| `site4`  | 4     | Functional sanity-check, fast fault-free runs |
+| `site30` | 30    | Full-scale performance and fault-tolerance    |
+
+Each benchmark suite writes a per-suite `outputs/time.csv` on the
+client node.  Follow the steps **on every site** and then merge locally:
+
+1.  _Run suites_ (any subset).
+2.  Aggregate timings _on that site_ into a site-labelled file:
+    ```bash
+    cd evaluation/plotting/scripts
+    ./aggregate_times.sh --site 4      # or 30 on the other cluster
+    # → ../results/raw_times_site4.csv
+    ```
+3.  Download the resulting `raw_times_site*.csv` to your laptop.
+
+On your **local workstation** (or inside the client if you prefer):
 
 ```bash
-# Inside the client container (or on your local machine if ran locally)
-python $DISH_TOP/evaluation/plotting/scripts/build_csvs.py   # rewrites fault_free / fault_soft / microbench
-# (hard-fault CSV must be edited manually if you collected new hard-fault runs)
-python $DISH_TOP/evaluation/plotting/scripts/plot.py          # produces PDFs under evaluation/plotting/figures/
+# Merge the two site files -> raw_times.csv
+cd evaluation/plotting/scripts
+./merge_sites.sh ../results/raw_times_site4.csv ../results/raw_times_site30.csv
+
+# 1) pre-process into figure datasets
+python preprocess.py                  # rewrites fault_free.csv, fault_soft.csv, microbench.csv
+
+# 2) plot – PDFs land in figures/<timestamp>/
+python plot.py
 ```
 
-If you executed the benchmarks **inside the Docker client container on a remote CloudLab/AWS VM**, retrieve the PDFs to your laptop:
+The helper scripts take care of deduplication and node-count tagging;
+no manual CSV editing is required.  If you add **hard-fault numbers**
+edit `evaluation/plotting/data/fault_hard.csv` by hand before re-running
+the plot script.
 
+To collect the PDFs from a remote Docker container:
 ```bash
-# On the VM host (outside container)
+# On the VM host (outside the container)
 docker cp docker-hadoop-client-1:/opt/dish/evaluation/plotting/figures ./plots
-# From your laptop
-scp -i <pem> user@<vm-host>:~/plots/*.pdf ./local_plots/
+scp -i <pem> user@<vm-host>:~/plots/* ./local_plots/
 ```
 
 ### Contributing

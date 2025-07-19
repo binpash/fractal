@@ -5,6 +5,10 @@ export PASH_TOP=$(realpath $DISH_TOP/pash)
 export TIMEFORMAT=%R
 cd "$(realpath $(dirname "$0"))"
 
+# Per-suite timing CSV
+export SUITE_CSV_PATH="$(pwd)/outputs/time.csv"
+mkdir -p "$(dirname "$SUITE_CSV_PATH")"
+
 if [[ "$1" == "--small" ]]; then
     echo "Using small input"
     export ENTRIES=10
@@ -121,7 +125,7 @@ nlp() {
         persistence="dynamic"
         if [[ $2 == *"--dynamic_switch_force on"* ]]; then persistence="enabled"; fi
         if [[ $2 == *"--dynamic_switch_force off"* ]]; then persistence="disabled"; fi
-        $DISH_TOP/evaluation/record_time.sh "$benchmark" "$(basename $script_file)" "$system" "$nodes" "$fault_mode" "$fault_pct" "${parsed[1]}" "$t" "$persistence"
+        $DISH_TOP/evaluation/record_time.sh "$benchmark" "$(basename $script_file)" "$system" "$persistence" "$t"
     done
 }
 
