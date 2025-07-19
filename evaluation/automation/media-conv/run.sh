@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export DISH_TOP=$(realpath $(dirname "$0")/../..)
+export DISH_TOP=$(realpath $(dirname "$0")/../../..)
 export PASH_TOP=$(realpath $DISH_TOP/pash)
 export TIMEFORMAT=%R
 cd "$(realpath $(dirname "$0"))"
