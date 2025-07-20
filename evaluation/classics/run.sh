@@ -11,16 +11,16 @@ mkdir -p "$(dirname "$SUITE_CSV_PATH")"
 
 if [[ "$@" == *"--small"* ]]; then
     scripts_inputs=(
-        "nfa-regex;1M"
-        "sort;1M"
-        "top-n;1M"
-        "wf;1M"
-        "spell;1M"
-        "diff;1M"
-        "bi-grams;1M"
-        "set-diff;1M"
-        "sort-sort;1M"
-        "shortest-scripts;all_cmds"
+        "nfa-regex;100M"
+        "sort;300M"
+        "top-n;300M"
+        "wf;300M"
+        "spell;300M"
+        "diff;300M"
+        "bi-grams;300M"
+        "set-diff;300M"
+        "sort-sort;300M"
+        "shortest-scripts;all_cmdsx300"
     )
 else
     scripts_inputs=(
