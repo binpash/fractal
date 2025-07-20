@@ -11,6 +11,7 @@ plotting/
 │   ├── fault_hard.csv      # §7.2 hard-fault scatter (Fig. 6)
 │   ├── fault_soft.csv      # §7.2 soft-fault violin (Fig. 7)
 │   └── microbench.csv      # §7.3 dynamic-persistence microbenchmark (Fig. 8)
+│   └── intermediary/       # raw_times_site*.csv and merged raw_times.csv
 ├── scripts/
 │   └── plot.py      # single entry point that loads all four datasets and emits PDFs
 ├── figures/         # Auto-generated PDFs land here
@@ -46,9 +47,18 @@ plotting/
    * `eval3violin.pdf` – Soft-fault violin (Fig. 7)
    * `eval4scatter.pdf`– Microbenchmark trade-off (Fig. 8)
 
-4. **Custom data**
+4. **End-to-end with fresh experiments**
 
-   If you run your own experiments and wish to visualise them, drop the new CSV files into `data/` with the same column schemas and re-run `plot.py`.  The script automatically picks up the files by name.
+   1. Aggregate timing files on each cluster with `aggregate_times.sh` (see evaluation/README.md).
+   2. Merge them locally, then run:
+      ```bash
+      python preprocess.py   # generates fault_free / fault_soft / microbench
+      python plot.py
+      ```
+   The `microbench.csv` file is generated automatically from
+   `microbench/outputs/time.csv`; no manual copy from `paper_data/` is
+   required.  If you want the hard-fault figure copy
+   `paper_data/fault_hard.csv` into `data/`.
 
 ## CSV naming convention
 

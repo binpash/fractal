@@ -8,7 +8,7 @@
 | NLP       | 22 | 280 | 10 GB | Natural-language processing tutorial pipelines over Project Gutenberg; highlights **parallel pipelines** and dynamic persistence benefits. |
 | Analytics | 5  | 62  | 33.4 GB | Mass-transit COVID telemetry & NOAA weather analytics; large join + sort workloads that stress the Distributed File Reader and merger subgraphs. |
 | Automation| 6  | 68  | 2.1–30 GB | Media conversion, encryption/compression, log parsing – heavy **black-box binaries** showcase FRACTAL’s language-agnostic support.
-| Microbench| 4 cases | – | 0.5–33 GB | Runs NLP & Analytics under four dynamic-persistence settings; reproduces Fig. 8 trade-off.
+| Microbench| 4 scenarios | – | 0.5–33 GB | Invokes the NLP and Analytics suites with `--microbench` to study three persistence modes (enabled/disabled/dynamic) under two fault settings, reproducing Fig. 8.
 
 Each suite sits under `evaluation/<dir>` with the canonical 5 helper scripts (`dependencies.sh`, `inputs.sh`, `run.sh`, `verify.sh`, `cleanup.sh`).
 Run with `run.sh --small` for a <1 h check or without flags for full paper-scale inputs.
@@ -59,6 +59,17 @@ Alternatively, **all suites can be run at once** with
 ```bash
 cd evaluation
 ./run_all.sh --small      # or omit --small for full inputs
+
+To run ONLY the dynamic-persistence micro-benchmarks (Fig. 8):
+```bash
+cd evaluation/microbench
+./run.sh                  # produces outputs/time.csv and microbench_results.csv
+```
+The helper re-invokes `nlp/run.sh` and the two Analytics scripts with
+the `--microbench` flag so their timings are written to separate
+`time_microbench.csv` files instead of clobbering the regular results.
+Those files are merged into `evaluation/microbench/outputs/time.csv` for
+the plotting pipeline.
 ```
 The orchestration script calls the same `inputs.sh/run.sh/verify.sh`
 in every suite sequentially and stores consolidated logs under
