@@ -149,27 +149,27 @@ fig.savefig(FIG_DIR / 'eval1violin.pdf')
 # ##############################
 # # Prepare third dataset
 # ##############################
-# df = load('fault_soft.csv', skiprows=1)
-# df = pd.melt(df, id_vars=['benchmark', 'script'], value_vars=[c for c in df.columns if c[-1].isdigit()], var_name='variable', value_name='value')
-# df[['system', 'nodes']] = df['variable'].str.split('|', expand=True)
-# df = df.dropna(subset=['value'])
-# df = df[df['system'] != 'dish']
-# df['system'] = df['system'].map({'fractal': 'no fault', 'fractal-r': 'regular-node fault', 'fractal-m': 'merger-node fault'})
-# df = df[['benchmark', 'system', 'script', 'nodes', 'value']]
-# df['system'] = pd.Categorical(df['system'], categories=['no fault', 'regular-node fault', 'merger-node fault'], ordered=True)
+df = load('fault_soft.csv', skiprows=1)
+df = pd.melt(df, id_vars=['benchmark', 'script'], value_vars=[c for c in df.columns if c[-1].isdigit()], var_name='variable', value_name='value')
+df[['system', 'nodes']] = df['variable'].str.split('|', expand=True)
+df = df.dropna(subset=['value'])
+df = df[df['system'] != 'dish']
+df['system'] = df['system'].map({'fractal': 'no fault', 'fractal-r': 'regular-node fault', 'fractal-m': 'merger-node fault'})
+df = df[['benchmark', 'system', 'script', 'nodes', 'value']]
+df['system'] = pd.Categorical(df['system'], categories=['no fault', 'regular-node fault', 'merger-node fault'], ordered=True)
 
-# ##############################
-# # Plot third dataset violin plot (soft faults)
-# ##############################
-# green_palette = [lighter_green, deep_green, darker_green]
-# fig = sns.catplot(data=df, kind='violin', x='benchmark', y='value', hue='system', col='nodes', log_scale=True, height=6, aspect=0.75, common_norm=True, density_norm='width', dodge=True, bw_adjust=1.2, palette=green_palette)
-# fig.set_axis_labels('', 'Time (s)')
-# fig.axes.flat[0].set_title('4 Nodes', pad=-10)
-# fig.axes.flat[1].set_title('30 Nodes', pad=-10)
-# fig.legend.set_title('')
-# # fig.legend.set_bbox_to_anchor((0.33, 0.17))
-# fig.legend.set_bbox_to_anchor((0.74, 0.72))
-# fig.savefig(FIG_DIR / 'eval3violin.pdf')
+##############################
+# Plot third dataset violin plot (soft faults)
+##############################
+green_palette = [lighter_green, deep_green, darker_green]
+fig = sns.catplot(data=df, kind='violin', x='benchmark', y='value', hue='system', col='nodes', log_scale=True, height=6, aspect=0.75, common_norm=True, density_norm='width', dodge=True, bw_adjust=1.2, palette=green_palette)
+fig.set_axis_labels('', 'Time (s)')
+fig.axes.flat[0].set_title('4 Nodes', pad=-10)
+fig.axes.flat[1].set_title('30 Nodes', pad=-10)
+fig.legend.set_title('')
+# fig.legend.set_bbox_to_anchor((0.33, 0.17))
+fig.legend.set_bbox_to_anchor((0.74, 0.72))
+fig.savefig(FIG_DIR / 'eval3violin.pdf')
 
 # ##############################
 # # Prepare fourth dataset (microbench)

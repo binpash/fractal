@@ -83,7 +83,7 @@ def build_fault_free(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def build_fault_soft(df: pd.DataFrame) -> pd.DataFrame:
-    df = df[df['system'].isin(SOFT_SYSTEMS)].copy()
+    df = df[(df['system'].isin(SOFT_SYSTEMS)) & (df['benchmark'].isin(['Classics','Analytics','Automation']))].copy()
 
     index_cols = ['run','benchmark','script']
     wide = df.pivot_table(index=index_cols,
