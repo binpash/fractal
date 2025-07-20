@@ -21,6 +21,13 @@ do
         done
     fi
     hdfs dfs -put "${input}_1M.txt" "/unix50/${input}_1M.txt"
+
+    if [ ! -f "${input}_300M.txt" ]; then
+        for (( i = 0; i < 300; i++ )); do
+            cat "${input}_1M.txt" >> "${input}_300M.txt"
+        done
+    fi
+    hdfs dfs -put "${input}_300M.txt" "/unix50/${input}_300M.txt"
     
     if [[ "$@" != *"--small"* ]]; then
         if [ ! -f "${input}_10G.txt" ]; then
