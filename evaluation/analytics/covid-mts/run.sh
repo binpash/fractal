@@ -130,15 +130,27 @@ covid-mts_hadoopstreaming() {
 # adjust the debug flag as required
 d=1
 
-covid-mts "bash"
-covid-mts "dish"             "--width 8 --r_split -d $d --distributed_exec"
+# Detect --microbench flag
+MICRO=0
+for arg in "$@"; do
+  [[ "$arg" == "--microbench" ]] && MICRO=1
+done
 
-covid-mts "dynamic"          "--width 8 --r_split -d $d --distributed_exec --ft dynamic"
-covid-mts "dynamic-m"        "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill merger"
-covid-mts "dynamic-r"        "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill regular"
+# Separate timing CSV for microbench
+if [[ $MICRO -eq 1 ]]; then
+  export SUITE_CSV_PATH="$(pwd)/outputs/time_microbench.csv"
+fi
 
-# # # For microbenchmarks
-# covid-mts "dynamic-on-m"     "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force on --kill merger"
-# covid-mts "dynamic-off-m"    "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force off --kill merger"
+if [[ $MICRO -eq 1 ]]; then
+    covid-mts "dynamic-m"        "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill merger"
+    covid-mts "dynamic-on-m"     "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force on --kill merger"
+    covid-mts "dynamic-off-m"    "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force off --kill merger"
+else
+    covid-mts "bash"
+    covid-mts "dish"             "--width 8 --r_split -d $d --distributed_exec"
+    covid-mts "dynamic"          "--width 8 --r_split -d $d --distributed_exec --ft dynamic"
+    covid-mts "dynamic-m"        "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill merger"
+    covid-mts "dynamic-r"        "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill regular"
+fi
 
 covid-mts_hadoopstreaming

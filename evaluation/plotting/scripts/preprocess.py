@@ -40,6 +40,33 @@ SOFT_SYSTEMS  = {'dish','fractal','fractal-m','fractal-r'}
 BENCH_ORDER   = ['Classics','Unix50','Analytics','NLP','Automation']
 ORDER_MAP     = {b:i for i,b in enumerate(BENCH_ORDER)}
 
+# ------------------------------------------------------------------
+# Microbench helpers
+# ------------------------------------------------------------------
+
+MB_SUFFIX = '-microbench'
+
+def build_microbench(df: pd.DataFrame) -> pd.DataFrame:
+    mb = df[df['persistence_mode'].str.endswith(MB_SUFFIX)].copy()
+    if mb.empty:
+        return pd.DataFrame()
+
+    # strip suffix for columns
+    mb['mode'] = mb['persistence_mode'].str.replace(MB_SUFFIX,'',regex=False)
+
+    pivot = mb.pivot_table(index=['benchmark','script'],
+                           columns='mode',
+                           values='time',
+                           aggfunc='min')
+
+    # desired order
+    col_order = ['enabled','disabled','dynamic']
+    pivot = pivot[[c for c in col_order if c in pivot.columns]]
+    pivot.reset_index(inplace=True)
+    pivot = pivot.sort_values(by=['benchmark'], key=lambda s: s.map(ORDER_MAP))
+    return pivot
+
+
 def add_run_index(df: pd.DataFrame) -> pd.DataFrame:
     """Tag duplicate measurements with cumulative run index."""
     df['run'] = (
@@ -122,6 +149,17 @@ def main(raw_path):
     with fs_path.open('w') as f:
         f.write('# fault_soft dataset: per-script timings (fault runs)\n')
         fs_df.to_csv(f, index=False)
+
+    # Microbench
+    mb_path = DATA / 'microbench.csv'
+    mb_df = build_microbench(df)
+    if not mb_df.empty:
+        with mb_path.open('w') as f:
+            f.write('# microbench dataset (4 nodes cluster only): enabled/disabled/dynamic timings\n')
+            mb_df.to_csv(f, index=False)
+        print('[preprocess] Generated microbench.csv')
+    else:
+        print('[preprocess] No microbench rows found – skipped microbench.csv')
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser()

@@ -39,6 +39,24 @@ def to_suite_csv(df):
         sub[cols].to_csv(csvfile, index=False, quoting=csv.QUOTE_MINIMAL)
         print('[write]', csvfile)
 
+# -------- microbench reconstruction ------------
+def build_microbench(csv_path):
+    mb = pd.read_csv(csv_path, skiprows=1)
+    out_dir = root.parent / 'microbench' / 'outputs'
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_csv = out_dir / 'time.csv'
+    with out_csv.open('w') as f:
+        f.write('benchmark,script,system,persistence_mode,time\n')
+        run=1
+        for _,row in mb.iterrows():
+            bench=row['benchmark']; script=row['script']
+            for mode in ['enabled','disabled','dynamic']:
+                if pd.isna(row[mode]):
+                    continue
+                t=row[mode]
+                f.write(f"{bench},{script},fractal,{mode}-microbench,{t}\n")
+        print('[write]', out_csv)
+
 ff = pd.read_csv(paper_dir/'fault_free.csv', skiprows=1)
 fs = pd.read_csv(paper_dir/'fault_soft.csv', skiprows=1)
 
@@ -68,3 +86,6 @@ if 'nodes' in long.columns:
 
 # Write per-suite CSVs
 to_suite_csv(long)
+
+# build microbench
+build_microbench(paper_dir/'microbench.csv')

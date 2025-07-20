@@ -23,9 +23,13 @@ insert_nodes() {
   awk -F',' -v n="$SITE_NODES" 'BEGIN{OFS=","} {print $1,$2,$3,n,$4,$5}'
 }
 
-# Collect per-suite CSVs (without nodes)
+# process each CSV; override nodes=4 for microbench timing
 find "$ROOT_DIR/.." -maxdepth 3 -path '*/outputs/time.csv' | sort | while read -r csv; do
-  tail -n +2 "$csv" | insert_nodes >> "$DEST"
+  if [[ "$csv" == *"microbench/outputs/time.csv" ]]; then
+      tail -n +2 "$csv" | awk -F',' 'BEGIN{OFS=","} {print $1,$2,$3,4,$4,$5}' >> "$DEST"
+  else
+      tail -n +2 "$csv" | insert_nodes >> "$DEST"
+  fi
 done
 
 echo "[aggregate_times] wrote $(( $(wc -l <"$DEST") - 1 )) rows to $DEST" 

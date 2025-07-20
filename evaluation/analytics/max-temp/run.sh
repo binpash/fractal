@@ -139,15 +139,25 @@ max-temp_hadoopstreaming() {
 # adjust the debug flag as required
 d=1
 
-max-temp "bash"
-max-temp "dish"             "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec"
+MICRO=0
+for arg in "$@"; do
+  [[ "$arg" == "--microbench" ]] && MICRO=1
+done
 
-max-temp "dynamic"          "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic"
-max-temp "dynamic-m"        "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic --kill merger"
-max-temp "dynamic-r"        "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic --kill regular"
+# Redirect per-suite timing for microbench runs
+if [[ $MICRO -eq 1 ]]; then
+  export SUITE_CSV_PATH="$(pwd)/outputs/time_microbench.csv"
+fi
 
-# For microbenchmarks
-# max-temp "dynamic-on-m"     "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic --dynamic_switch_force on --kill merger"
-# max-temp "dynamic-off-m"    "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic --dynamic_switch_force off --kill merger"
+if [[ $MICRO -eq 1 ]]; then
+    max-temp "dynamic-on-m"     "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force on --kill merger"
+    max-temp "dynamic-off-m"    "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force off --kill merger"
+else
+    max-temp "bash"
+    max-temp "dish"             "--width 8 --r_split -d $d --distributed_exec"
+    max-temp "dynamic"          "--width 8 --r_split -d $d --distributed_exec --ft dynamic"
+    max-temp "dynamic-m"        "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill merger"
+    max-temp "dynamic-r"        "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill regular"
+fi
 
 max-temp_hadoopstreaming

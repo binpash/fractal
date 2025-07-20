@@ -144,32 +144,32 @@ fig.savefig(FIG_DIR / 'eval3violin.pdf')
 # ##############################
 # # Prepare fourth dataset (microbench)
 # ##############################
-# df = load('microbench.csv', skiprows=1)
-# df = pd.melt(df, id_vars=['benchmark', 'script'], value_vars=['enabled', 'disabled', 'dynamic'], var_name='mode', value_name='value')
+df = load('microbench.csv', skiprows=1)
+df = pd.melt(df, id_vars=['benchmark', 'script'], value_vars=['enabled', 'disabled', 'dynamic'], var_name='mode', value_name='value')
 
-# ##############################
-# # Plot fourth dataset
-# ##############################
-# fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 5), gridspec_kw={'width_ratios': [22, 5], 'wspace': 0})
-# ax2.set_yticks([])
-# ax2.set_xlabel('Analytics')
-# ax2 = ax2.twinx()
+##############################
+# Plot fourth dataset
+##############################
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 5), gridspec_kw={'width_ratios': [22, 5], 'wspace': 0})
+ax2.set_yticks([])
+ax2.set_xlabel('Analytics')
+ax2 = ax2.twinx()
 
-# # markers=[[(0, 0), (0, 1), (0.866, -0.5)], [(0, 0), (0, 1), (-0.866, -0.5)], [(0, 0), (-0.866, -0.5), (0.866, -0.5)]]
-# sns.scatterplot(data=df[df['benchmark'] == 'NLP'], x='script', y='value', hue='mode', style='mode', palette='deep', markers=['s', 'D', 'X'], s=50, ax=ax1, alpha=1)
-# sns.scatterplot(data=df[df['benchmark'] == 'Analytics'], x='script', y='value', hue='mode', style='mode', palette='deep', ax=ax2, alpha=1, s=50, markers=['s', 'D', 'X'], legend=False)
+# markers=[[(0, 0), (0, 1), (0.866, -0.5)], [(0, 0), (0, 1), (-0.866, -0.5)], [(0, 0), (-0.866, -0.5), (0.866, -0.5)]]
+sns.scatterplot(data=df[df['benchmark'] == 'NLP'], x='script', y='value', hue='mode', style='mode', palette='deep', markers=['s', 'D', 'X'], s=50, ax=ax1, alpha=1)
+sns.scatterplot(data=df[df['benchmark'] == 'Analytics'], x='script', y='value', hue='mode', style='mode', palette='deep', ax=ax2, alpha=1, s=50, markers=['s', 'D', 'X'], legend=False)
 
-# sns.move_legend(ax1, "upper left", title='', frameon=False, bbox_to_anchor=(-0.02, 0.99))
+sns.move_legend(ax1, "upper left", title='', frameon=False, bbox_to_anchor=(-0.02, 0.99))
 
-# ax1.set_yscale('log')
-# ax2.set_yscale('log')
+ax1.set_yscale('log')
+ax2.set_yscale('log')
 
-# ax1.set_xticklabels([])
-# ax2.set_xticklabels([])
+ax1.set_xticklabels([])
+ax2.set_xticklabels([])
 
-# ax1.set_xlabel('NLP')
-# ax1.set_ylabel('Time (s)')
-# ax2.set_ylabel('Time (s)')
+ax1.set_xlabel('NLP')
+ax1.set_ylabel('Time (s)')
+ax2.set_ylabel('Time (s)')
 
-# fig.tight_layout()
-# fig.savefig(FIG_DIR / 'eval4scatter.pdf')
+fig.tight_layout()
+fig.savefig(FIG_DIR / 'eval4scatter.pdf')
