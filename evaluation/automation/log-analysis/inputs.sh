@@ -14,7 +14,7 @@ if [ ! -d log_data ]; then
     if [[ "$@" == *"--small"* ]]; then
         # generating small analysis logs
         mkdir -p log_data_small
-        LOG_DATA_FILES=6
+        LOG_DATA_FILES=2
         for (( i = 1; i <=$LOG_DATA_FILES; i++)) do
             for j in nginx-logs/*;do
                 n=$(basename $j)

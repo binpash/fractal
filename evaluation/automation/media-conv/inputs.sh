@@ -10,7 +10,7 @@ hdfs dfs -mkdir /media-conv
 if [[ "$@" == *"--small"* ]]; then
     # Check if the wav_small directory does not exist
     if [ ! -d "wav_small" ]; then
-        WAV_DATA_FILES=20
+        WAV_DATA_FILES=5
         wget -q https://atlas-group.cs.brown.edu/data/wav.zip -O wav_small.zip
         mkdir wav_small
         unzip -q wav_small.zip -d wav_small
@@ -31,7 +31,18 @@ if [[ "$@" == *"--small"* ]]; then
         JPG_DATA_LINK=https://atlas-group.cs.brown.edu/data/small/jpg.zip
         wget -q $JPG_DATA_LINK -O jpg_small.zip
         unzip -q jpg_small.zip -d jpg_small
-        hdfs dfs -put jpg_small/jpg /media-conv/jpg_small
+        IMG_DATA_FILES=100
+        mkdir -p jpg_small/jpg_small
+        i=0
+        for file in jpg_small/jpg/*; do
+            filename=$(basename "$file")
+            cp "$file" "jpg_small/jpg_small/${filename}"
+            ((i++))
+            if [ $i -ge $IMG_DATA_FILES ]; then
+                break
+            fi
+        done
+        hdfs dfs -put jpg_small/jpg_small /media-conv/jpg_small
         echo "JPG_small Generated"
         rm -rf jpg_small.zip
     fi
