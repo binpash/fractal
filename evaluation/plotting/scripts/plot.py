@@ -76,74 +76,44 @@ fig.legend.set_title('')
 fig.savefig(FIG_DIR / 'eval1violin.pdf')
 
 
+# ---------------- Hard-fault dataset (optional) ------------------
+try:
+    df = load('fault_hard.csv', skiprows=0)
+except FileNotFoundError:
+    print('[plot]   fault_hard.csv missing – skip hard-fault figure.\n' \
+          '          If you want this plot, copy paper_data/fault_hard.csv to data/.')
+else:
+    df = pd.melt(df, id_vars=['script'], value_vars=[c for c in df.columns if c != 'script'], var_name='variable', value_name='value')
+    df[['system', 'type', 'percentage']] = df['variable'].str.split('|', expand=True)
+    df['percentage'] = df['percentage'].map(lambda s: s + '%')
+    df['type'] = df['type'].map(lambda t: 'ahs' if t == 'fault' else t)
+    df['type'] = pd.Categorical(df['type'], categories=['ahs', 'regular', 'merger'], ordered=True)
 
-# ##############################
-# # Prepare second dataset
-# ##############################
-# df = load('fault_hard.csv', skiprows=0)
-# df = pd.melt(df, id_vars=['script'], value_vars=[c for c in df.columns if c != 'script'], var_name='variable', value_name='value')
-# df[['system', 'type', 'percentage']] = df['variable'].str.split('|', expand=True)
-# df['percentage'] = df['percentage'].map(lambda s: s + '%')
-# df['type'] = df['type'].map(lambda t: 'ahs' if t == 'fault' else t)
-# df['type'] = pd.Categorical(df['type'], categories=['ahs', 'regular', 'merger'], ordered=True)
+    custom_palette = [deep_blue, lighter_green, darker_green]
+    fig, (ax1, bx1, ax2, bx2, ax3) = plt.subplots(1, 5, figsize=(9, 5), gridspec_kw={'wspace': 0, 'width_ratios': [10, 1, 10, 1, 10]}, sharey=True)
+    bx1.set_visible(False)
+    bx2.set_visible(False)
 
-# ##############################
-# # Plot second dataset (hard faults)
-# ##############################
-# custom_palette = [deep_blue, lighter_green, darker_green]
-# fig, (ax1, bx1, ax2, bx2, ax3) = plt.subplots(1, 5, figsize=(9, 5), gridspec_kw={'wspace': 0, 'width_ratios': [10, 1, 10, 1, 10]}, sharey=True)
+    sns.scatterplot(data=df[(df['script'] == 'classics/top-n.sh') & (df['percentage'] != '0%')], x='percentage', y='value', hue='type', style='type', ax=ax1, palette=custom_palette, markers=['s', 'D', 'X'], s=100)
+    sns.scatterplot(data=df[(df['script'] == 'analytics/vpd.sh') & (df['percentage'] != '0%')], x='percentage', y='value', hue='type', style='type', ax=ax2, palette=custom_palette, legend=False, markers=['s', 'D', 'X'], s=100)
+    sns.scatterplot(data=df[(df['script'] == 'analytics/temp.sh') & (df['percentage'] != '0%')], x='percentage', y='value', hue='type', style='type', ax=ax3, palette=custom_palette, legend=False, markers=['s', 'D', 'X'], s=100)
 
-# # Hide bx1 and bx2
-# bx1.set_visible(False)
-# bx2.set_visible(False)
+    ax1.set_yscale('log'); ax2.set_yscale('log'); ax3.set_yscale('log')
+    ax1.set_xlabel(''); ax2.set_xlabel(''); ax3.set_xlabel(''); ax1.set_ylabel('Time (s)')
 
-# sns.scatterplot(data=df[(df['script'] == 'classics/top-n.sh') & (df['percentage'] != '0%')], x='percentage', y='value', hue='type', style='type', ax=ax1, palette=custom_palette, markers=['s', 'D', 'X'], s=100)
-# sns.scatterplot(data=df[(df['script'] == 'analytics/vpd.sh') & (df['percentage'] != '0%')], x='percentage', y='value', hue='type', style='type', ax=ax2, palette=custom_palette, legend=False, markers=['s', 'D', 'X'], s=100)
-# sns.scatterplot(data=df[(df['script'] == 'analytics/temp.sh') & (df['percentage'] != '0%')], x='percentage', y='value', hue='type', style='type', ax=ax3, palette=custom_palette, legend=False, markers=['s', 'D', 'X'], s=100)
+    # horizontal baselines
+    for (a, scr) in zip([ax1,ax2,ax3], ['classics/top-n.sh','analytics/vpd.sh','analytics/temp.sh']):
+        for sys,col in [('fractal', deep_green), ('ahs', deep_blue)]:
+            y = df[(df['percentage']=='0%') & (df['system']==sys) & (df['script']==scr)]['value'].values[0]
+            a.axhline(y=y, color=col, linestyle='--')
 
-# ax1.set_yscale('log')
-# ax2.set_yscale('log')
-# ax3.set_yscale('log')
-
-# ax1.set_xlabel('')
-# ax2.set_xlabel('')
-# ax3.set_xlabel('')
-# ax1.set_ylabel('Time (s)')
-
-# ax1.axhline(y=df[(df['percentage'] == '0%') & (df['system'] == 'fractal') & (df['script'] == 'classics/top-n.sh')]['value'].values[0], color=deep_green, linestyle='--')
-# ax1.annotate('fractal', xy=(0.13, df[(df['percentage'] == '0%') & (df['system'] == 'fractal') & (df['script'] == 'classics/top-n.sh')]['value'].values[0] + 10))
-
-# ax1.axhline(y=df[(df['percentage'] == '0%') & (df['system'] == 'ahs') & (df['script'] == 'classics/top-n.sh')]['value'].values[0], color=deep_blue, linestyle='--')
-# ax1.annotate('ahs', xy=(0.13, df[(df['percentage'] == '0%') & (df['system'] == 'ahs') & (df['script'] == 'classics/top-n.sh')]['value'].values[0] + 30))
-
-# ax2.axhline(y=df[(df['percentage'] == '0%') & (df['system'] == 'fractal') & (df['script'] == 'analytics/vpd.sh')]['value'].values[0], color=deep_green, linestyle='--')
-# ax2.annotate('fractal', xy=(0.13, df[(df['percentage'] == '0%') & (df['system'] == 'fractal') & (df['script'] == 'analytics/vpd.sh')]['value'].values[0] + 2))
-
-# ax2.axhline(y=df[(df['percentage'] == '0%') & (df['system'] == 'ahs') & (df['script'] == 'analytics/vpd.sh')]['value'].values[0], color=deep_blue, linestyle='--')
-# ax2.annotate('ahs', xy=(0.13, df[(df['percentage'] == '0%') & (df['system'] == 'ahs') & (df['script'] == 'analytics/vpd.sh')]['value'].values[0] + 35))
-
-# ax3.axhline(y=df[(df['percentage'] == '0%') & (df['system'] == 'fractal') & (df['script'] == 'analytics/temp.sh')]['value'].values[0], color=deep_green, linestyle='--')
-# ax3.annotate('fractal', xy=(0.13, df[(df['percentage'] == '0%') & (df['system'] == 'fractal') & (df['script'] == 'analytics/temp.sh')]['value'].values[0] + 4))
-
-# ax3.axhline(y=df[(df['percentage'] == '0%') & (df['system'] == 'ahs') & (df['script'] == 'analytics/temp.sh')]['value'].values[0], color=deep_blue, linestyle='--')
-# ax3.annotate('ahs', xy=(0.13, df[(df['percentage'] == '0%') & (df['system'] == 'ahs') & (df['script'] == 'analytics/temp.sh')]['value'].values[0] + 50))
-
-# ax1.set_title('classics/top-n.sh')
-# ax2.set_title('analytics/vpd.sh')
-# ax3.set_title('analytics/temp.sh')
-
-# # map legend labels
-# handles, _ = ax1.get_legend_handles_labels()
-# ax1.legend(handles, ['ahs fault', 'regular fault', 'merger fault'])
-# sns.move_legend(ax1, "lower left", title='', frameon=False, bbox_to_anchor=(-0.09, -0.03))
-# # ax1.get_legend().get_frame().set_linewidth(0.0)
-# # Remove lbox surrounding legend
-
-# fig.text(0.5, 0.03, "% completion of total execution", ha='center', va='center')
-
-# fig.tight_layout()
-# fig.subplots_adjust(bottom=0.13)
-# fig.savefig(FIG_DIR / 'eval2scatter.pdf')
+    ax1.set_title('classics/top-n.sh'); ax2.set_title('analytics/vpd.sh'); ax3.set_title('analytics/temp.sh')
+    handles, _ = ax1.get_legend_handles_labels()
+    ax1.legend(handles, ['ahs fault','regular fault','merger fault'])
+    sns.move_legend(ax1, "lower left", title='', frameon=False, bbox_to_anchor=(-0.09,-0.03))
+    fig.text(0.5,0.03,"% completion of total execution",ha='center',va='center')
+    fig.tight_layout(); fig.subplots_adjust(bottom=0.13)
+    fig.savefig(FIG_DIR / 'eval2scatter.pdf')
 
 
 # ##############################
