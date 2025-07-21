@@ -5,7 +5,7 @@ export PASH_TOP=$(realpath $DISH_TOP/pash)
 export TIMEFORMAT=%R
 cd "$(realpath $(dirname "$0"))"
 
-if [[ "$1" == "--small" ]]; then
+if [[ "$@" == *"--small"* ]]; then
     echo "Using small input"
     input_file="/covid-mts/in_small.csv"
 else

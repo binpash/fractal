@@ -9,7 +9,7 @@ cd "$(realpath $(dirname "$0"))"
 export SUITE_CSV_PATH="$(pwd)/outputs/time.csv"
 mkdir -p "$(dirname "$SUITE_CSV_PATH")"
 
-if [[ "$1" == "--small" ]]; then
+if [[ "$@" == *"--small"* ]]; then
     echo "Using small input"
     export ENTRIES=10
     export IN="/nlp/pg-small"
