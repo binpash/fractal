@@ -14,6 +14,15 @@ if [ $# -lt 2 ]; then
   echo "Usage: $0 [--out merged.csv] <site1.csv> <site2.csv> [...]" >&2; exit 1;
 fi
 
+site1="$1"
+site2="$2"
+
+temp_file1=$(mktemp)
+temp_file2=$(mktemp)
+
+wget "http://${site1}/raw_times_site4.csv" -O "$temp_file1"
+wget "http://${site2}/raw_times_site30.csv" -O "$temp_file2"
+
 # ensure dir
 mkdir -p "$(dirname "$out")"
 
@@ -22,6 +31,8 @@ header="benchmark,script,system,nodes,persistence_mode,time"
 echo "$header" > "$out"
 
 # Concatenate all, skip headers, deduplicate identical lines
-awk -F',' 'NR==FNR {next} {if(!seen[$0]++){print}}' "$out" "$@" | grep -v "^$header" >> "$out"
+awk -F',' 'NR==FNR {next} {if(!seen[$0]++){print}}' "$out" "$temp_file1" "$temp_file2" | grep -v "^$header" >> "$out"
 
 echo "[merge_sites] wrote $(( $(wc -l <"$out") - 1 )) rows to $out" 
+
+rm "$temp_file1" "$temp_file2"

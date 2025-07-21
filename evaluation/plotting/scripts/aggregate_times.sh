@@ -12,24 +12,28 @@ if [ "$#" -ne 2 ] || [ "$1" != "--site" ]; then usage; fi
 SITE_NODES="$2"
 shift 2
 
-# Destination file labelled per site under data/intermediary/
-DEST="$ROOT_DIR/data/intermediary/raw_times_site${SITE_NODES}.csv"
-HEADER="benchmark,script,system,nodes,persistence_mode,time"
+python3 $ROOT_DIR/scripts/aggregate_times.py "$SITE_NODES"
 
-mkdir -p "$(dirname "$DEST")"
-echo "$HEADER" > "$DEST"
+cp "$ROOT_DIR/data/intermediary/raw_times_site${SITE_NODES}.csv" "/var/www/html/raw_times_site${SITE_NODES}.csv"
 
-insert_nodes() {
-  awk -F',' -v n="$SITE_NODES" 'BEGIN{OFS=","} {print $1,$2,$3,n,$4,$5}'
-}
+# # Destination file labelled per site under data/intermediary/
+# DEST="$ROOT_DIR/data/intermediary/raw_times_site${SITE_NODES}.csv"
+# HEADER="benchmark,script,system,nodes,persistence_mode,time"
 
-# process each CSV; override nodes=4 for microbench timing
-find "$ROOT_DIR/.." -maxdepth 3 -path '*/outputs/time.csv' | sort | while read -r csv; do
-  if [[ "$csv" == *"microbench/outputs/time.csv" ]]; then
-      tail -n +2 "$csv" | awk -F',' 'BEGIN{OFS=","} {print $1,$2,$3,4,$4,$5}' >> "$DEST"
-  else
-      tail -n +2 "$csv" | insert_nodes >> "$DEST"
-  fi
-done
+# mkdir -p "$(dirname "$DEST")"
+# echo "$HEADER" > "$DEST"
 
-echo "[aggregate_times] wrote $(( $(wc -l <"$DEST") - 1 )) rows to $DEST" 
+# insert_nodes() {
+#   awk -F',' -v n="$SITE_NODES" 'BEGIN{OFS=","} {print $1,$2,$3,n,$4,$5}'
+# }
+
+# # process each CSV; override nodes=4 for microbench timing
+# find "$ROOT_DIR/.." -maxdepth 3 -path '*/outputs/time.csv' | sort | while read -r csv; do
+#   if [[ "$csv" == *"microbench/outputs/time.csv" ]]; then
+#       tail -n +2 "$csv" | awk -F',' 'BEGIN{OFS=","} {print $1,$2,$3,4,$4,$5}' >> "$DEST"
+#   else
+#       tail -n +2 "$csv" | insert_nodes >> "$DEST"
+#   fi
+# done
+
+# echo "[aggregate_times] wrote $(( $(wc -l <"$DEST") - 1 )) rows to $DEST" 
