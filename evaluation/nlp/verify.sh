@@ -5,13 +5,7 @@
 
 cd "$(realpath $(dirname "$0"))"
 
-mkdir -p hashes/small
-
-if [[ "$@" == *"--small"* ]]; then
-    hash_folder="hashes/small"
-else
-    hash_folder="hashes"
-fi
+hash_folder="outputs/bash"
 
 if [[ "$@" == *"--generate"* ]]; then
     # Directory to iterate over
@@ -38,7 +32,13 @@ fi
 # Loop through all directories in the parent directory
 for folder in "outputs"/*
 do
-    echo "Verifying folder: $folder"
+    if [[ $folder == *"bash"* || $folder == *"hadoop"* ]]; then
+        continue
+    fi
+    if [[ ! -d $folder ]]; then
+        continue
+    fi
+    # echo "Verifying folder: $folder"
 
     # Loop through all .hash files in the current directory
     find "$folder" -mindepth 2 -type f -name '*.hash' | while read -r file;

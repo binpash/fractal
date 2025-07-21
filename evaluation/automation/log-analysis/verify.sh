@@ -38,7 +38,7 @@ fi
 # Loop through all directories in the parent directory
 for folder in "outputs"/*
 do
-    echo "Verifying folder: $folder"
+    # echo "Verifying folder: $folder"
 
     # Loop through all .hash files in the current directory
     find "$folder" -mindepth 2 -type f -name '*.hash' | while read -r file;

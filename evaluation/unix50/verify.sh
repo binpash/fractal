@@ -5,13 +5,7 @@
 
 cd "$(realpath $(dirname "$0"))"
 
-mkdir -p hashes/small
-
-if [[ "$@" == *"--small"* ]]; then
-    hash_folder="hashes/small"
-else
-    hash_folder="hashes"
-fi
+hash_folder="outputs/bash"
 
 if [[ "$@" == *"--generate"* ]]; then
     # Directory to iterate over
@@ -40,7 +34,11 @@ do
     # Remove trailing slash
     folder=${folder%/}
 
-    echo "Verifying folder: $folder"
+    if [[ $folder == *"bash"* || $folder == *"hadoop"* ]]; then
+        continue
+    fi 
+
+    # echo "Verifying folder: $folder"
 
     # Loop through all .out files in the current directory
     for file in "$folder"/*.out

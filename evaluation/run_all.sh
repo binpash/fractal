@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd "$(realpath $(dirname "$0"))"
+
 # Absolute path to the outputs directory
 output_dir="$(pwd)/outputs"
 
@@ -44,18 +46,18 @@ for dir in "${dirs[@]}"; do
     ./inputs.sh $params
     sleep 60
     ./run.sh $params
+    
+    # Go back to the parent directory
+    cd ..
+done
 
-    # # Generate and verify hashes
-    # rm -rf hashes/
-    # mkdir -p "$output_dir/$dir"
-    # ./verify.sh --generate --dish | tee "$output_dir/$dir/verify.out"
+for dir in "${dirs[@]}"; do
+    # Change to the directory
+    cd "./$dir" || continue
 
-    # Move the outputs to the corresponding directory in $output_dir
-    # mv outputs/* "$output_dir/$dir"
-
-    # # Do not cleanup cuz it will remove all time files
-    # ./cleanup.sh
-    # sleep 60
+    # Verify
+    echo "[$dir] Verifying results..."
+    ./verify.sh $params 
 
     # Go back to the parent directory
     cd ..

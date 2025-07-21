@@ -5,16 +5,7 @@
 
 cd "$(realpath $(dirname "$0"))"
 
-mkdir -p hashes/small
-mkdir -p hashes/hadoop-streaming
-
-if [[ "$@" == *"--small"* ]]; then
-    hash_folder="hashes/small"
-elif [[ "$@" == *"--hadoop-streaming"* ]]; then
-    hash_folder="hashes/hadoop-streaming"
-else
-    hash_folder="hashes"
-fi
+hash_folder="outputs/bash"
 
 if [[ "$@" == *"--generate"* ]]; then
     # Directory to iterate over
@@ -64,7 +55,11 @@ else
         # Remove trailing slash
         folder=${folder%/}
 
-        echo "Verifying folder: $folder"
+        if [[ $folder == *"bash"* || $folder == *"hadoop"* ]]; then
+            continue
+        fi
+
+        # echo "Verifying folder: $folder"
 
         # Loop through all .hash files in the current directory
         for file in "$folder"/*.hash

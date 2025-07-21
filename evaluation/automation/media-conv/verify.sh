@@ -36,7 +36,7 @@ do
     # Remove trailing slash
     folder=${folder%/}
 
-    echo "Verifying folder: $folder"
+    # echo "Verifying folder: $folder"
 
     # Loop through all .hash files in the current directory and subdirectories
     find "$folder" -type f -name "*.hash" | while read -r file;
