@@ -84,15 +84,16 @@ To connect to the control node of each cluster:
 
 ```bash
 # Connect to the 4-node cluster
-ssh -i ./evaluation/cloudlab.pem fractal-ae26@XXXX.XX
+ssh -i ./evaluation/cloudlab.pem fractal-ae26@4node.cluster
 # Connect to the 30-node cluster
-ssh -i ./evaluation/cloudlab.pem fractal-ae26@XXXX.XX
+ssh -i ./evaluation/cloudlab.pem fractal-ae26@30node.cluster
 ```
 
 To start and connect to a client container:
 ```bash 
-# 🚧 TODO: client rebuild to use nsdi26-ae branch
-sudo ./dish/docker-hadoop/start-client.sh --eval # 🚧 this does not work as it's path-dependent
+# Start the client container
+sudo ./dish/docker-hadoop/start-client.sh --eval 
+# Run the interactive shell inside the client continaer
 docker exec -it docker-hadoop-client-1 bash
 ```
 
@@ -100,7 +101,6 @@ docker exec -it docker-hadoop-client-1 bash
 
 To run Fractal with a minimal `echo` example under a fault-free setting:
 ```bash
-# 🚧 we can also do `$FRACTAL --distributed_exec -c ...`
 $DISH_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!" 
 ```
 
@@ -147,10 +147,7 @@ The `--small` option produces results that closely match those presented in the 
 
 This section also provide detailed instrauctions on how to replicate the figures of the experimental evaluation of Fractal as described in Table 2: [Classics](), [Unix50](), [NLP](), [Analytics](), and [Automation]().
 
-Issues:
-* unix50 bash (3, 20, 34): hdfs broken pipe when using `head`: `cat: Unable to write to output stream.`, maybe removing the err msg?
-
-To run all the benchmarks with `--small` input from the control node:
+To run all the benchmarks with `--small` input from the control node **for each cluster**
 
 ```bash
 # open the interactive shell for the client container
@@ -162,18 +159,30 @@ cd $DISH_TOP/evaluation
 # There are two options here, either use --small or --full as an argument to determine the input size.
 bash run_all.sh --small
 
-# After the execution is finished, the raw data can be found
-cat eval_results/run.tmp
+# # After the execution is finished, the raw data can be found
+# cat eval_results/run.tmp
 
-# Generate the plots
-./generate_charts.py 
+# Aggregate the results
+./plotting/scripts/aggregate.sh --site 4
+# OR 
+./plotting/scripts/aggregate.sh --site 30
+```
+
+We plot the figures by aggregating results from both the 4-node cluster and the 30-node cluster, to plot them, run the following command on any one of the control node:
+```bash
+# Aggregate the results
+./plotting/scripts/plot.sh 4node.cluster 30node.cluster
+```
+Then follow the prompt to view the generated figures from your browsers, for example:
+```
+Fig.1: http://4node.cluster/fig1.pdf
 ```
 
 We have included in this repo sample data of the raw data timers (run.tmp), the final source data (data_final.csv) and the three output figures: [Fig. X](), [Fig. Y](), and [Fig. Z]()
 
-> After benchmarks complete, rebuild plotting datasets and figures:
-> ```bash
-> # Merge raw_times_site*.csv first if you collected results on both clusters
+<!-- > After benchmarks complete, rebuild plotting datasets and figures:
+> ```bash 
+# Merge raw_times_site*.csv first if you collected results on both clusters
 > evaluation/plotting/scripts/merge_sites.sh \
 >     evaluation/results/raw_times_site4.csv evaluation/results/raw_times_site30.csv
 >
@@ -188,7 +197,7 @@ We have included in this repo sample data of the raw data timers (run.tmp), the 
 > ```bash
 > docker cp docker-hadoop-client-1:/opt/dish/evaluation/plotting/figures ./plots
 > scp -i <pem> user@<vm-host>:~/plots/*.pdf ./local_plots/
-> ```
+> ``` -->
 
 ## [Optional] Hard faults (~1 week of manual effort)
 Optionally, you may try to introduce *hard faults*. However, despite its conceptual simplicity, introducing and monitoring *hard faults* requires significant time and effort. 
