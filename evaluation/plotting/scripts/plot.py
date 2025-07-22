@@ -61,7 +61,7 @@ fig.tight_layout()
 # handles, labels = ax2.get_legend_handles_labels()
 # ax2.legend(handles, labels, title='', frameon=False)
 # ax2.legend(ax2.get_legend_handles_labels(), loc='upper left', title='', frameon=False)
-fig.savefig(FIG_DIR / 'eval1dist.pdf')
+fig.savefig(FIG_DIR / 'fig4.pdf')
 
 
 ##############################
@@ -73,7 +73,7 @@ fig.legend.set_bbox_to_anchor((0.13, 0.76))
 fig.axes.flat[0].set_title('4 Nodes', pad=-8)
 fig.axes.flat[1].set_title('30 Nodes', pad=-8)
 fig.legend.set_title('')
-fig.savefig(FIG_DIR / 'eval1violin.pdf')
+fig.savefig(FIG_DIR / 'fig5.pdf')
 
 
 # ---------------- Hard-fault dataset (optional) ------------------
@@ -139,7 +139,9 @@ fig.axes.flat[1].set_title('30 Nodes', pad=-10)
 fig.legend.set_title('')
 # fig.legend.set_bbox_to_anchor((0.33, 0.17))
 fig.legend.set_bbox_to_anchor((0.74, 0.72))
-fig.savefig(FIG_DIR / 'eval3violin.pdf')
+fig.savefig(FIG_DIR / 'fig7.pdf')
+
+exit(0)  # Skipping the microbench plot for now
 
 # ##############################
 # # Prepare fourth dataset (microbench)

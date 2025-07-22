@@ -84,9 +84,9 @@ To connect to the control node of each cluster:
 
 ```bash
 # Connect to the 4-node cluster
-ssh -i ./evaluation/cloudlab.pem fractal-ae26@4node.cluster
+ssh -i ./evaluation/cloudlab.pem fractal-ae26@ms0813.utah.cloudlab.us
 # Connect to the 30-node cluster
-ssh -i ./evaluation/cloudlab.pem fractal-ae26@30node.cluster
+ssh -i ./evaluation/cloudlab.pem fractal-ae26@ms0809.utah.cloudlab.us
 ```
 
 To start and connect to a client container:
@@ -130,9 +130,9 @@ $DISH_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!"
 # Results Reproducible (ZZ minutes)
 
 The key results in this paper's evaluation section are the following:
-1. *Fault-free execution*: FRACTAL also delivers near state-of-the-art performance in failure-free executions (§6.1, Fig. 5).
-2. *Fault recovery execution*: FRACTAL provides *correct* and *efficient* recovery (§6.2, Fig.?).
-3. [Not urgent, nice to have] *Dynamic output persistence*: it demonstrates a subtle balance between accelerated fault recovery and overhead in fault-free execution (§6.3, Fig. 8).
+1. *Fault-free execution*: FRACTAL also delivers near state-of-the-art performance in failure-free executions (§6.1, Fig.4).
+2. *Fault recovery execution*: FRACTAL provides *correct* and *efficient* recovery for both regular node failure and merger node failure (§6.2, Fig.5, Fig.7).
+<!-- 3. [Not urgent, nice to have] *Dynamic output persistence*: it demonstrates a subtle balance between accelerated fault recovery and overhead in fault-free execution (§6.3, Fig. 8). -->
 
 **Terminology correspondence:** Here is the correspondence of flag names between the paper and the artifact:
 * Fractal (no fault): `--width 8 --r_split --distributed_exec --ft dynamic`
@@ -161,22 +161,31 @@ bash run_all.sh --small
 
 # # After the execution is finished, the raw data can be found
 # cat eval_results/run.tmp
-
-# Aggregate the results
-./plotting/scripts/aggregate.sh --site 4
-# OR 
-./plotting/scripts/aggregate.sh --site 30
 ```
 
-We plot the figures by aggregating results from both the 4-node cluster and the 30-node cluster, to plot them, run the following command on any one of the control node:
+Generating the plots requires data from both clusters. To parse the per-cluster results, run the following command with `--site 4` for the 4-node cluster or `--site 30` for the 30-node cluster:
+
 ```bash
-# Aggregate the results
-./plotting/scripts/plot.sh 4node.cluster 30node.cluster
+# Parse results for a single cluster
+./plotting/scripts/parse.sh --site 4
+# OR
+./plotting/scripts/parse.sh --site 30
 ```
-Then follow the prompt to view the generated figures from your browsers, for example:
+
+After parsing results from both clusters, run the following command on any control node to generate the final figures by aggregating the results:
+
+```bash
+# Generate the plots
+./plotting/scripts/plot.sh ms0813.utah.cloudlab.us ms0809.utah.cloudlab.us
 ```
-Fig.1: http://4node.cluster/fig1.pdf
+
+Once the script completes, follow its prompt open the following URLs in a browser to view the generated figures, for example:
 ```
+Fig. 4: http://ms0813.utah.cloudlab.us/fig4.pdf  
+Fig. 5: http://ms0813.utah.cloudlab.us/fig5.pdf  
+Fig. 7: http://ms0813.utah.cloudlab.us/fig7.pdf
+```
+
 
 We have included in this repo sample data of the raw data timers (run.tmp), the final source data (data_final.csv) and the three output figures: [Fig. X](), [Fig. Y](), and [Fig. Z]()
 
