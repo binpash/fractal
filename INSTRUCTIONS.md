@@ -58,19 +58,19 @@ adding benchmark suites or rebuilding cluster workers) see
 Fig. 3 of the paper gives an overview of the interaction among different components. Below we map every component to the source code in this repository.
 
 - **Execution engine (§4)**
-- *DFG construction & fault-aware partitioning*: FRACTAL reuses the PaSh-JIT front-end to parse the user script and consult the JSON annotation corpus in `pash/annotations/`.  We then extend that pipeline in
-  • `pash/compiler/dspash/ir_helper.py`: `prepare_graph_for_remote_exec`, `split_main_graph`, `add_singular_flags` (edge IDs, remote-pipe vertices, singular tagging, subgraph carving).  
-  • `pash/compiler/dspash/worker_manager.py`: subgraph-to-node mapping, dependency tracking, selective re-execution.
-- *Remote pipe* & *Dynamic output persistence*: FRACTAL decides at run time, **per sub-graph**, whether to spill a stream to disk.  The choice is encoded via the `--ft dynamic` flag and a `-s` (singular) tag in each `RemotePipe`.  If dynamic FT is on and the subgraph is not singular, `datastream.go::writeOptimized()` writes to a spill-file whose path is registered in Discovery.  Upon a fault `worker_manager.check_persisted_discovery()` queries Discovery and re-executes only the subgraphs whose outputs were not already persisted.
-- *Executor runtime* & *Progress/Health monitors*: each node runs `pash/compiler/dspash/worker.py` where `EventLoop` launches up to *N* subgraphs and `TimeRecorder` logs execution.  Completion of every send/receive emits a 17-byte event (bottom of `datastream.go`) that `worker_manager.py::__manage_connection` consumes.  Cluster liveness comes from JMX polling in `pash/compiler/dspash/hdfs_utils.py` with callbacks wired into the scheduler.
+  - *DFG construction & fault-aware partitioning*: FRACTAL reuses the PaSh-JIT front-end to parse the user script and consult the JSON annotation corpus in `pash/annotations/`.  We then extend that pipeline in
+    • `pash/compiler/dspash/ir_helper.py`: `prepare_graph_for_remote_exec`, `split_main_graph`, `add_singular_flags` (edge IDs, remote-pipe vertices, singular tagging, subgraph carving).  
+    • `pash/compiler/dspash/worker_manager.py`: subgraph-to-node mapping, dependency tracking, selective re-execution.
+  - *Remote pipe* & *Dynamic output persistence*: FRACTAL decides at run time, **per sub-graph**, whether to spill a stream to disk.  The choice is encoded via the `--ft dynamic` flag and a `-s` (singular) tag in each `RemotePipe`.  If dynamic FT is on and the subgraph is not singular, `datastream.go::writeOptimized()` writes to a spill-file whose path is registered in Discovery.  Upon a fault `worker_manager.check_persisted_discovery()` queries Discovery and re-executes only the subgraphs whose outputs were not already persisted.
+  - *Executor runtime* & *Progress/Health monitors*: each node runs `pash/compiler/dspash/worker.py` where `EventLoop` launches up to *N* subgraphs and `TimeRecorder` logs execution.  Completion of every send/receive emits a 17-byte event (bottom of `datastream.go`) that `worker_manager.py::__manage_connection` consumes.  Cluster liveness comes from JMX polling in `pash/compiler/dspash/hdfs_utils.py` with callbacks wired into the scheduler.
 
 - **Performance optimizations (§5)**
-- *Event-driven architecture*: `EventLoop` in `worker.py` is lock-free (list ops + atomics) and polls every 0.1 s, precisely the design described in §5.1.
-- *Buffered-IO sentinel stripping*: the 8-byte EOF token is removed on-the-fly inside `datastream.go::read` (≈ 70-130) using a single 4096-byte buffer, matching §5.2.
-- *Batched scheduling*: `worker_manager.py` builds `worker_to_batches` and issues one `Batch-Exec-Graph` RPC per worker, implementing the optimisation in §5.3.
+  - *Event-driven architecture*: `EventLoop` in `worker.py` is lock-free (list ops + atomics) and polls every 0.1 s, precisely the design described in §5.1.
+  - *Buffered-IO sentinel stripping*: the 8-byte EOF token is removed on-the-fly inside `datastream.go::read` (≈ 70-130) using a single 4096-byte buffer, matching §5.2.
+  - *Batched scheduling*: `worker_manager.py` builds `worker_to_batches` and issues one `Batch-Exec-Graph` RPC per worker, implementing the optimisation in §5.3.
 
 - **Fault injection (§6)**
-- *frac subsystem*: the coordinator exposes `--kill` knobs handled in `worker_manager.py::handle_kill_node`; helpers in `runtime/scripts/killall.sh` terminate full process trees.  Evaluation scripts drive these hooks to reproduce the fault-tolerance experiments of §6.
+  - *frac subsystem*: the coordinator exposes `--kill` knobs handled in `worker_manager.py::handle_kill_node`; helpers in `runtime/scripts/killall.sh` terminate full process trees.  Evaluation scripts drive these hooks to reproduce the fault-tolerance experiments of §6.
 
 Together these files (and the PaSh-JIT submodule they build upon) cover every component shown in Fig. 3, demonstrating that the released code fully realises the design presented in the paper.
 
