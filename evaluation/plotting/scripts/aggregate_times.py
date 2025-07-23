@@ -7,7 +7,9 @@ import sys
 EVAL_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
 DATA_DIR = EVAL_DIR / 'plotting' / 'data'
 NODE_NUM = sys.argv[1] if len(sys.argv) > 1 else '4'
-OUTFILE = DATA_DIR / 'intermediary' / f'raw_times_site{NODE_NUM}.csv'
+INTERMEDIARY_DIR = DATA_DIR / 'intermediary'
+INTERMEDIARY_DIR.mkdir(parents=True, exist_ok=True)
+OUTFILE = INTERMEDIARY_DIR / f'raw_times_site{NODE_NUM}.csv'
 BENCHMARKS = {
     "automation": ["file-enc", "log-analysis", "media-conv"],
     "analytics": ["covid-mts", "max-tmp"],
