@@ -16,6 +16,12 @@ This artifact targets the following badges (mirroring [the NSDI26 artifact "eval
 * Skim this README file to get an idea of the structure (2 minutes).
 * Jump straight into the [Exercisability](#exercisability) section of the README file (10 minutes).
 
+> [!IMPORTANT]
+> We have reserved one 4-node cluster and one 30-node cluster on CloudLab **from August 1st to August 24th** for artifact evaluation.
+> Reviewers should coordinate to not run experiments at the same time.
+> We strongly encourage reviewers to begin the evaluation at least one week before the reservation period ends.
+> If additional time is needed, please notify us as early as possible so we can arrange access to alternative resources.
+
 <a id="artifact-available"></a>  
 # Artifact Available (10 minutes)  
 Confirm core components are publicly available.  
@@ -34,7 +40,12 @@ Confirm sufficient documentation, key components as described in the paper, and 
 ## Documentation
 Below is a map of all additional README files that explain specific subsystems.
 
-* **Top-level overview**: `README.md` (root)  
+* Top-level: [overall architecture](./README.md), [control-plane](./pash/compiler/dspash/README.md), [runtime](./runtime/README.md).
+* Components: [remote pipes](./runtime/pipe/README.md), [DFS reader](./runtime/dfs/README.md), [runtime helpers](./runtime/scripts/README.md)(including builder, fault-injection mechanism).
+* Setup and evaluation: [cluster boostrap](./docker-hadoop/README.md), [evaluation](./evaluation/README.md).
+* Development: [contribution](./CONTRIBUTING.md). 
+
+<!-- * **Top-level overview**: `README.md` (root)  
 quick intro, install, architecture figure.
 * **Control-plane internals**: `pash/compiler/dspash/README.md`: coordinator scheduler, executor event loop, dynamic persistence flow, and health/progress monitors (A1, A3–A6; §4–5)
 * **Remote Pipe family**  
@@ -45,22 +56,22 @@ quick intro, install, architecture figure.
 * **Executor helper scripts**: `runtime/scripts/README.md`: build helpers, fault-injection utilities, and cluster maintenance shell tools (§4, §6)
 * **Runtime README (Go services)**: `runtime/README.md`: build & run instructions for Go daemons powering Remote Pipes, Discovery, and DFS (§4)
 * **Cluster bootstrap**: `docker-hadoop/README.md`: Docker-Compose/Swarm recipes for spinning up a multi-node FRACTAL+HDFS cluster locally or on CloudLab (§7)
-* **Benchmark & evaluation**: `evaluation/README.md`: scripts and guidance to reproduce functional, performance, and fault-tolerance experiments (§7)
+* **Benchmark & evaluation**: `evaluation/README.md`: scripts and guidance to reproduce functional, performance, and fault-tolerance experiments (§7) -->
 
-For running the evaluation scripts refer to `evaluation/README.md`; for fault
+<!-- For running the evaluation scripts refer to `evaluation/README.md`; for fault
 injection see `runtime/scripts/README.md`.
 
 For developer-focused instructions (e.g.
 adding benchmark suites or rebuilding cluster workers) see
-[CONTRIBUTING.md](CONTRIBUTING.md).
+[CONTRIBUTING.md](CONTRIBUTING.md). -->
 
 ## Completeness
 Fig. 3 of the paper gives an overview of the interaction among different components. Below we map every component to the source code in this repository.
 
 - **Execution engine (§4)**
   - *DFG construction & fault-aware partitioning*: FRACTAL reuses the PaSh-JIT front-end to parse the user script and consult the JSON annotation corpus in `pash/annotations/`.  We then extend that pipeline in
-    • `pash/compiler/dspash/ir_helper.py`: `prepare_graph_for_remote_exec`, `split_main_graph`, `add_singular_flags` (edge IDs, remote-pipe vertices, singular tagging, subgraph carving).  
-    • `pash/compiler/dspash/worker_manager.py`: subgraph-to-node mapping, dependency tracking, selective re-execution.
+    - `pash/compiler/dspash/ir_helper.py`: `prepare_graph_for_remote_exec`, `split_main_graph`, `add_singular_flags` (edge IDs, remote-pipe vertices, singular tagging, subgraph carving).  
+    - `pash/compiler/dspash/worker_manager.py`: subgraph-to-node mapping, dependency tracking, selective re-execution.
   - *Remote pipe* & *Dynamic output persistence*: FRACTAL decides at run time, **per sub-graph**, whether to spill a stream to disk.  The choice is encoded via the `--ft dynamic` flag and a `-s` (singular) tag in each `RemotePipe`.  If dynamic FT is on and the subgraph is not singular, `datastream.go::writeOptimized()` writes to a spill-file whose path is registered in Discovery.  Upon a fault `worker_manager.check_persisted_discovery()` queries Discovery and re-executes only the subgraphs whose outputs were not already persisted.
   - *Executor runtime* & *Progress/Health monitors*: each node runs `pash/compiler/dspash/worker.py` where `EventLoop` launches up to *N* subgraphs and `TimeRecorder` logs execution.  Completion of every send/receive emits a 17-byte event (bottom of `datastream.go`) that `worker_manager.py::__manage_connection` consumes.  Cluster liveness comes from JMX polling in `pash/compiler/dspash/hdfs_utils.py` with callbacks wired into the scheduler.
 
@@ -76,7 +87,7 @@ Together these files (and the PaSh-JIT submodule they build upon) cover every co
 
 ## **Exercisability**
 
-**Scripts and Data:** Scripts to run experiments are provided in the `evaluation/` directory. To run all benchmarks, use `evaluation/run_all.sh`. To run a specific benchmark, use the `run.sh` script located within each benchmark folder (e.g., `evaluation/classics/run.sh`). The required input data for each benchmark can be downloaded using `inputs.sh`, which fetches datasets from persistent storage hosted on a Brown University cluster at `https://atlas.cs.brown.edu/data`.
+**Scripts and Data:** Scripts to run experiments are provided in the [./evaluation](./evaluation/) directory. To run all benchmarks, use [evaluation/run_all.sh](./evaluation/run_all.sh). To run a specific benchmark, use the `run.sh` script located within each benchmark folder (e.g., `evaluation/classics/run.sh`). The required input data for each benchmark can be downloaded using `inputs.sh`, which fetches datasets from persistent storage hosted on a Brown University cluster at https://atlas.cs.brown.edu/data.
 
 **Execution:** To facilitate evaluation, we pre-allocate and initialize both the 4-node and 30-node clusters with all input data pre-downloaded. We have created a `fractal-ae26` account on the two CloudLab clusters used in our evaluation of Fractal. 
 
@@ -96,8 +107,6 @@ sudo ./dish/docker-hadoop/start-client.sh --eval
 # Run the interactive shell inside the client continaer
 docker exec -it docker-hadoop-client-1 bash
 ```
-
-> Reviewers should coordinate to not run experiments at the same time.
 
 To run Fractal with a minimal `echo` example under a fault-free setting:
 ```bash
@@ -127,7 +136,7 @@ $DISH_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!"
 <!-- *(Developer note moved to CONTRIBUTING.md)* -->
 
 <a id="results-reproducible"></a>  
-# Results Reproducible (ZZ minutes)
+# Results Reproducible (~ 5 hours)
 
 The key results in this paper's evaluation section are the following:
 1. *Fault-free execution*: FRACTAL also delivers near state-of-the-art performance in failure-free executions (§6.1, Fig.4).
@@ -145,7 +154,7 @@ The key results in this paper's evaluation section are the following:
 
 The `--small` option produces results that closely match those presented in the paper. All key performance differences between configurations are still clearly observable.
 
-This section also provide detailed instrauctions on how to replicate the figures of the experimental evaluation of Fractal as described in Table 2: [Classics](), [Unix50](), [NLP](), [Analytics](), and [Automation]().
+This section also provide detailed instrauctions on how to replicate the figures of the experimental evaluation of Fractal as described in Table 2: [Classics](./evaluation/classics/), [Unix50](./evaluation/unix50/), [NLP](./evaluation/nlp/), [Analytics](./evaluation/analytics/), and [Automation](./evaluation/automation/).
 
 To run all the benchmarks with `--small` input from the control node **for each cluster**
 
@@ -186,8 +195,7 @@ Fig. 5: http://ms0813.utah.cloudlab.us/fig5.pdf
 Fig. 7: http://ms0813.utah.cloudlab.us/fig7.pdf
 ```
 
-
-We have included in this repo sample data of the raw data timers (run.tmp), the final source data (data_final.csv) and the three output figures: [Fig. X](), [Fig. Y](), and [Fig. Z]()
+<!-- We have included in this repo sample data of the raw data timers (run.tmp), the final source data (data_final.csv) and the three output figures: [Fig. X](), [Fig. Y](), and [Fig. Z]() -->
 
 <!-- > After benchmarks complete, rebuild plotting datasets and figures:
 > ```bash 
