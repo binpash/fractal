@@ -100,10 +100,8 @@ ssh -i ./evaluation/cloudlab.pem fractal-ae26@ms0813.utah.cloudlab.us
 ssh -i ./evaluation/cloudlab.pem fractal-ae26@ms0809.utah.cloudlab.us
 ```
 
-To start and connect to a client container:
+To connect to the client container:
 ```bash 
-# Start the client container
-sudo ./fractal/docker-hadoop/start-client.sh --eval 
 # Run the interactive shell inside the client continaer
 docker exec -it docker-hadoop-client-1 bash
 ```
