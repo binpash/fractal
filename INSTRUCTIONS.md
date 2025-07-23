@@ -165,9 +165,6 @@ cd $FRACTAL_TOP/evaluation
 
 # There are two options here, either use --small or --full as an argument to determine the input size.
 bash run_all.sh --small
-
-# # After the execution is finished, the raw data can be found
-# cat eval_results/run.tmp
 ```
 
 Generating the plots requires data from both clusters. To parse the per-cluster results, run the following command with `--site 4` for the 4-node cluster or `--site 30` for the 30-node cluster:
