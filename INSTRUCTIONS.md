@@ -26,7 +26,7 @@ This artifact targets the following badges (mirroring [the NSDI26 artifact "eval
 # Artifact Available (10 minutes)  
 Confirm core components are publicly available.  
 
-The implementation described in the NSDI26 paper (FRACTAL) has been incorporated into DiSh, MIT-licensed open-source software. It is part of the PaSh project, hosted by the [Linux Foundation](https://www.linuxfoundation.org/press/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases). Below are some relevant links:  
+Fractal builds on top of DiSh, MIT-licensed open-source software. It is part of the PaSh project, hosted by the [Linux Foundation](https://www.linuxfoundation.org/press/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases). Below are some relevant links:  
 
 - FRACTAL is permanently hosted on the GitHub [binpash](https://github.com/binpash/) organization.  
 - FRACTAL's command annotations conform to the format outlined in [PaSh](https://github.com/binpash/pash), a MIT-licensed open-source software.  
@@ -103,14 +103,14 @@ ssh -i ./evaluation/cloudlab.pem fractal-ae26@ms0809.utah.cloudlab.us
 To start and connect to a client container:
 ```bash 
 # Start the client container
-sudo ./dish/docker-hadoop/start-client.sh --eval 
+sudo ./fractal/docker-hadoop/start-client.sh --eval 
 # Run the interactive shell inside the client continaer
 docker exec -it docker-hadoop-client-1 bash
 ```
 
 To run Fractal with a minimal `echo` example under a fault-free setting:
 ```bash
-$DISH_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!" 
+$FRACTAL_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!" 
 ```
 
 <!-- ### Pre-requisites
@@ -163,7 +163,7 @@ To run all the benchmarks with `--small` input from the control node **for each 
 docker exec -it docker-hadoop-client-1 bash
 
 # enter the eval folder
-cd $DISH_TOP/evaluation
+cd $FRACTAL_TOP/evaluation
 
 # There are two options here, either use --small or --full as an argument to determine the input size.
 bash run_all.sh --small
@@ -226,7 +226,7 @@ The procedures are listed below (let's set the experiment config for classics/to
 
 1. Prerequisites: set up a cloud deployment for Fractal
 2. Follow the [Exercisability](#exercisability) section of the instruction file to enter the interactive shell for the client node
-2. Set up benchmark input: `cd $DISH_TOP/evaluation/classics; ./inputs.sh`
+2. Set up benchmark input: `cd $$FRACTAL_TOP/evaluation/classics; ./inputs.sh`
 3. To simplify the experiment, comment out all lines from L23-32 except for L25 in run.sh file to run only top-n
 3. Run the fault-free execution to record the fault-free time: `./run.sh`
 4. Collect the ip address for all other remote nodes' datanode container. One simple way is to do `hostname -i`
