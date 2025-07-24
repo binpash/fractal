@@ -26,7 +26,7 @@ This artifact targets the following badges (mirroring [the NSDI26 artifact "eval
 # Artifact Available (10 minutes)  
 Confirm core components are publicly available.  
 
-Fractal builds on top of DiSh, MIT-licensed open-source software. It is part of the PaSh project, hosted by the [Linux Foundation](https://www.linuxfoundation.org/press/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases). Below are some relevant links:  
+FRACTAL builds on top of DiSh, MIT-licensed open-source software. It is part of the PaSh project, hosted by the [Linux Foundation](https://www.linuxfoundation.org/press/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases). Below are some relevant links:  
 
 - FRACTAL is permanently hosted on the GitHub [binpash](https://github.com/binpash/) organization.  
 - FRACTAL's command annotations conform to the format outlined in [PaSh](https://github.com/binpash/pash), a MIT-licensed open-source software.  
@@ -76,7 +76,7 @@ Fig. 3 of the paper gives an overview of the interaction among different compone
   - *Executor runtime* & *Progress/Health monitors*: each node runs [a worker runtime](pash/compiler/dspash/worker.py) where `EventLoop` launches up to *N* subgraphs and `TimeRecorder` logs execution.  Completion of every send/receive emits a 17-byte event that worker manager consumes.  Cluster liveness comes from JMX polling in [hdfs utils](pash/compiler/dspash/hdfs_utils.py) with callbacks wired into the scheduler.
 
 - **Performance optimizations (§5)**
-  - *Event-driven architecture*: `EventLoop` in `worker.py` is lock-free (list ops + atomics) and polls every 0.1 s, precisely the design described in §5.1.
+  - *Event-driven architecture*: `EventLoop` in [the worker runtime](pash/compiler/dspash/worker.py) is lock-free (list ops + atomics) and polls every 0.1 s, precisely the design described in §5.1.
   - *Buffered-IO sentinel stripping*: the 8-byte EOF token is removed on-the-fly inside datastream wrapper (≈ 70-130) using a single 4096-byte buffer, matching §5.2.
   - *Batched scheduling*: worker manager builds `worker_to_batches` and issues one `Batch-Exec-Graph` RPC per worker, implementing the optimisation in §5.3.
 
@@ -89,7 +89,7 @@ Together these files (and the PaSh-JIT submodule they build upon) cover every co
 
 **Scripts and Data:** Scripts to run experiments are provided in the [./evaluation](./evaluation/) directory. To run all benchmarks, use [evaluation/run_all.sh](./evaluation/run_all.sh). To run a specific benchmark, use the `run.sh` script located within each benchmark folder (e.g., `evaluation/classics/run.sh`). The required input data for each benchmark can be downloaded using `inputs.sh`, which fetches datasets from persistent storage hosted on a Brown University cluster at https://atlas.cs.brown.edu/data.
 
-**Execution:** To facilitate evaluation, we pre-allocate and initialize both the 4-node and 30-node clusters with all input data pre-downloaded. We have created a `fractal-ae26` account on the two CloudLab clusters used in our evaluation of Fractal. 
+**Execution:** To facilitate evaluation, we pre-allocate and initialize both the 4-node and 30-node clusters with all input data pre-downloaded. We have created a `fractal-ae26` account on the two CloudLab clusters used in our evaluation of FRACTAL. 
 
 To connect to the control node of each cluster:
 
@@ -106,7 +106,7 @@ To connect to the client container:
 docker exec -it docker-hadoop-client-1 bash
 ```
 
-To run Fractal with a minimal `echo` example under a fault-free setting:
+To run FRACTAL with a minimal `echo` example under a fault-free setting:
 ```bash
 $FRACTAL_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!" 
 ```
@@ -142,17 +142,17 @@ The key results in this paper's evaluation section are the following:
 <!-- 3. [Not urgent, nice to have] *Dynamic output persistence*: it demonstrates a subtle balance between accelerated fault recovery and overhead in fault-free execution (§6.3, Fig. 8). -->
 
 **Terminology correspondence:** Here is the correspondence of flag names between the paper and the artifact:
-* Fractal (no fault): `--width 8 --r_split --distributed_exec --ft dynamic`
-* Fractal (regular-node fault): `--width 8 --r_split --distributed_exec --ft dynamic --kill regular`
-* Fractal (merger-node fault):`--width 8 --r_split --distributed_exec --ft dynamic --kill merger`
+* FRACTAL (no fault): `--width 8 --r_split --distributed_exec --ft dynamic`
+* FRACTAL (regular-node fault): `--width 8 --r_split --distributed_exec --ft dynamic --kill regular`
+* FRACTAL (merger-node fault):`--width 8 --r_split --distributed_exec --ft dynamic --kill merger`
 
-**Execution and Plotting:** We provide two input load sizes for testing and evaluating Fractal:
+**Execution and Plotting:** We provide two input load sizes for testing and evaluating FRACTAL:
 - `--small`: Uses a reduced input size, resulting in shorter execution time (~X hours).  
 - `--full`: Matches the input size used in the paper (~X hours).
 
 The `--small` option produces results that closely match those presented in the paper. All key performance differences between configurations are still clearly observable.
 
-This section also provide detailed instrauctions on how to replicate the figures of the experimental evaluation of Fractal as described in Table 2: [Classics](./evaluation/classics/), [Unix50](./evaluation/unix50/), [NLP](./evaluation/nlp/), [Analytics](./evaluation/analytics/), and [Automation](./evaluation/automation/).
+This section also provide detailed instrauctions on how to replicate the figures of the experimental evaluation of FRACTAL as described in Table 2: [Classics](./evaluation/classics/), [Unix50](./evaluation/unix50/), [NLP](./evaluation/nlp/), [Analytics](./evaluation/analytics/), and [Automation](./evaluation/automation/).
 
 To run all the benchmarks with `--small` input from the control node **for each cluster**
 
@@ -219,7 +219,7 @@ merger ) × 2 failure modes × 5 repetitions × 3 benchmarks = 270 experiments`,
 
 The procedures are listed below (let's set the experiment config for classics/top-n.sh, fault at 50%, merger fault):
 
-1. Prerequisites: set up a cloud deployment for Fractal
+1. Prerequisites: set up a cloud deployment for FRACTAL
 2. Follow the [Exercisability](#exercisability) section of the instruction file to enter the interactive shell for the client node
 2. Set up benchmark input: `cd $$FRACTAL_TOP/evaluation/classics; ./inputs.sh`
 3. To simplify the experiment, comment out all lines from L23-32 except for L25 in run.sh file to run only top-n
@@ -230,7 +230,7 @@ The procedures are listed below (let's set the experiment config for classics/to
 - Line 1 -> IP (or hostname) of the merger node.
 - Line 2 -> IP of one regular (non-merger) nod
 7. Now when the timer has reached 0.5*{fault-free time}, shutdown the remote node corresponding to the merger node's ip. If you are using a cloudlab deployment, one way to do so is through cloudlab's web console for the corresponding log. Click the corresponding GUI and select the "terminate" option for non-graceful shutdown
-8. When Fractal detects, recovers, and eventually completes this run (in the client's container), reboot the just-shutdown node, and wait until it's back up
+8. When FRACTAL detects, recovers, and eventually completes this run (in the client's container), reboot the just-shutdown node, and wait until it's back up
 9. To make sure it is back and stable, we need to check whether all of its data blocks are back online (i.e., whether replication factor is satisfied)
 
 
