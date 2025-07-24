@@ -33,7 +33,7 @@ FRACTAL builds on top of DiSh, MIT-licensed open-source software. It is part of 
 - We have a publicly-accessible discord Server ([Invite](http://join.binpa.sh/)) for troubleshooting and feedback.  
  
 <a id="artifact-functional"></a>  
-# Artifact Functional (30 minutes)  
+# Artifact Functional (10 minutes)  
 
 Confirm sufficient documentation, key components as described in the paper, and execution with min inputs (about 30 minutes).  
 
