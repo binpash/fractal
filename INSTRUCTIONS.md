@@ -9,7 +9,7 @@ The paper makes the following claims requiring artifact evaluation on page 2 (Co
 This artifact targets the following badges (mirroring [the NSDI26 artifact "evaluation process"](https://www.usenix.org/conference/nsdi26/call-for-artifacts)):  
 
 * [ ] [Artifact available](#artifact-available): Reviewers are expected to confirm public availability of core components (10 minutes)  
-* [ ] [Artifact functional](#artifact-functional): Reviewers are expected to verify distributed execution workflow (30 minutes)  
+* [ ] [Artifact functional](#artifact-functional): Reviewers are expected to verify distributed execution workflow and run a minimal "Hello, world" example (10 minutes).
 * [ ] [Results reproducible](#results-reproducible): Reviewers are expected to reproduce the key result: FRACTAL’s correct and efficient fault recovery, demonstrated by its speedup over Bash in both regular-node and merger-node failure scenarios, as well as its performance improvement in fault-free conditions (Fig. 7, XX minutes). 
 
 **To "kick the tires" for this artifact:**
