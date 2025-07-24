@@ -70,15 +70,15 @@ Fig. 3 of the paper gives an overview of the interaction among different compone
 
 - **Execution engine (§4)**
   - *DFG construction & fault-aware partitioning*: FRACTAL reuses the PaSh-JIT front-end to parse the user script and consult the JSON annotation corpus in [annotations](/pash/annotations/).  We then extend that pipeline in
-    - [compilation helper](pash/compiler/dspash/ir_helper.py): `prepare_graph_for_remote_exec`, `split_main_graph`, `add_singular_flags` (edge IDs, remote-pipe vertices, singular tagging, subgraph carving).  
+    - [compilation helper](pash/compiler/dspash/ir_helper.py): splitting data flow graph to subgraphs, adding runtime wrappers.
     - [worker manager](pash/compiler/dspash/worker_manager.py): subgraph-to-node mapping, dependency tracking, selective re-execution.
   - *Remote pipe* & *Dynamic output persistence*: FRACTAL decides at run time, **per sub-graph**, whether to spill a stream to disk.  The choice is encoded via the `--ft dynamic` flag and a `-s` (singular) tag in each `RemotePipe`.  If dynamic FT is on and the subgraph is not singular, the [datastream wrapper](runtime/pipe/datastream/datastream.go) writes to a spill-file whose path is registered in Discovery.  Upon a fault, worker manager queries Discovery and re-executes only the subgraphs whose outputs were not already persisted.
-  - *Executor runtime* & *Progress/Health monitors*: each node runs [a worker runtime](pash/compiler/dspash/worker.py) where `EventLoop` launches up to *N* subgraphs and `TimeRecorder` logs execution.  Completion of every send/receive emits a 17-byte event (bottom of `datastream.go`) that `worker_manager.py::__manage_connection` consumes.  Cluster liveness comes from JMX polling in [hdfs utils](pash/compiler/dspash/hdfs_utils.py) with callbacks wired into the scheduler.
+  - *Executor runtime* & *Progress/Health monitors*: each node runs [a worker runtime](pash/compiler/dspash/worker.py) where `EventLoop` launches up to *N* subgraphs and `TimeRecorder` logs execution.  Completion of every send/receive emits a 17-byte event that worker manager consumes.  Cluster liveness comes from JMX polling in [hdfs utils](pash/compiler/dspash/hdfs_utils.py) with callbacks wired into the scheduler.
 
 - **Performance optimizations (§5)**
   - *Event-driven architecture*: `EventLoop` in `worker.py` is lock-free (list ops + atomics) and polls every 0.1 s, precisely the design described in §5.1.
-  - *Buffered-IO sentinel stripping*: the 8-byte EOF token is removed on-the-fly inside `datastream.go::read` (≈ 70-130) using a single 4096-byte buffer, matching §5.2.
-  - *Batched scheduling*: `worker_manager.py` builds `worker_to_batches` and issues one `Batch-Exec-Graph` RPC per worker, implementing the optimisation in §5.3.
+  - *Buffered-IO sentinel stripping*: the 8-byte EOF token is removed on-the-fly inside datastream wrapper (≈ 70-130) using a single 4096-byte buffer, matching §5.2.
+  - *Batched scheduling*: worker manager builds `worker_to_batches` and issues one `Batch-Exec-Graph` RPC per worker, implementing the optimisation in §5.3.
 
 - **Fault injection (§6)**
   - *frac subsystem*: the coordinator exposes `--kill` knobs handled by worker manager; helpers in [kill script](runtime/scripts/killall.sh) terminate full process trees.  Evaluation scripts drive these hooks to reproduce the fault-tolerance experiments of §6.
