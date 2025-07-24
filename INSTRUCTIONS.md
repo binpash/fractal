@@ -10,7 +10,7 @@ This artifact targets the following badges (mirroring [the NSDI26 artifact "eval
 
 * [ ] [Artifact available](#artifact-available): Reviewers are expected to confirm public availability of core components (10 minutes)  
 * [ ] [Artifact functional](#artifact-functional): Reviewers are expected to verify distributed execution workflow (30 minutes)  
-* [ ] [Results reproducible](#results-reproducible): Reviewers are expected to reproduce key fault tolerance metrics (ZZ hours)  
+* [ ] [Results reproducible](#results-reproducible): Reviewers are expected to reproduce the key result: FRACTAL’s correct and efficient fault recovery, demonstrated by its speedup over Bash in both regular-node and merger-node failure scenarios, as well as its performance improvement in fault-free conditions (Fig. 7, XX minutes). 
 
 **To "kick the tires" for this artifact:**
 * Skim this README file to get an idea of the structure (2 minutes).
