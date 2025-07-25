@@ -30,50 +30,50 @@ darker_green = tuple(c * 0.71 for c in deep_green)
 ##############################
 # Prepare first dataset (fault-free performance)
 ##############################
-df = load('fault_free.csv', skiprows=1)
-speedup_columns = [c for c in df.columns if c.endswith('|s')]
-df = df[['benchmark', 'script'] + speedup_columns]
-df = pd.melt(df, id_vars=['benchmark', 'script'], value_vars=speedup_columns, var_name='variable', value_name='value')
-df[['system', 'nodes', 'type']] = df['variable'].str.split('|', expand=True)
-df['type'] = df['type'].map({'s': 'speedup'})
-df = df[['benchmark', 'system', 'script', 'type', 'nodes', 'value']]
-df = df.dropna(subset=['value'])
+# df = load('fault_free.csv', skiprows=1)
+# speedup_columns = [c for c in df.columns if c.endswith('|s')]
+# df = df[['benchmark', 'script'] + speedup_columns]
+# df = pd.melt(df, id_vars=['benchmark', 'script'], value_vars=speedup_columns, var_name='variable', value_name='value')
+# df[['system', 'nodes', 'type']] = df['variable'].str.split('|', expand=True)
+# df['type'] = df['type'].map({'s': 'speedup'})
+# df = df[['benchmark', 'system', 'script', 'type', 'nodes', 'value']]
+# df = df.dropna(subset=['value'])
 ##############################
 # Plot first dataset dist plot
 ##############################
 
-fig, ax1 = plt.subplots(figsize=(9, 5))
-f1 = sns.kdeplot(data=df[df['nodes'] == '30'], x='value', hue='system', common_norm=False, fill=True, alpha=0.5, linewidth=0, log_scale=True, ax=ax1)
-sns.move_legend(ax1, "upper left", title='', frameon=False)
-ax2 = ax1.twinx()
-sns.ecdfplot(data=df[df['nodes'] == '30'], x='value', hue='system', log_scale=True, ax=ax2)
-sns.move_legend(ax2, "upper left", title='', frameon=False)
-ax2.set_title('30 Nodes', pad=-20, y =1)
+# fig, ax1 = plt.subplots(figsize=(9, 5))
+# f1 = sns.kdeplot(data=df[df['nodes'] == '30'], x='value', hue='system', common_norm=False, fill=True, alpha=0.5, linewidth=0, log_scale=True, ax=ax1)
+# sns.move_legend(ax1, "upper left", title='', frameon=False)
+# ax2 = ax1.twinx()
+# sns.ecdfplot(data=df[df['nodes'] == '30'], x='value', hue='system', log_scale=True, ax=ax2)
+# sns.move_legend(ax2, "upper left", title='', frameon=False)
+# ax2.set_title('30 Nodes', pad=-20, y =1)
 
-ax1.set_xlabel('Speedup')
-ax1.set_ylabel('Density (PDF)')
-ax2.set_ylabel('Proportion (CDF)')
-ax1.tick_params(left=False, right=False)
-ax2.tick_params(left=False, right=False)
-fig.tight_layout()
-# handles, labels = ax1.get_legend_handles_labels()
-# ax1.legend(handles, labels, title='')
-# handles, labels = ax2.get_legend_handles_labels()
-# ax2.legend(handles, labels, title='', frameon=False)
-# ax2.legend(ax2.get_legend_handles_labels(), loc='upper left', title='', frameon=False)
-fig.savefig(FIG_DIR / 'fig4.pdf')
+# ax1.set_xlabel('Speedup')
+# ax1.set_ylabel('Density (PDF)')
+# ax2.set_ylabel('Proportion (CDF)')
+# ax1.tick_params(left=False, right=False)
+# ax2.tick_params(left=False, right=False)
+# fig.tight_layout()
+# # handles, labels = ax1.get_legend_handles_labels()
+# # ax1.legend(handles, labels, title='')
+# # handles, labels = ax2.get_legend_handles_labels()
+# # ax2.legend(handles, labels, title='', frameon=False)
+# # ax2.legend(ax2.get_legend_handles_labels(), loc='upper left', title='', frameon=False)
+# fig.savefig(FIG_DIR / 'fig4.pdf')
 
 
-##############################
-# Plot first dataset violin plot
-##############################
-fig = sns.catplot(data=df, kind='violin', x='benchmark', y='value', hue='system', col='nodes', log_scale=True, height=6, aspect=1.66, common_norm=True, density_norm='width', dodge=True, bw_adjust=1.2)
-fig.set_axis_labels('', 'Speedup')
-fig.legend.set_bbox_to_anchor((0.13, 0.76))
-fig.axes.flat[0].set_title('4 Nodes', pad=-8)
-fig.axes.flat[1].set_title('30 Nodes', pad=-8)
-fig.legend.set_title('')
-fig.savefig(FIG_DIR / 'fig5.pdf')
+# ##############################
+# # Plot first dataset violin plot
+# ##############################
+# fig = sns.catplot(data=df, kind='violin', x='benchmark', y='value', hue='system', col='nodes', log_scale=True, height=6, aspect=1.66, common_norm=True, density_norm='width', dodge=True, bw_adjust=1.2)
+# fig.set_axis_labels('', 'Speedup')
+# fig.legend.set_bbox_to_anchor((0.13, 0.76))
+# fig.axes.flat[0].set_title('4 Nodes', pad=-8)
+# fig.axes.flat[1].set_title('30 Nodes', pad=-8)
+# fig.legend.set_title('')
+# fig.savefig(FIG_DIR / 'fig5.pdf')
 
 
 # ---------------- Hard-fault dataset (optional) ------------------
@@ -114,7 +114,6 @@ else:
     fig.text(0.5,0.03,"% completion of total execution",ha='center',va='center')
     fig.tight_layout(); fig.subplots_adjust(bottom=0.13)
     fig.savefig(FIG_DIR / 'eval2scatter.pdf')
-
 
 # ##############################
 # # Prepare third dataset

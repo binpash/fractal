@@ -6,27 +6,27 @@ export TIMEFORMAT=%R
 cd "$(realpath $(dirname "$0"))"
 
 names_scripts=(
-    "LogAnalysis1;nginx"
-    "LogAnalysis2;pcaps"
+    "MediaConv1;img_convert"
+    "MediaConv2;to_mp3"
   )
 
 if [[ "$@" == *"--small"* ]]; then
     scripts_inputs=(
-        "nginx;/log-analysis/log_data_small"
-        "pcaps;/log-analysis/pcap_data_small"
+        "img_convert;/media-conv/jpg_small"
+        "to_mp3;/media-conv/wav_small"
     )
     scripts_outputs=(
-        "nginx;/log-analysis/nginx_analysis_small"
-        "pcaps;/log-analysis/pcap_analysis_small"
+        "img_convert;jpg_small"
+        "to_mp3;mp3_small"
     )
 else
     scripts_inputs=(
-        "nginx;/log-analysis/log_data"
-        "pcaps;/log-analysis/pcap_data"
+        "img_convert;/media-conv/jpg"
+        "to_mp3;/media-conv/wav"
     )
     scripts_outputs=(
-        "nginx;/log-analysis/nginx_analysis"
-        "pcaps;/log-analysis/pcap_analysis"
+        "img_convert;jpg"
+        "to_mp3;mp3"
     )
 fi
 
@@ -46,20 +46,41 @@ parse_directories() {
 export SUITE_CSV_PATH="$(pwd)/../outputs/time.csv"
 mkdir -p "$(dirname "$SUITE_CSV_PATH")"
 
-
 mkdir -p "outputs"
-all_res_file="./outputs/log-analysis.res"
+all_res_file="./outputs/media-conv.res"
 > $all_res_file
+
+gen-hash-dir() {
+    # Iterate over each file in the directory and subdirectories, excluding any .hash files
+    find "$1" -type f ! -name "*.hash" | while read -r file; do
+    if [ -f "$file" ]; then
+        # Compute the SHA-256 hash of the file
+        hash_value=$(sha256sum "$file" | awk '{print $1}')
+        
+        # Extract the basename without the extension
+        base_name=$(basename "$file" .zip)
+        
+        # Create the .hash filename
+        hash_file="${1}/${base_name}.hash"
+        # ls 
+        # Write the hash to the .hash file
+        echo "$hash_value" > "$hash_file"
+        
+        # Print a message indicating the hash file has been created
+        # echo "Hash for $(basename "$file") written to ${base_name}.hash"
+    fi
+    done
+}
 
 # time_file stores the time taken for each script
 # mode_res_file stores the time taken and the script name for every script in a mode (e.g. bash, pash, dish, fish)
 # all_res_file stores the time taken for each script for every script run, making it easy to copy and paste into the spreadsheet
-log-analysis() {
+media-conv() {
     mkdir -p "outputs/$1"
-    mode_res_file="./outputs/$1/log-analysis.res"
+    mode_res_file="./outputs/$1/media-conv.res"
     > $mode_res_file
 
-    echo executing log-analysis $1 $(date) | tee -a $mode_res_file $all_res_file
+    echo executing media-conv $1 $(date) | tee -a $mode_res_file $all_res_file
     for name_script in ${names_scripts[@]}
     do
         IFS=";" read -r -a name_script_parsed <<< "${name_script}"
@@ -67,12 +88,11 @@ log-analysis() {
         script="${name_script_parsed[1]}"
         script_file="./scripts/$script.sh"
         input_dir=$(parse_directories "$script" scripts_inputs[@])
-        output_dir=./outputs/$1$(parse_directories "$script" scripts_outputs[@])
+        output_dir=./outputs/$1/$(parse_directories "$script" scripts_outputs[@])
         output_file="./outputs/$1/$script.out"
         time_file="./outputs/$1/$script.time"
         log_file="./outputs/$1/$script.log"
         hash_file="./outputs/$1/$script.hash"
-        mkdir -p $output_dir
 
         # Print input size
         hdfs dfs -du -h -s "$input_dir"
@@ -95,20 +115,11 @@ log-analysis() {
             sleep 10
         fi
 
-        # # For every file in output_dir, generate a hash and delete the file
-        # for file in "$output_dir"/*.out
-        # do
-        #     # Extract the filename without the directory
-        #     filename=$(basename "$file")
-
-        #     # Generate SHA-256 hash and delete output file
-        #     shasum -a 256 "$file" | awk '{ print $1 }' > "$output_dir/$filename.hash"
-        #     rm "$file"
-        # done
-
-        # Delete the output directory, this is useful because otherwise the 
-        # output files will be appended to the existing files, if we don't delete manually
-        rm -r $output_dir
+        # Generate hash files for each converted file in output_dir
+        gen-hash-dir "$output_dir"
+        
+        # Find and delete all files not ending with 'hash'
+        find "$output_dir" -type f ! -name '*hash' -delete
 
         # Record timing for plotting
         t=$(cat "$time_file")
@@ -134,9 +145,6 @@ log-analysis() {
 # adjust the debug flag as required
 d=1
 
-log-analysis "bash"
-log-analysis "dish"          "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec"
-
-log-analysis "dynamic"       "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic"
-log-analysis "dynamic-m"     "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic --kill merger"
-log-analysis "dynamic-r"     "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic --kill regular"
+media-conv "dynamic"       "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic"
+media-conv "dynamic-m"     "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic --kill merger"
+media-conv "dynamic-r"     "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic --kill regular"
