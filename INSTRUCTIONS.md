@@ -7,9 +7,9 @@ The paper makes the following claims requiring artifact evaluation on page 2 (Co
 
 This artifact targets the following badges (mirroring [the NSDI26 artifact "evaluation process"](https://www.usenix.org/conference/nsdi26/call-for-artifacts)):  
 
-* [ ] [Artifact available](#artifact-available): Reviewers are expected to confirm public availability of core components (10 minutes)  
-* [ ] [Artifact functional](#artifact-functional): Reviewers are expected to verify distributed execution workflow and run a minimal "Hello, world" example (10 minutes).
-* [ ] [Results reproducible](#results-reproducible): Reviewers are expected to reproduce the key result: Fractal’s correct and efficient fault recovery, demonstrated by its speedup over Bash in both regular-node and merger-node failure scenarios, as well as its performance improvement in fault-free conditions (Fig. 7, XX minutes).
+* [ ] [Artifact available](#artifact-available): Reviewers are expected to confirm public availability of core components (~5mins)  
+* [ ] [Artifact functional](#artifact-functional): Reviewers are expected to verify distributed execution workflow and run a minimal "Hello, world" example (~10mins).
+* [ ] [Results reproducible](#results-reproducible): Reviewers are expected to reproduce the key result: Fractal’s correct and efficient fault recovery, demonstrated by its speedup over Bash in both regular-node and merger-node failure scenarios, as well as its performance improvement in fault-free conditions (Fig. 7, ~2.5h, optionally ~1 week).
 
 Note that Fractal builds on top of DiSh, an MIT-licensed open-source software that is part of the PaSh project.
 
@@ -20,7 +20,7 @@ Note that Fractal builds on top of DiSh, an MIT-licensed open-source software th
 > Reviewers should coordinate with each other to not run experiments at the same time—i.e., use HotCRP comments to notify each other of "locking" the infrastructure until a certain date (ideally, no more than a day).
 > _Please start evaluation early_ (in the background), as this kind of resource locking will delay the artifact evaluation process!
  
-# Artifact Available (10 minutes)  
+# Artifact Available (~5mins)
 Confirm Fractal is publicly available on GitHub. Below are some relevant links:  
 
 1. Fractal is openly hosted on GitHub ([repo](https://github.com/binpash/fractal/)), including [benchmarks](XXX) and [evaluation scripts](XXX).
@@ -31,7 +31,13 @@ Confirm Fractal is publicly available on GitHub. Below are some relevant links:
 
 We note that Fractal is [MIT-licensed open-source software](XXX License XXX), part of the PaSh projecct and hosted by the [Linux Foundation](https://www.linuxfoundation.org/press/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases).
  
-# Artifact Functional (10 minutes)  
+# Artifact Functional (~10mins)  
+
+Confirm sufficient documentation, key components as described in the paper, and the system's exercisability:
+
+* Documentation:
+* Key components:
+* Exercisability: 
 
 Confirm sufficient documentation, key components as described in the paper, and execution with min inputs (about 30 minutes).  
 
@@ -131,7 +137,7 @@ $FRACTAL_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!"
 
 <!-- *(Developer note moved to CONTRIBUTING.md)* -->
 
-# Results Reproducible (~XX hours)
+# Results Reproducible (~2.5hours)
 
 The key result in this paper’s evaluation is that **Fractal provides correct and efficient recovery** for both regular-node and merger-node failures. This is demonstrated by its speedup over both fault-free conditions and Bash baseline (§6.2, Fig. 7).
 
