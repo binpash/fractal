@@ -46,6 +46,7 @@ done
 rm -rf plotting/data
 rm -rf plotting/figures
 rm /var/www/html/*.pdf
+rm /var/www/html/*.csv
 
 # End timing the script
 end_time=$(date +%s)
