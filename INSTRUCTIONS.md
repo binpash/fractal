@@ -133,9 +133,10 @@ $FRACTAL_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!"
 
 # Results Reproducible (~ 5 hours)
 
-The key results in this paper's evaluation section are the following:
-1. *Fault-free execution*: Fractal also delivers near state-of-the-art performance in failure-free executions (§6.1, Fig.4).
-2. *Fault recovery execution*: Fractal provides *correct* and *efficient* recovery for both regular node failure and merger node failure (§6.2, Fig.5, Fig.7).
+<!-- The key results in this paper's evaluation section are the following:
+1. *Fault-free execution*: FRACTAL also delivers near state-of-the-art performance in failure-free executions (§6.1, Fig.4).
+2. *Fault recovery execution*: FRACTAL provides *correct* and *efficient* recovery for both regular node failure and merger node failure (§6.2, Fig.5, Fig.7). -->
+The key result in this paper’s evaluation is that **FRACTAL provides correct and efficient recovery** for both regular-node and merger-node failures. This is demonstrated by its speedup over both fault-free conditions and Bash baseline (§6.2, Fig. 7).
 <!-- 3. [Not urgent, nice to have] *Dynamic output persistence*: it demonstrates a subtle balance between accelerated fault recovery and overhead in fault-free execution (§6.3, Fig. 8). -->
 
 **Terminology correspondence:** Here is the correspondence of flag names between the paper and the artifact:
@@ -182,10 +183,11 @@ After parsing results from both clusters, run the following command on any contr
 
 Once the script completes, follow its prompt open the following URLs in a browser to view the generated figures, for example:
 ```
-Fig. 4: http://ms0813.utah.cloudlab.us/fig4.pdf  
-Fig. 5: http://ms0813.utah.cloudlab.us/fig5.pdf  
 Fig. 7: http://ms0813.utah.cloudlab.us/fig7.pdf
 ```
+
+Example output generated from the artifact:
+![example-output](ae-data/fig7.png)
 
 <!-- We have included in this repo sample data of the raw data timers (run.tmp), the final source data (data_final.csv) and the three output figures: [Fig. X](), [Fig. Y](), and [Fig. Z]() -->
 
@@ -208,7 +210,16 @@ Fig. 7: http://ms0813.utah.cloudlab.us/fig7.pdf
 > scp -i <pem> user@<vm-host>:~/plots/*.pdf ./local_plots/
 > ``` -->
 
-## [Optional] Hard faults (~1 week of manual effort)
+## [Optional (~1 week)] 
+
+We provide three optional experiments to confirm additional results from the paper:
+* Fault-free execution: Fractal also delivers near **state-of-the-art** performance in failure-free executions, comprared to DiSh and Hadoop Streaming (§6.1, Fig.5).
+* Dynamic persistencec: F
+
+### Fault-free execution
+FRACTAL also delivers near state-of-the-art performance in failure-free executions (§6.1, Fig.5).
+
+### Hard faults (manual efforts)
 Optionally, you may try to introduce *hard faults*. However, despite its conceptual simplicity, introducing and monitoring *hard faults* requires significant time and effort. 
 
 As shown at the bottom of page 10, replicating the presented hard faults experiment involves `3 completion percents × 3 system configs (AHS, regular ,
