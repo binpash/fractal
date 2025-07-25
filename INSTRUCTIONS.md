@@ -15,6 +15,8 @@ Note that Fractal builds on top of DiSh, an MIT-licensed open-source software th
 
 **To "kick the tires" for this artifact:** (1) Skim this README file to get an idea of the artifact's structure (2 minutes), and (2) Jump straight into the [exercisability](#exercisability) section of the README file (5 minutes).
 
+We will provide the private key and password through HotCRP for reviewers to access the control nodes for both clusters. Save the provided private key to your local machine (e.g., as `fractal.pem`), and change its permission using `chmod 400 fractal.pem`. When connecting via `ssh`, enter the provided password when prompted.
+
 > [!IMPORTANT]
 > We have reserved a 4-node cluster and a 30-node cluster on CloudLab **from August 1st to August 24th** for artifact evaluation.
 > Reviewers should coordinate with each other to not run experiments at the same time—i.e., use HotCRP comments to notify each other of "locking" the infrastructure until a certain date (ideally, no more than a day).
@@ -44,12 +46,12 @@ Confirm sufficient documentation, key components as described in the paper, and 
 3. introduces a fault-injection component supported by [helpers](runtime/scripts/killall.sh) that terminate entire process trees (which evaluation scripts driving these hooks to reproduce the fault-tolerance experiments of §6). Together these files (and the PaSh-JIT submodule they build upon) cover every component shown in Fig. 3, demonstrating that the released code fully realises the design presented in the paper.
 
 <a name="exercisability"></a>
-**Exercisability:** (1) _Scripts and data_: Scripts to run experiments are provided in the [./evaluation](./evaluation/) directory: [evaluation/run_all.sh](./evaluation/run_all.sh) runs all benchmarks, and the`run.sh` in each benchmark folder (e.g., [the one in classics](evaluation/classics/run.sh) runs individual benchmarks. Input data are downloadable via`inputs.sh`, which fetches datasets from persistent storage hosted on a Brown University (see [Appendix I](#appendix-input-locations)).  (2) _Execution:_ To facilitate evaluation, we pre-allocate and initialize a 4-node and a 30-node cluster with all input data pre-downloaded, available via the `fractal-ae26` account (see HotCRP for passwords). To connect to the _control node_ of each cluster:
+**Exercisability:** (1) _Scripts and data_: Scripts to run experiments are provided in the [./evaluation](./evaluation/) directory: [evaluation/run_all.sh](./evaluation/run_all.sh) runs all benchmarks, and the`run.sh` in each benchmark folder (e.g., [the one in classics](evaluation/classics/run.sh) runs individual benchmarks. Input data are downloadable via`inputs.sh`, which fetches datasets from persistent storage hosted on a Brown University (see [Appendix I](#appendix-input-locations)).  (2) _Execution:_ To facilitate evaluation, we pre-allocate and initialize a 4-node and a 30-node cluster with all input data pre-downloaded, available via the `fractal` account (see HotCRP for passwords). To connect to the _control node_ of each cluster:
 ```bash
 # Connect to the 4-node cluster
-ssh -i ./evaluation/cloudlab.pem fractal@ms0910.utah.cloudlab.us
+ssh -i fractal.pem fractal@ms0910.utah.cloudlab.us
 # Connect to the 30-node cluster
-ssh -i ./evaluation/cloudlab.pem fractal@ms0820.utah.cloudlab.us
+ssh -i fractal.pem fractal@ms0820.utah.cloudlab.us
 ```
 
 To connect to the client container:
@@ -113,7 +115,7 @@ After parsing results from both clusters, run the following command on any contr
 
 Once the script completes, follow its prompt open the following URLs in a browser to view the generated figures, for example:
 ```
-Fig. 7: http://ms0813.utah.cloudlab.us/fig7.pdf
+Fig. 7: http://ms0910.utah.cloudlab.us/fig7.pdf
 ```
 
 Example output generated from the artifact:
