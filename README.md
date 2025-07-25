@@ -59,23 +59,21 @@ Here are the key components of the Fractal repository:
 * [`evaluation/`](evaluation/): Benchmarks & fault-injection scripts
 * [`scripts/`](scripts/): Miscallencous helper scripts
 
-**Detailed system architecture:** The figure below describes Fractal's key components. A1–A6 annotate control-plane stages; B1-4 run on each executor.
+**Detailed system architecture:** The figure below describes Fractal's key components. `A1`–`A6` annotate control-plane stages; `B1`-`B4` run on each executor. Fractal first isolates side-effectful regions from recoverable regions; it then executes recoverable subgraphs on nodes, tracking locality, dependencies, progress, and health; and it detects failures, re-scheduling the minimal set of unfinished subgraphs for re-execution.
 
 ![Fractal architecture](ae-data/tech-outline.png)
 
-
-| Label | Role in the system | Key code locations |
-|-------|--------------------|--------------------|
-| **A1** | DFG augmentation & isolation of the *unsafe-main* subgraph | `pash/compiler/dspash/ir_helper.py::prepare_graph_for_remote_exec` |
-| **A2** | Remote Pipe instrumentation – injects read/write nodes that track byte offsets | `definitions/ir/nodes/remote_pipe.py`, `runtime/pipe/` |
-| **A3** | Dynamic output persistence – heuristic chooses spill-to-disk vs. stream | `pash/compiler/dspash/add_singular_flags`, `worker_manager.py::check_persisted_discovery`, `runtime/pipe/datastream/writeOptimized()` |
-| **A4** | Scheduler & batched dispatch of subgraphs to executors | `pash/compiler/dspash/worker_manager.py` |
-| **A5** | Progress monitor + Discovery: 17-byte completion events & endpoint registry | `runtime/pipe/discovery/`, `runtime/pipe/datastream/datastream.go` (EmitCompletion) |
-| **A6** | Health monitor – polls HDFS Namenode JMX and flags slow/failed nodes | `pash/compiler/dspash/hdfs_utils.py` |
-| **B1** | Executor event loop – non-blocking, launches subgraphs | `pash/compiler/dspash/worker.py::EventLoop` |
-| **B2** | Remote Pipe data path within executor (socket/file, buffered I/O) | `runtime/pipe/datastream/datastream.go` |
-| **B3** | Distributed File Reader – streams HDFS splits locally | `runtime/dfs/` |
-| **B4** | On-node cache of persisted outputs; avoids re-computation after faults | `writeOptimized()` spill files under `$FISH_OUT_PREFIX`
+The list of components is explained below, along with their location in the code:
+* `A1`: DFG augmentation and isolation of the unsafe-main subgraph (in [`pash/compiler/dspash/ir_helper.py::prepare_graph_for_remote_exec`](XXX))
+* `A2`: Remote pipe instrumentation, which injects read/write nodes that track byte offsets (in [`definitions/ir/nodes/remote_pipe.py`](XXX), [`runtime/pipe/`](XXX))
+* `A3`: Dynamic output persistence, a heuristic that chooses between spilling to disk or streaming (in [`pash/compiler/dspash/add_singular_flags`](XXX), [`worker_manager.py::check_persisted_discovery`](XXX), [`runtime/pipe/datastream/writeOptimized()`](XXX))
+* `A4`: Scheduler and batched dispatch of subgraphs to executors ([`pash/compiler/dspash/worker_manager.py`](XXX))
+* `A5`: Progress monitor and discovery, a 17-byte completion events and endpoint registry ([`runtime/pipe/discovery/`](XXX), [`runtime/pipe/datastream/datastream.go`](XXX))
+* `A6`: Health monitor, which polls HDFS Namenode JMX to identify slow/failed nodes ([`pash/compiler/dspash/hdfs_utils.py`](XXX))
+* `B1`: Executor no-blocking event loop, which launches subgraphs ([`pash/compiler/dspash/worker.py::EventLoop`](XXX))
+* `B2`: Remote pipe data path within executor (socket/file, buffered I/O) ([`runtime/pipe/datastream/datastream.go`](XXX))
+* `B3`: Distributed file reader, which streams HDFS splits locally ([`runtime/dfs/`](XXX))
+* `B4`: On-node cache of persisted outputs, which avoids re-computation after faults ([`writeOptimized()`](XXX))
 
 ## Community and More
 
