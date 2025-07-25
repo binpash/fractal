@@ -139,4 +139,4 @@ The PaSh paper, from OSDI'22:
 
 ## License & Contributions
 
-Fractal is an open-source, collaborative, [MIT-licensed](https://github.com/atlas-brown/slowpoke/blob/main/LICENSE) project available by the Linux Foundation and developed by researchers at [Brown University](https://cs.brown.edu/) and [UCLA](https://www.cs.ucla.edu/). If you'd like to contribute, please see the [`CONTRIBUTING.md`](./CONTRIBUTING.md) file—we welcome contributions! And _please come talk to us_ if you're looking to optimize shell programs!
+Fractal is an open-source, collaborative, [MIT-licensed](https://github.com/binpash/fractal/blob/main/LICENSE) project available by the Linux Foundation and developed by researchers at [Brown University](https://cs.brown.edu/) and [UCLA](https://www.cs.ucla.edu/). If you'd like to contribute, please see the [`CONTRIBUTING.md`](./CONTRIBUTING.md) file—we welcome contributions! And _please come talk to us_ if you're looking to optimize shell programs!
