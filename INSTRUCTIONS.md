@@ -2,7 +2,7 @@
 The paper makes the following claims requiring artifact evaluation on page 2 (Comments to AEC reviewers are after `:`):  
 
 1. **Execution engine**:  Fractal's light-weight instrumentation, progress and health monitors, and the executor runtime work together to offer efficient and precise recovery.  
-2. **Performance optimizations**: Fractal's critical-path components that reduce runtime overhead, including an *event-driven executor design*, *buffered-io sentinel striping*, and *batched scheduling*.  
+2. **Performance optimizations**: Fractal's critical-path components that reduce runtime overhead, including an event-driven executor design, buffered-io sentinel striping, and batched scheduling.  
 3. **Fault injection**:  an internal subsystem, `frac`, that enables large-scale characterization of fault recovery behaviors.  
 
 This artifact targets the following badges (mirroring [the NSDI26 artifact "evaluation process"](https://www.usenix.org/conference/nsdi26/call-for-artifacts)):  
@@ -11,7 +11,7 @@ This artifact targets the following badges (mirroring [the NSDI26 artifact "eval
 * [ ] [Artifact functional](#artifact-functional): Reviewers are expected to verify distributed execution workflow and run a minimal "Hello, world" example (10 minutes).
 * [ ] [Results reproducible](#results-reproducible): Reviewers are expected to reproduce the key result: Fractal’s correct and efficient fault recovery, demonstrated by its speedup over Bash in both regular-node and merger-node failure scenarios, as well as its performance improvement in fault-free conditions (Fig. 7, XX minutes).
 
-Note that Fractal builds on top of DiSh, MIT-licensed open-source software. It is part of the PaSh project, hosted by the [Linux Foundation](https://www.linuxfoundation.org/press/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases).
+Note that Fractal builds on top of DiSh, an MIT-licensed open-source software that is part of the PaSh project.
 
 **To "kick the tires" for this artifact:** (1) Skim this README file to get an idea of the artifact's structure (2 minutes), and (2) Jump straight into the [exercisability](#exercisability) section of the README file (5 minutes).
 
@@ -21,11 +21,15 @@ Note that Fractal builds on top of DiSh, MIT-licensed open-source software. It i
 > _Please start evaluation early_ (in the background), as this kind of resource locking will delay the artifact evaluation process!
  
 # Artifact Available (10 minutes)  
-Confirm core components are publicly available. Below are some relevant links:  
+Confirm Fractal is publicly available on GitHub. Below are some relevant links:  
 
-- Fractal is permanently hosted on the GitHub [binpash](https://github.com/binpash/) organization.  
-- Fractal's command annotations conform to the format outlined in [PaSh](https://github.com/binpash/pash), a MIT-licensed open-source software.  
-- We have a publicly-accessible discord Server ([Invite](http://join.binpa.sh/)) for troubleshooting and feedback.  
+1. Fractal is openly hosted on GitHub ([repo](https://github.com/binpash/fractal/)), including [benchmarks](XXX) and [evaluation scripts](XXX).
+2. The Fractal repo is also permanently hosted on [Zenodo](XXX), as an additional level of archival assurannce.
+3. All data used in these experiments are publicly available (see URLS in [this README's Appendix](#appendix-input-locations)), as part of the Koala benchmark suite ([Usenix ATC'25 paper](https://www.usenix.org/system/files/atc25-lamprou.pdf), [website](https://kben.sh/, [full inputs](https://github.com/kbensh/koala/blob/main/INSTRUCTIONS.md#inputs)).
+4. Fractal's command annotations conform to the ones from [PaSh](https://github.com/binpash/annotations), another MIT-licensed open-source software.  
+5. We have a publicly-accessible discord Server ([Invite](http://join.binpa.sh/)) for troubleshooting and feedback.
+
+We note that Fractal is [MIT-licensed open-source software](XXX License XXX), part of the PaSh projecct and hosted by the [Linux Foundation](https://www.linuxfoundation.org/press/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases).
  
 # Artifact Functional (10 minutes)  
 
@@ -226,4 +230,22 @@ The procedures are listed below (let's set the experiment config for classics/to
 8. When Fractal detects, recovers, and eventually completes this run (in the client's container), reboot the just-shutdown node, and wait until it's back up
 9. To make sure it is back and stable, we need to check whether all of its data blocks are back online (i.e., whether replication factor is satisfied)
 
+## Appendix: Input locations
+
+The Fractal project uses some of the Koala benchmarks ([Usenix ATC'25 paper](https://www.usenix.org/system/files/atc25-lamprou.pdf), [website](https://kben.sh/), [full inputs](https://github.com/kbensh/koala/blob/main/INSTRUCTIONS.md#inputs)), thus uses some of the inputs permanantely stored by the Koala authors: 
+[1M](https://atlas-group.cs.brown.edu/data/dummy/1M.txt), 
+[dictionary](https://atlas-group.cs.brown.edu/data/dummy/dict.txt), 
+[books](https://atlas-group.cs.brown.edu/data/gutenberg/books.txt), 
+[Bible](https://atlas-group.cs.brown.edu/data/gutenberg/8/0/0/8001/8001.txt), 
+[Exodus](https://atlas-group.cs.brown.edu/data/gutenberg/3/3/4/2/33420/33420-0.txt), 
+[Gutenberg](https://atlas-group.cs.brown.edu/data/gutenberg/), 
+[PCAP](https://atlas-group.cs.brown.edu/data/pcaps.zip), 
+[nginx logs](https://atlas-group.cs.brown.edu/data/nginx.zip), 
+[wav file](https://atlas-group.cs.brown.edu/data/wav.zip), 
+[small jpg files](https://atlas-group.cs.brown.edu/data/small/jpg.zip), 
+[full jpg files](https://atlas-group.cs.brown.edu/data/full/jpg.zip), 
+[unix50 inputs](http://atlas-group.cs.brown.edu/data/unix50/), 
+[COVID small](https://atlas-group.cs.brown.edu/data/covid-mts/in_small.csv.gz), 
+[COVID full](https://atlas-group.cs.brown.edu/data/covid-mts/in.csv.gz), 
+[NOAA data](http://atlas-group.cs.brown.edu/data/noaa/).
 
