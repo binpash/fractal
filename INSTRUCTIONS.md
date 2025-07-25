@@ -9,7 +9,7 @@ This artifact targets the following badges (mirroring [the NSDI26 artifact "eval
 
 * [ ] [Artifact available](#artifact-available): Reviewers are expected to confirm public availability of core components (~5mins)  
 * [ ] [Artifact functional](#artifact-functional): Reviewers are expected to verify distributed execution workflow and run a minimal "Hello, world" example (~10mins).
-* [ ] [Results reproducible](#results-reproducible): Reviewers are expected to reproduce the key result: Fractal’s correct and efficient fault recoveryfor both regular-node and merger-node failures, demonstrated by its performance compared to fault-free conditions (Fig. 7, ~2.5h, optionally ~1 week).
+* [ ] [Results reproducible](#results-reproducible): Reviewers are expected to reproduce the key result: Fractal’s correct and efficient fault recoveryfor both regular-node and merger-node failures, demonstrated by its performance compared to fault-free conditions (Fig. 7, ~60mins, optionally ~1 week).
 
 Note that Fractal builds on top of DiSh, an MIT-licensed open-source software that is part of the PaSh project.
 
@@ -137,7 +137,7 @@ $FRACTAL_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!"
 
 <!-- *(Developer note moved to CONTRIBUTING.md)* -->
 
-# Results Reproducible (~2.5hours)
+# Results Reproducible (~60mins)
 
 The key result in this paper’s evaluation is that **Fractal provides correct and efficient recovery** for both regular-node and merger-node failures. This is demonstrated by its performance compared to fault-free conditions (§6.2, Fig. 7).
 
@@ -152,7 +152,7 @@ The key result in this paper’s evaluation is that **Fractal provides correct a
 
 The `--small` option produces results that closely match those presented in the paper. All key performance differences between configurations are still clearly observable. 
 
-This section also provide detailed instrauctions on how to replicate the figures of the experimental evaluation of Fractal as described in Table 2: [Classics](./evaluation/classics/), [Unix50](./evaluation/unix50/), [NLP](./evaluation/nlp/), [Analytics](./evaluation/analytics/), and [Automation](./evaluation/automation/).
+This section also provide detailed instrauctions on how to replicate Fig. 7 of the experimental evaluation of Fractal as described in Table 2: [Classics](./evaluation/classics/), [Unix50](./evaluation/unix50/), [NLP](./evaluation/nlp/), [Analytics](./evaluation/analytics/), and [Automation](./evaluation/automation/).
 
 To run all the benchmarks with `--small` input from the control node **for each cluster**:
 
