@@ -99,7 +99,9 @@ Fractal is backed up by state-of-the-art research—if you are using it to accel
 }
 ```
 
-Fractal has been incorporated into an earlier fault-intolerant dstributed system called DiSh:
+<details><summary>(More bibtex) Fractal builds on DiSh and PaSh</summary>
+
+The DiSh paper, from NSDI'23:
 
 ```bibtex
 @inproceedings{dish:nsdi:2023,
@@ -115,6 +117,25 @@ Fractal has been incorporated into an earlier fault-intolerant dstributed system
  month = apr
 }
 ```
+
+The PaSh paper, from OSDI'22:
+```bibtex
+@inproceedings{pash:osdi:2022,
+ author = {Konstantinos Kallas and Tammam Mustafa and Jan Bielak and Dimitris Karnikis and Thurston H.Y. Dang and Michael Greenberg and Nikos Vasilakis},
+ title = {Practically Correct, {Just-in-Time} Shell Script Parallelization},
+ booktitle = {16th USENIX Symposium on Operating Systems Design and Implementation (OSDI 22)},
+ year = {2022},
+ isbn = {978-1-939133-28-1},
+ address = {Carlsbad, CA},
+ pages = {769--785},
+ url = {https://www.usenix.org/conference/osdi22/presentation/kallas},
+ publisher = {USENIX Association},
+ month = jul
+}
+```
+
+</details>
+
 
 ## License & Contributions
 
