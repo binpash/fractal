@@ -164,8 +164,8 @@ docker exec -it docker-hadoop-client-1 bash
 cd $FRACTAL_TOP/evaluation
 
 # There are two options here, either use --small or --full as an argument to determine the input size.
-# To faciliate the review process, we populate the data using `bash inputs_all.sh --small` (~20 minutes).
-# Optionally, reviwers can rerun `bash inputs_all.sh` to clean up everything and regenerate the data.
+# To facilitate the review process, we populate the data using `bash inputs_all.sh --small` (~20 minutes)
+# Optionally, reviewers can run `bash inputs_all.sh` to clean up and regenerate all data from scratch.
 bash run_all.sh --small
 ```
 
