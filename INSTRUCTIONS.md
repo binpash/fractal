@@ -131,13 +131,9 @@ $FRACTAL_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!"
 
 <!-- *(Developer note moved to CONTRIBUTING.md)* -->
 
-# Results Reproducible (~ 5 hours)
+# Results Reproducible (~ XX hours)
 
-<!-- The key results in this paper's evaluation section are the following:
-1. *Fault-free execution*: FRACTAL also delivers near state-of-the-art performance in failure-free executions (§6.1, Fig.4).
-2. *Fault recovery execution*: FRACTAL provides *correct* and *efficient* recovery for both regular node failure and merger node failure (§6.2, Fig.5, Fig.7). -->
-The key result in this paper’s evaluation is that **FRACTAL provides correct and efficient recovery** for both regular-node and merger-node failures. This is demonstrated by its speedup over both fault-free conditions and Bash baseline (§6.2, Fig. 7).
-<!-- 3. [Not urgent, nice to have] *Dynamic output persistence*: it demonstrates a subtle balance between accelerated fault recovery and overhead in fault-free execution (§6.3, Fig. 8). -->
+The key result in this paper’s evaluation is that **Fractal provides correct and efficient recovery** for both regular-node and merger-node failures. This is demonstrated by its speedup over both fault-free conditions and Bash baseline (§6.2, Fig. 7).
 
 **Terminology correspondence:** Here is the correspondence of flag names between the paper and the artifact:
 * Fractal (no fault): `--width 8 --r_split --distributed_exec --ft dynamic`
@@ -148,11 +144,11 @@ The key result in this paper’s evaluation is that **FRACTAL provides correct a
 - `--small`: Uses a reduced input size, resulting in shorter execution time (~X hours).  
 - `--full`: Matches the input size used in the paper (~X hours).
 
-The `--small` option produces results that closely match those presented in the paper. All key performance differences between configurations are still clearly observable.
+The `--small` option produces results that closely match those presented in the paper. All key performance differences between configurations are still clearly observable. 
 
 This section also provide detailed instrauctions on how to replicate the figures of the experimental evaluation of Fractal as described in Table 2: [Classics](./evaluation/classics/), [Unix50](./evaluation/unix50/), [NLP](./evaluation/nlp/), [Analytics](./evaluation/analytics/), and [Automation](./evaluation/automation/).
 
-To run all the benchmarks with `--small` input from the control node **for each cluster**
+To run all the benchmarks with `--small` input from the control node **for each cluster**:
 
 ```bash
 # open the interactive shell for the client container
@@ -162,6 +158,8 @@ docker exec -it docker-hadoop-client-1 bash
 cd $FRACTAL_TOP/evaluation
 
 # There are two options here, either use --small or --full as an argument to determine the input size.
+# To faciliate the review process, we populate the data using `bash inputs_all.sh --small` (~20 minutes).
+# Optionally, reviwers can rerun `bash inputs_all.sh` to clean up everything and regenerate the data.
 bash run_all.sh --small
 ```
 
@@ -212,12 +210,15 @@ Example output generated from the artifact:
 
 ## [Optional (~1 week)] 
 
-We provide three optional experiments to confirm additional results from the paper:
-* Fault-free execution: Fractal also delivers near **state-of-the-art** performance in failure-free executions, comprared to DiSh and Hadoop Streaming (§6.1, Fig.5).
-* Dynamic persistencec: F
+We provide three optional experiments to validate additional results presented in the paper:
+* **Fault-free performance**: Fractal achieves near **state-of-the-art** performance in failure-free execution, comparable to DiSh and Hadoop Streaming (§6.1, Fig. 5).
+* **Dynamic output persistence**: Fractal strikes a subtle balance between accelerated fault recovery and low overhead during fault-free execution (§6.3, Fig. 8).
+* **Hard faults**: Fractal efficiently recovers from hard faults, such as complete worker machine shutdowns.
 
 ### Fault-free execution
 FRACTAL also delivers near state-of-the-art performance in failure-free executions (§6.1, Fig.5).
+
+### Dynamic output persistence
 
 ### Hard faults (manual efforts)
 Optionally, you may try to introduce *hard faults*. However, despite its conceptual simplicity, introducing and monitoring *hard faults* requires significant time and effort. 
