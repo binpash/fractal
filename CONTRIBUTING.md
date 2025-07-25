@@ -1,12 +1,15 @@
 # Contributing to Fractal/Dish
 
+[Adding a new benchmark](#adding-a-new-benchmark-suite) | [rebuilding/restarting runtimes](#rebuilding-and-restarting-the-worker-runtime)
+
 Thank you for your interest in extending the repository!  This document captures
 frequently requested developer workflows that do **not** belong in the user‐oriented
 README files.
 
----
+For questions, ping us on Discord: <http://join.binpa.sh/> 
 
-## 1  Adding a new Benchmark Suite
+## Adding a new Benchmark Suite
+
 FRACTAL suites live under `evaluation/<suite>/` and must expose the following
 interface so that automation scripts can discover them:
 
@@ -33,9 +36,8 @@ Conversion recipe (adapted from the original evaluation README):
 Run your suite with `run.sh --small` first; once it works you can add a row to
 the benchmark-summary table in `evaluation/README.md`.
 
----
+## Rebuilding and Restarting the Worker Runtime
 
-## 2  Rebuilding and Restarting the Worker Runtime
 When hacking core Go / Python code you often want a *live* cluster without
 re-deploying containers.  The following one-liner (from the original
 INSTRUCTIONS) restarts the worker processes inside each DataNode container:
@@ -57,7 +59,3 @@ If you changed Go code remember to rebuild:
 /opt/dish/runtime/scripts/build.sh
 ```
 which recompiles `filereader_server`, `datastream`, and `discovery_server`.
-
----
-
-For questions ping us on Discord: <http://join.binpa.sh/> 
