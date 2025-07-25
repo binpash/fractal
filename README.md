@@ -43,9 +43,9 @@ After installing fractal, run it inside the client container:
 hdfs dfs -put /etc/hosts /hosts
 # Execute a tiny script with fault tolerance on (dynamic persistence)
 cd /opt/dish
-./di.sh --ft dynamic scripts/sample.sh   # output identical to bash
+./fractal.sh --ft dynamic scripts/sample.sh   # output identical to bash
 ```
-Inject a fail-stop fault: `./di.sh --ft dynamic --kill regular scripts/sample.sh`.
+Inject a fail-stop fault: `./fractal.sh --ft dynamic --kill regular scripts/sample.sh`.
 
 
 ## Repository Structure
