@@ -131,7 +131,7 @@ $FRACTAL_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!"
 
 <!-- *(Developer note moved to CONTRIBUTING.md)* -->
 
-# Results Reproducible (~ XX hours)
+# Results Reproducible (~XX hours)
 
 The key result in this paper’s evaluation is that **Fractal provides correct and efficient recovery** for both regular-node and merger-node failures. This is demonstrated by its speedup over both fault-free conditions and Bash baseline (§6.2, Fig. 7).
 
@@ -141,8 +141,8 @@ The key result in this paper’s evaluation is that **Fractal provides correct a
 * Fractal (merger-node fault):`--width 8 --r_split --distributed_exec --ft dynamic --kill merger`
 
 **Execution and Plotting:** We provide two input load sizes for testing and evaluating Fractal:
-- `--small`: Uses a reduced input size, resulting in shorter execution time (~X hours).  
-- `--full`: Matches the input size used in the paper (~X hours).
+- `--small`: Uses a reduced input size, resulting in shorter execution time (~XX hours).  
+- `--full`: Matches the input size used in the paper (~XX hours).
 
 The `--small` option produces results that closely match those presented in the paper. All key performance differences between configurations are still clearly observable. 
 
