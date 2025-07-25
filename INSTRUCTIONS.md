@@ -15,6 +15,8 @@ Note that Fractal builds on top of DiSh, an MIT-licensed open-source software th
 
 **To "kick the tires" for this artifact:** (1) Skim this README file to get an idea of the artifact's structure (2 minutes), and (2) Jump straight into the [exercisability](#exercisability) section of the README file (5 minutes).
 
+We will provide the private key and password through HotCRP for reviewers to access the control nodes for both clusters. Save the provided private key to your local machine (e.g., as `fractal.pem`), and change its permission using `chmod 400 fractal.pem`. When connecting via `ssh`, enter the provided password when prompted.
+
 > [!IMPORTANT]
 > We have reserved a 4-node cluster and a 30-node cluster on CloudLab **from August 1st to August 24th** for artifact evaluation.
 > Reviewers should coordinate with each other to not run experiments at the same time—i.e., use HotCRP comments to notify each other of "locking" the infrastructure until a certain date (ideally, no more than a day).
@@ -35,22 +37,21 @@ We note that Fractal is [MIT-licensed open-source software](XXX License XXX), pa
 
 Confirm sufficient documentation, key components as described in the paper, and the system's exercisability:
 
-* **Documentation:** Fractal contains documentation of its top-level structure (e.g., [overall architecture](./README.md), [control-plane](./pash/compiler/dspash/README.md), [runtime](./runtime/README.md)), its key components (e.g., [remote pipes](./runtime/pipe/README.md), [DFS reader](./runtime/dfs/README.md), [runtime helpers](./runtime/scripts/README.md)), its setup and evaluation (e.g., [cluster boostrap](./docker-hadoop/README.md), [evaluation](./evaluation/README.md)), and other elements (e.g., [contribution](./CONTRIBUTING.md), [community](https://github.com/binpash/fractal/tree/main?tab=readme-ov-file#community-and-more). 
+**Documentation:** Fractal contains documentation of its top-level structure (e.g., [overall architecture](./README.md), [control-plane](./pash/compiler/dspash/README.md), [runtime](./runtime/README.md)), its key components (e.g., [remote pipes](./runtime/pipe/README.md), [DFS reader](./runtime/dfs/README.md), [runtime helpers](./runtime/scripts/README.md)), its setup and evaluation (e.g., [cluster boostrap](./docker-hadoop/README.md), [evaluation](./evaluation/README.md)), and other elements (e.g., [contribution](./CONTRIBUTING.md), [community](https://github.com/binpash/fractal/tree/main?tab=readme-ov-file#community-and-more). 
 
-* **Copmleteness:** The repository's top-level README file offers [a high-level overview](https://github.com/binpash/fractal/?tab=readme-ov-file#repository-structure). In more detail: to support fault-tolerant execution, Fractal
-(1) extends
-the [dataflow compilation with sugraphs and wrappers](pash/compiler/dspash/ir_helper.py) and 
-the [worker manager with subgraph-to-node mapping, dependency tracking, and selective re-execution](pash/compiler/dspash/worker_manager.py) (§4.1–§4.2), and introduces a runtime [datastream wrapper](runtime/pipe/datastream/datastream.go) to decide whether to spill a stream to disk (`--ft dynamic` flag and a `-s` (singular) tag in each `RemotePipe`), reexecuting only non-persisted outputs, and [polls HDFS](pash/compiler/dspash/hdfs_utils.py) via JMX callbacks wired into the scheduler, (2) optimizes execution through an [event-driven worker runtime (§5.1)](pash/compiler/dspash/worker.py) whose lock-free `EventLoop` launches up to *N* subgraphs and `TimeRecorder` logs execution, [buffered-IO sentinel stripping (§5.2)](XXX) where 8-byte EOF tokens are removed on-the-fly using a single 4096-byte buffer, and [batched scheduling (§5.3)](XXX) where the worker manager builds `worker_to_batches` and issues one `Batch-Exec-Graph` RPC per worker, and (3) introduces a fault-injection component supported by [helpers](runtime/scripts/killall.sh) that terminate entire process trees (which evaluation scripts driving these hooks to reproduce the fault-tolerance experiments of §6). Together these files (and the PaSh-JIT submodule they build upon) cover every component shown in Fig. 3, demonstrating that the released code fully realises the design presented in the paper.
+**Copmleteness:** The repository's top-level README file offers [a high-level overview](https://github.com/binpash/fractal/?tab=readme-ov-file#repository-structure). In more detail: to support fault-tolerant execution, Fractal:
+
+1. extends the [dataflow compilation with sugraphs and wrappers](pash/compiler/dspash/ir_helper.py) and the [worker manager with subgraph-to-node mapping, dependency tracking, and selective re-execution](pash/compiler/dspash/worker_manager.py) (§4.1–§4.2), and introduces a runtime [datastream wrapper](runtime/pipe/datastream/datastream.go) to decide whether to spill a stream to disk (`--ft dynamic` flag and a `-s` (singular) tag in each `RemotePipe`), reexecuting only non-persisted outputs, and [polls HDFS](pash/compiler/dspash/hdfs_utils.py) via JMX callbacks wired into the scheduler.
+2. optimizes execution through an [event-driven worker runtime (§5.1)](pash/compiler/dspash/worker.py) whose lock-free `EventLoop` launches up to *N* subgraphs and `TimeRecorder` logs execution, [buffered-IO sentinel stripping (§5.2)](XXX) where 8-byte EOF tokens are removed on-the-fly using a single 4096-byte buffer, and [batched scheduling (§5.3)](XXX) where the worker manager builds `worker_to_batches` and issues one `Batch-Exec-Graph` RPC per worker;
+3. introduces a fault-injection component supported by [helpers](runtime/scripts/killall.sh) that terminate entire process trees (which evaluation scripts driving these hooks to reproduce the fault-tolerance experiments of §6). Together these files (and the PaSh-JIT submodule they build upon) cover every component shown in Fig. 3, demonstrating that the released code fully realises the design presented in the paper.
 
 <a name="exercisability"></a>
-* **Exercisability:** (1) _Scripts and data_: Scripts to run experiments are provided in the [./evaluation](./evaluation/) directory. To run all benchmarks, use [evaluation/run_all.sh](./evaluation/run_all.sh). To run a specific benchmark, use the `run.sh` script located within each benchmark folder (e.g., [running](evaluation/classics/run.sh) the `classics` benchmark). The required input data for each benchmark can be downloaded using `inputs.sh`, which fetches datasets from persistent storage hosted on a Brown University cluster at https://atlas.cs.brown.edu/data.  (2) _Execution:_ To facilitate evaluation, we pre-allocate and initialize both the 4-node and 30-node clusters with all input data pre-downloaded. We have created a `fractal-ae26` account on the two CloudLab clusters used in our evaluation of Fractal. 
-To connect to the control node of each cluster:
-
+**Exercisability:** (1) _Scripts and data_: Scripts to run experiments are provided in the [./evaluation](./evaluation/) directory: [evaluation/run_all.sh](./evaluation/run_all.sh) runs all benchmarks, and the`run.sh` in each benchmark folder (e.g., [the one in classics](evaluation/classics/run.sh) runs individual benchmarks. Input data are downloadable via`inputs.sh`, which fetches datasets from persistent storage hosted on a Brown University (see [Appendix I](#appendix-input-locations)).  (2) _Execution:_ To facilitate evaluation, we pre-allocate and initialize a 4-node and a 30-node cluster with all input data pre-downloaded, available via the `fractal` account (see HotCRP for passwords). To connect to the _control node_ of each cluster:
 ```bash
 # Connect to the 4-node cluster
-ssh -i ./evaluation/cloudlab.pem fractal@ms0910.utah.cloudlab.us
+ssh -i fractal.pem fractal@ms0910.utah.cloudlab.us
 # Connect to the 30-node cluster
-ssh -i ./evaluation/cloudlab.pem fractal@ms0820.utah.cloudlab.us
+ssh -i fractal.pem fractal@ms0820.utah.cloudlab.us
 ```
 
 To connect to the client container:
@@ -63,28 +64,6 @@ To run Fractal with a minimal `echo` example under a fault-free setting:
 ```bash
 $FRACTAL_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!" 
 ```
-
-<!-- ### Pre-requisites
-1. Set up cloudlab account and have reserved a cluster (note: this will be done by the time ae is submitted)
-
-🚧 YZ: Do we expect users to run the following setup commands in a specific env, e.g., provided docker image? If not, add commands to install dependencies, e.g., installing `clush` using `pip` on MacOS. 
-
-### Set up cloudlab cluster swarm
-1. Create a file at `docker-hadoop/manifest.xml` for pasting the cluster manifest from cloudlab
-2. Run `cd docker-hadoop`
-3. Run `./prepare-cloudlab-notes.sh manifest.xml [cloudlab-username]` (🚧 YZ: 14:08.12 mins)
-4. Now all the hostnames in the cluster are in `hostnames.txt` with the first entry being the manager node.
-5. Now ssh into that node with something like `ssh [username]@$(head -n 1 hostnames.txt)` (🚧 YZ: explicitly say the first ip in the hostnames.txt?)
-6. Run `cd dish/docker-hadoop`
-7. Run `sudo ./start-client.sh --eval` where client is `nodemanager`
-8. Run `docker exec -it docker-hadoop-client-1 bash` to get inside the client node's container.
-
-### Shutdown
-1. Run `sudo docker compose -f docker-compose-client.yml down` to shutdown the client docker image
-2. Run `./stop-swarm`
-3. Run `docker swarm leave -force` -->
-
-<!-- *(Developer note moved to CONTRIBUTING.md)* -->
 
 # Results Reproducible (~60mins)
 
@@ -136,7 +115,7 @@ After parsing results from both clusters, run the following command on any contr
 
 Once the script completes, follow its prompt open the following URLs in a browser to view the generated figures, for example:
 ```
-Fig. 7: http://ms0813.utah.cloudlab.us/fig7.pdf
+Fig. 7: http://ms0910.utah.cloudlab.us/fig7.pdf
 ```
 
 Example output generated from the artifact:

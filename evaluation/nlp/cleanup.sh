@@ -4,4 +4,4 @@ cd "$(realpath $(dirname "$0"))"
 
 rm -rf ./inputs
 rm -rf ./outputs
-hdfs dfs -rm -r /nlp
+# hdfs dfs -rm -r /nlp
