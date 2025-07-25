@@ -185,7 +185,9 @@ Fig. 7: http://ms0813.utah.cloudlab.us/fig7.pdf
 ```
 
 Example output generated from the artifact:
-![example-output](ae-data/fig7.png)
+<p align="center">
+  <img src="ae-data/fig7.png" alt="example-output" width="500"/>
+</p>
 
 <!-- We have included in this repo sample data of the raw data timers (run.tmp), the final source data (data_final.csv) and the three output figures: [Fig. X](), [Fig. Y](), and [Fig. Z]() -->
 
