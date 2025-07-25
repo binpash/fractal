@@ -166,7 +166,7 @@ cd $FRACTAL_TOP/evaluation
 # There are two options here, either use --small or --full as an argument to determine the input size.
 # To facilitate the review process, we populate the data using `bash inputs_all.sh --small` (~20 minutes)
 # Optionally, reviewers can run `bash inputs_all.sh` to clean up and regenerate all data from scratch.
-bash run_all.sh --small
+bash run_faulty.sh --small
 ```
 
 Generating the plots requires data from both clusters. To parse the per-cluster results, run the following command with `--site 4` for the 4-node cluster or `--site 30` for the 30-node cluster:
