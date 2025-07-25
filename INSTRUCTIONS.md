@@ -9,16 +9,19 @@ This artifact targets the following badges (mirroring [the NSDI26 artifact "eval
 
 * [ ] [Artifact available](#artifact-available): Reviewers are expected to confirm public availability of core components (10 minutes)  
 * [ ] [Artifact functional](#artifact-functional): Reviewers are expected to verify distributed execution workflow and run a minimal "Hello, world" example (10 minutes).
-* [ ] [Results reproducible](#results-reproducible): Reviewers are expected to reproduce the key result: Fractal’s correct and efficient fault recovery, demonstrated by its speedup over Bash in both regular-node and merger-node failure scenarios, as well as its performance improvement in fault-free conditions (Fig. 7, XX minutes). 
+* [ ] [Results reproducible](#results-reproducible): Reviewers are expected to reproduce the key result: Fractal’s correct and efficient fault recovery, demonstrated by its speedup over Bash in both regular-node and merger-node failure scenarios, as well as its performance improvement in fault-free conditions (Fig. 7, XX minutes).
 
-**To "kick the tires" for this artifact:**
-* Skim this README file to get an idea of the structure (2 minutes).
-* Jump straight into the [Exercisability](#exercisability) section of the README file (10 minutes).
+Note that Fractal builds on top of DiSh, MIT-licensed open-source software. It is part of the PaSh project, hosted by the [Linux Foundation](https://www.linuxfoundation.org/press/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases).
+
+**To "kick the tires" for this artifact:** (1) Skim this README file to get an idea of the artifact's structure (2 minutes), and (2) Jump straight into the [exercisability](#exercisability) section of the README file (5 minutes).
+
+> [!IMPORTANT]
+> We have reserved a 4-node cluster and a 30-node cluster on CloudLab **from August 1st to August 24th** for artifact evaluation.
+> Reviewers should coordinate with each other to not run experiments at the same time—i.e., use HotCRP comments to notify each other of "locking" the infrastructure until a certain date (ideally, no more than a day).
+> _Please start evaluation early_ (in the background), as this kind of resource locking will delay the artifact evaluation process!
  
 # Artifact Available (10 minutes)  
-Confirm core components are publicly available.  
-
-Fractal builds on top of DiSh, MIT-licensed open-source software. It is part of the PaSh project, hosted by the [Linux Foundation](https://www.linuxfoundation.org/press/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases). Below are some relevant links:  
+Confirm core components are publicly available. Below are some relevant links:  
 
 - Fractal is permanently hosted on the GitHub [binpash](https://github.com/binpash/) organization.  
 - Fractal's command annotations conform to the format outlined in [PaSh](https://github.com/binpash/pash), a MIT-licensed open-source software.  
