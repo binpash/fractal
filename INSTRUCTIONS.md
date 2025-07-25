@@ -133,7 +133,7 @@ $FRACTAL_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!"
 
 # Results Reproducible (~XX hours)
 
-The key result in this paper’s evaluation is that **Fractal provides correct and efficient recovery** for both regular-node and merger-node failures. This is demonstrated by its speedup over both fault-free conditions and Bash baseline (§6.2, Fig. 7).
+The key result in this paper’s evaluation is that **Fractal provides correct and efficient recovery** for both regular-node and merger-node failures. This is demonstrated by its performance compared to fault-free conditions (§6.2, Fig. 7).
 
 **Terminology correspondence:** Here is the correspondence of flag names between the paper and the artifact:
 * Fractal (no fault): `--width 8 --r_split --distributed_exec --ft dynamic`
