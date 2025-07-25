@@ -1,15 +1,15 @@
 # Overview  
 The paper makes the following claims requiring artifact evaluation on page 2 (Comments to AEC reviewers are after `:`):  
 
-1. **Execution engine**:  Fractal's light-weight instrumentation, progress and health monitors, and the executor runtime work together to offer efficient and precise recovery.  
-2. **Performance optimizations**: Fractal's critical-path components that reduce runtime overhead, including an event-driven executor design, buffered-io sentinel striping, and batched scheduling.  
-3. **Fault injection**:  an internal subsystem, `frac`, that enables large-scale characterization of fault recovery behaviors.  
+1. **Execution engine**: Fractal's light-weight instrumentation, progress and health monitors, and the executor.
+2. **Performance optimizations**: Fractal's event-driven executor, buffered-io sentinel striping, and batched scheduling.  
+3. **Fault injection**: Fractal's internal subsystem, `frac`, that enables large-scale characterization of fault recovery behaviors.  
 
 This artifact targets the following badges (mirroring [the NSDI26 artifact "evaluation process"](https://www.usenix.org/conference/nsdi26/call-for-artifacts)):  
 
-* [ ] [Artifact available](#artifact-available): Reviewers are expected to confirm public availability of core components (~5mins)  
-* [ ] [Artifact functional](#artifact-functional): Reviewers are expected to verify distributed execution workflow and run a minimal "Hello, world" example (~10mins).
-* [ ] [Results reproducible](#results-reproducible): Reviewers are expected to reproduce the key result: Fractal’s correct and efficient fault recoveryfor both regular-node and merger-node failures, demonstrated by its performance compared to fault-free conditions (Fig. 7, ~60mins, optionally ~1 week).
+* [x] [Artifact available](#artifact-available): Reviewers are expected to confirm public availability of core components (~5mins)  
+* [x] [Artifact functional](#artifact-functional): Reviewers are expected to verify distributed execution workflow and run a minimal "Hello, world" example (~10mins).
+* [x] [Results reproducible](#results-reproducible): Reviewers are expected to reproduce the key result: Fractal’s correct and efficient fault recoveryfor both regular-node and merger-node failures, demonstrated by its performance compared to fault-free conditions (Fig. 7, ~60mins, optionally ~1 week).
 
 Note that Fractal builds on top of DiSh, an MIT-licensed open-source software that is part of the PaSh project.
 
@@ -35,66 +35,15 @@ We note that Fractal is [MIT-licensed open-source software](XXX License XXX), pa
 
 Confirm sufficient documentation, key components as described in the paper, and the system's exercisability:
 
-* Documentation:
-* Key components:
-* Exercisability: 
+* **Documentation:** Fractal contains documentation of its top-level structure (e.g., [overall architecture](./README.md), [control-plane](./pash/compiler/dspash/README.md), [runtime](./runtime/README.md)), its key components (e.g., [remote pipes](./runtime/pipe/README.md), [DFS reader](./runtime/dfs/README.md), [runtime helpers](./runtime/scripts/README.md)), its setup and evaluation (e.g., [cluster boostrap](./docker-hadoop/README.md), [evaluation](./evaluation/README.md)), and other elements (e.g., [contribution](./CONTRIBUTING.md), [community](https://github.com/binpash/fractal/tree/main?tab=readme-ov-file#community-and-more). 
 
-Confirm sufficient documentation, key components as described in the paper, and execution with min inputs (about 30 minutes).  
+* **Copmleteness:** The repository's top-level README file offers [a high-level overview](https://github.com/binpash/fractal/?tab=readme-ov-file#repository-structure). In more detail: to support fault-tolerant execution, Fractal
+(1) extends
+the [dataflow compilation with sugraphs and wrappers](pash/compiler/dspash/ir_helper.py) and 
+the [worker manager with subgraph-to-node mapping, dependency tracking, and selective re-execution](pash/compiler/dspash/worker_manager.py) (§4.1–§4.2), and introduces a runtime [datastream wrapper](runtime/pipe/datastream/datastream.go) to decide whether to spill a stream to disk (`--ft dynamic` flag and a `-s` (singular) tag in each `RemotePipe`), reexecuting only non-persisted outputs, and [polls HDFS](pash/compiler/dspash/hdfs_utils.py) via JMX callbacks wired into the scheduler, (2) optimizes execution through an [event-driven worker runtime (§5.1)](pash/compiler/dspash/worker.py) whose lock-free `EventLoop` launches up to *N* subgraphs and `TimeRecorder` logs execution, [buffered-IO sentinel stripping (§5.2)](XXX) where 8-byte EOF tokens are removed on-the-fly using a single 4096-byte buffer, and [batched scheduling (§5.3)](XXX) where the worker manager builds `worker_to_batches` and issues one `Batch-Exec-Graph` RPC per worker, and (3) introduces a fault-injection component supported by [helpers](runtime/scripts/killall.sh) that terminate entire process trees (which evaluation scripts driving these hooks to reproduce the fault-tolerance experiments of §6). Together these files (and the PaSh-JIT submodule they build upon) cover every component shown in Fig. 3, demonstrating that the released code fully realises the design presented in the paper.
 
-## Documentation
-Below is a map of all additional README files that explain specific subsystems.
-
-* Top-level: [overall architecture](./README.md), [control-plane](./pash/compiler/dspash/README.md), [runtime](./runtime/README.md).
-* Components: [remote pipes](./runtime/pipe/README.md), [DFS reader](./runtime/dfs/README.md), [runtime helpers](./runtime/scripts/README.md)(including builder, fault-injection mechanism).
-* Setup and evaluation: [cluster boostrap](./docker-hadoop/README.md), [evaluation](./evaluation/README.md).
-* Development: [contribution](./CONTRIBUTING.md). 
-
-<!-- * **Top-level overview**: `README.md` (root)  
-quick intro, install, architecture figure.
-* **Control-plane internals**: `pash/compiler/dspash/README.md`: coordinator scheduler, executor event loop, dynamic persistence flow, and health/progress monitors (A1, A3–A6; §4–5)
-* **Remote Pipe family**  
-* `runtime/pipe/README.md`: high-level channel semantics  
-* `runtime/pipe/datastream/README.md`: buffered-I/O implementation  
-* `runtime/pipe/discovery/README.md`: endpoint registry / progress monitor
-* **DFS split reader**: `runtime/dfs/README.md`: block-aligned HDFS reader used by executors for parallel ingestion (§4)
-* **Executor helper scripts**: `runtime/scripts/README.md`: build helpers, fault-injection utilities, and cluster maintenance shell tools (§4, §6)
-* **Runtime README (Go services)**: `runtime/README.md`: build & run instructions for Go daemons powering Remote Pipes, Discovery, and DFS (§4)
-* **Cluster bootstrap**: `docker-hadoop/README.md`: Docker-Compose/Swarm recipes for spinning up a multi-node Fractal+HDFS cluster locally or on CloudLab (§7)
-* **Benchmark & evaluation**: `evaluation/README.md`: scripts and guidance to reproduce functional, performance, and fault-tolerance experiments (§7) -->
-
-<!-- For running the evaluation scripts refer to `evaluation/README.md`; for fault
-injection see `runtime/scripts/README.md`.
-
-For developer-focused instructions (e.g.
-adding benchmark suites or rebuilding cluster workers) see
-[CONTRIBUTING.md](CONTRIBUTING.md). -->
-
-## Completeness
-Fig. 3 of the paper gives an overview of the interaction among different components. Below we map every component to the source code in this repository.
-
-- **Execution engine (§4)**
-  - *DFG construction & fault-aware partitioning*: Fractal reuses the PaSh-JIT front-end to parse the user script and consult the JSON annotation corpus in [annotations](/pash/annotations/).  We then extend that pipeline in
-    - [compilation helper](pash/compiler/dspash/ir_helper.py): splitting data flow graph to subgraphs, adding runtime wrappers.
-    - [worker manager](pash/compiler/dspash/worker_manager.py): subgraph-to-node mapping, dependency tracking, selective re-execution.
-  - *Remote pipe* & *Dynamic output persistence*: Fractal decides at run time, **per sub-graph**, whether to spill a stream to disk.  The choice is encoded via the `--ft dynamic` flag and a `-s` (singular) tag in each `RemotePipe`.  If dynamic FT is on and the subgraph is not singular, the [datastream wrapper](runtime/pipe/datastream/datastream.go) writes to a spill-file whose path is registered in Discovery.  Upon a fault, worker manager queries Discovery and re-executes only the subgraphs whose outputs were not already persisted.
-  - *Executor runtime* & *Progress/Health monitors*: each node runs [a worker runtime](pash/compiler/dspash/worker.py) where `EventLoop` launches up to *N* subgraphs and `TimeRecorder` logs execution.  Completion of every send/receive emits a 17-byte event that worker manager consumes.  Cluster liveness comes from JMX polling in [hdfs utils](pash/compiler/dspash/hdfs_utils.py) with callbacks wired into the scheduler.
-
-- **Performance optimizations (§5)**
-  - *Event-driven architecture*: `EventLoop` in [the worker runtime](pash/compiler/dspash/worker.py) is lock-free (list ops + atomics) and polls every 0.1 s, precisely the design described in §5.1.
-  - *Buffered-IO sentinel stripping*: the 8-byte EOF token is removed on-the-fly inside datastream wrapper (≈ 70-130) using a single 4096-byte buffer, matching §5.2.
-  - *Batched scheduling*: worker manager builds `worker_to_batches` and issues one `Batch-Exec-Graph` RPC per worker, implementing the optimisation in §5.3.
-
-- **Fault injection (§6)**
-  - *frac subsystem*: the coordinator exposes `--kill` knobs handled by worker manager; helpers in [kill script](runtime/scripts/killall.sh) terminate full process trees.  Evaluation scripts drive these hooks to reproduce the fault-tolerance experiments of §6.
-
-Together these files (and the PaSh-JIT submodule they build upon) cover every component shown in Fig. 3, demonstrating that the released code fully realises the design presented in the paper.
-
-## **Exercisability**
-
-**Scripts and Data:** Scripts to run experiments are provided in the [./evaluation](./evaluation/) directory. To run all benchmarks, use [evaluation/run_all.sh](./evaluation/run_all.sh). To run a specific benchmark, use the `run.sh` script located within each benchmark folder (e.g., [running](evaluation/classics/run.sh) the `classics` benchmark). The required input data for each benchmark can be downloaded using `inputs.sh`, which fetches datasets from persistent storage hosted on a Brown University cluster at https://atlas.cs.brown.edu/data.
-
-**Execution:** To facilitate evaluation, we pre-allocate and initialize both the 4-node and 30-node clusters with all input data pre-downloaded. We have created a `fractal-ae26` account on the two CloudLab clusters used in our evaluation of Fractal. 
-
+<a name="exercisability"></a>
+* **Exercisability:** (1) _Scripts and data_: Scripts to run experiments are provided in the [./evaluation](./evaluation/) directory. To run all benchmarks, use [evaluation/run_all.sh](./evaluation/run_all.sh). To run a specific benchmark, use the `run.sh` script located within each benchmark folder (e.g., [running](evaluation/classics/run.sh) the `classics` benchmark). The required input data for each benchmark can be downloaded using `inputs.sh`, which fetches datasets from persistent storage hosted on a Brown University cluster at https://atlas.cs.brown.edu/data.  (2) _Execution:_ To facilitate evaluation, we pre-allocate and initialize both the 4-node and 30-node clusters with all input data pre-downloaded. We have created a `fractal-ae26` account on the two CloudLab clusters used in our evaluation of Fractal. 
 To connect to the control node of each cluster:
 
 ```bash
@@ -166,7 +115,7 @@ cd $FRACTAL_TOP/evaluation
 # There are two options here, either use --small or --full as an argument to determine the input size.
 # To facilitate the review process, we populate the data using `bash inputs_all.sh --small` (~20 minutes)
 # Optionally, reviewers can run `bash inputs_all.sh` to clean up and regenerate all data from scratch.
-bash run_all.sh --small
+bash run_faulty.sh --small
 ```
 
 Generating the plots requires data from both clusters. To parse the per-cluster results, run the following command with `--site 4` for the 4-node cluster or `--site 30` for the 30-node cluster:
