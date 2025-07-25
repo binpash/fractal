@@ -1,38 +1,43 @@
 # Fractal: Fault-Tolerant Shell-Script Distribution
+[Overview](#overview) | [Quick Setup](#quick-setup) | [More Info](#more-information) | [Structure](#repository-structure) | [Community](#community-and-more) | [Citing](#citing-fractal) | [License & Contributions](#license-and-contributing)
 
-> **Meta-header** – Fractal is integrated into the `dish` codebase. The implementation you see here matches the artifact submitted for NSDI’26.
+> For issues and ideas, email [fractal@brown.edu](mailto:fractal@brown.edu) or, better, [open a GitHub issue](https://github.com/binpash/fractal/issues/new/choose).
+>
 
----
+Fractal executes unmodified POSIX shell scripts across a cluster and recovers automatically from node failures.
+It bolts failre tolerance on top of DiSh, a state-of-the-art shell-script distribution system, and is described in an upcoming [NSDI'26](https://www.usenix.org/conference/nsdi26) [paper](#citing-fractal).
 
-## 1  What is Fractal?
-Fractal executes *unmodified* POSIX shell scripts across a cluster **and** recovers automatically from node failures.  It leverages PaSh-JIT to build a data-flow graph (DFG), inserts Remote Pipes for exactly-once delivery, and re-runs only the fragments affected by a fault using byte-level progress metadata.
+## Overview:
 
-Key points:
-• No script changes – full shell semantics.  
-• Exactly-once via Remote Pipe & replay suppression.  
-• Per-subgraph *dynamic* decision to persist or just stream.  
-• Millisecond-scale re-scheduling driven by HDFS heartbeats + 17-byte events.
+Fractal is an open source, MIT-licensed system that offers fault-tolerant distributed execution of unmodified shell scripts. 
+It first identifies recoverable regions from side-effectful ones, and augments them with additional runtime support aimed at fault recovery.
+It employs precise dependency and progress tracking at the subgraph level to offer sound and efficient fault recovery.
+It minimizes the number of upstream regions that are re-executed during recovery and ensures exactly-once semantics upon recovery for downstream regions. 
+Fractal's fault-free performance is comparable to state-of-the-art failure-intolerant distributed shell-script execution engines, while in cases of failures it recoveres 7.8–16.4× compared to Hadoop Streaming.
 
----
+At a glance:
+- [x] No script changes – full POSIX shell semantics.  
+- [x] Exactly-once semantics via remote pipes and replay suppression.  
+- [x] Per-subgraph dynamic decision to persist or stream data
+- [x] Millisecond-scale re-scheduling driven by HDFS heartbeats + 17-byte events.
 
-## 2  Quick Installation
-> ⏳ Placeholder for now, to be confirmed!
-Single-host demo (Docker Compose, tested on Linux):
+## Quick Setup
+To quickly set up Fractal on a single host (Docker Compose, tested on Linux):
+
 ```bash
 # Clone with submodule so PaSh code is present
-$ git clone --recurse-submodules https://github.com/binpash/dish.git -b nsdi26-ae
+$ git clone --recurse-submodules https://github.com/binpash/dish.git
 $ cd dish/docker-hadoop
 # Spin up 1 namenode, 1 datanode, 1 client container
 $ ./setup-compose.sh
 ```
-Tear-down: `./stop-compose.sh` (add `-v` to prune volumes).
 
----
+To tear Fractal down: `./stop-compose.sh` (add `-v` to prune volumes).
 
-## 3  Running Fractal
-> ⏳ Placeholder for now, to be confirmed!
+## More Information
 
-Inside the client container:
+After installing fractal, run it inside the client container:
+
 ```bash
 # put a sample file in HDFS
 hdfs dfs -put /etc/hosts /hosts
@@ -42,23 +47,22 @@ cd /opt/dish
 ```
 Inject a fail-stop fault: `./di.sh --ft dynamic --kill regular scripts/sample.sh`.
 
----
 
-## 4  Repository Structure & Architecture
-| Path | Purpose |
-|------|---------|
-| `pash/` | PaSh submodule – compiler & JIT groundwork |
-| `runtime/` | Remote Pipe, DFS reader, Go libs |
-| `pash/compiler/dspash/` | Fractal scheduler, executor, health/progress monitors |
-| `docker-hadoop/` | Local / CloudLab cluster bootstrap |
-| `evaluation/` | Benchmarks & fault-injection scripts |
-| `scripts/` | Misc helper scripts |
+## Repository Structure
+
+Here are the key components of the Fractal repository:
+
+* [`pash/`](pash/): PaSh submodule – compiler & JIT groundwork
+* [`runtime/`](runtime/): Remote Pipe, DFS reader, Go libraries
+* [`pash/compiler/dspash/`](pash/compiler/dspash/): Fractal scheduler, executor, along with health and progress monitors
+* [`docker-hadoop/`](docker-hadoop/): Local and CloudLab cluster bootstrap
+* [`evaluation/`](evaluation/): Benchmarks & fault-injection scripts
+* [`scripts/`](scripts/): Miscallencous helper scripts
+
+**Detailed system architecture:** The figure below describes Fractal's key components. A1–A6 annotate control-plane stages; B1-4 run on each executor.
 
 ![Fractal architecture](ae-data/tech-outline.png)
 
-*Fig. 3 — FRACTAL architecture (paper).*  A1–A6 annotate control-plane stages; B1-4 run on each executor.
-
-### Fig. 3 Component Cheat-Sheet
 
 | Label | Role in the system | Key code locations |
 |-------|--------------------|--------------------|
@@ -73,28 +77,47 @@ Inject a fail-stop fault: `./di.sh --ft dynamic --kill regular scripts/sample.sh
 | **B3** | Distributed File Reader – streams HDFS splits locally | `runtime/dfs/` |
 | **B4** | On-node cache of persisted outputs; avoids re-computation after faults | `writeOptimized()` spill files under `$FISH_OUT_PREFIX`
 
----
+## Community and More
 
-## 5  Community & More
-Chat: [Discord](http://join.binpa.sh/) •  GitHub issues welcome.  
+Fractal is a member of the PaSh family of systems, availabile by the [Linux Foundation](). Please join the community:
 
----
+* Chat: [Discord](http://join.binpa.sh/) 
+* Email: [fractal@brown.edu](mailto:fractal@brown.edu) 
+* Issues: [Open a GitHub issue](https://github.com/binpash/fractal/issues/new/choose)
 
-## 6  Citing
-Fractal has been incorporated into an earlier system **DiSh**;
-> ⏳ Placeholder for now, to be confirmed!
+## Citing Fractal
+
+Fractal is backed up by state-of-the-art research—if you are using it to accelerate your processing, consider citing the following paper:
 
 ```bibtex
-@inproceedings{fractal2026nsdi,
-  booktitle = {USENIX NSDI '26},
-  year      = {2026},
-  note      = {Conditionally accepted.  DOI & pages TBD}
-}
-
-@inproceedings{dish2023nsdi,
-  author    = {Mustafa, Tammam and Kallas, Konstantinos and Das, Pratyush and Vasilakis, Nikos},
-  title     = {{DiSh}: Dynamic {Shell-Script} Distribution},
-  booktitle = {USENIX NSDI '23},
-  pages     = {341--356}
+@inproceedings{fractal:nsdi:2026,
+ author = {Zhicheng Huang and Ramiz Dundar and Yizheng Xie and Konstantinos Kallas and Nikos Vasilakis},
+ title = {Fractal: Fault-Tolerant Shell-Script Distribution},
+ booktitle = {23rd USENIX Symposium on Networked Systems Design and Implementation (NSDI 26)},
+ year = {2026},
+ address = {Renton, WA},
+ publisher = {USENIX Association},
+ month = may
 }
 ```
+
+Fractal has been incorporated into an earlier fault-intolerant dstributed system called DiSh:
+
+```bibtex
+@inproceedings{dish:nsdi:2023,
+ author = {Tammam Mustafa and Konstantinos Kallas and Pratyush Das and Nikos Vasilakis},
+ title = {{DiSh}: Dynamic {Shell-Script} Distribution},
+ booktitle = {20th USENIX Symposium on Networked Systems Design and Implementation (NSDI 23)},
+ year = {2023},
+ isbn = {978-1-939133-33-5},
+ address = {Boston, MA},
+ pages = {341--356},
+ url = {https://www.usenix.org/conference/nsdi23/presentation/mustafa},
+ publisher = {USENIX Association},
+ month = apr
+}
+```
+
+## License & Contributions
+
+Fractal is an open-source, collaborative, [MIT-licensed](https://github.com/atlas-brown/slowpoke/blob/main/LICENSE) project available by the Linux Foundation and developed by researchers at [Brown University](XXX) and [UCLA](XXX). If you'd like to contribute, please see the [`CONTRIBUTING.md`](XXX) file—we welcome contributions! And _please come talk to us_ if you're looking to optimize shell programs!
