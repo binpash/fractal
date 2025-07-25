@@ -38,26 +38,8 @@ for dir in "${dirs[@]}"; do
     # Change to the directory
     cd "./$dir" || continue
 
-    # Run the evaluation scripts
-    # ./cleanup.sh
-    # sleep 10
-    # ./inputs.sh $params
-    # sleep 60
     ./run-faulty.sh $params
 
-    # Go back to the parent directory
-    cd ..
-done
-
-for dir in "${dirs[@]}"; do
-    # Change to the directory
-    cd "./$dir" || continue
-
-    # Verify
-    echo "[$dir] Verifying results..."
-    ./verify.sh $params 
-
-    # Go back to the parent directory
     cd ..
 done
 
