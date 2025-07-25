@@ -13,11 +13,9 @@ mkdir -p "$output_dir"
 
 # List of directories to process, you can comment out any directory as needed
 dirs=(
-    "classics"
-    "unix50"
     "analytics"
-    "nlp"
     "automation"
+    "classics"
 )
 
 # Initialize output files
@@ -45,8 +43,8 @@ for dir in "${dirs[@]}"; do
     # sleep 10
     # ./inputs.sh $params
     # sleep 60
-    ./run.sh $params
-    
+    ./run-faulty.sh $params
+
     # Go back to the parent directory
     cd ..
 done

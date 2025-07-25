@@ -1,39 +1,43 @@
 # Overview  
 The paper makes the following claims requiring artifact evaluation on page 2 (Comments to AEC reviewers are after `:`):  
 
-1. **Execution engine**:  FRACTAL's light-weight instrumentation, progress and health monitors, and the executor runtime work together to offer efficient and precise recovery.  
-2. **Performance optimizations**: FRACTAL's critical-path components that reduces runtime overhead, including an *event-driven executor design*, *buffered-io sentinel striping*, and *batched scheduling*.  
-3. **Fault injection**:  an internal subsystem, *frac*, that enables precise, large-scale characterization of fault recovery behaviors.  
-
+1. **Execution engine**:  Fractal's light-weight instrumentation, progress and health monitors, and the executor runtime work together to offer efficient and precise recovery.  
+2. **Performance optimizations**: Fractal's critical-path components that reduce runtime overhead, including an event-driven executor design, buffered-io sentinel striping, and batched scheduling.  
+3. **Fault injection**:  an internal subsystem, `frac`, that enables large-scale characterization of fault recovery behaviors.  
 
 This artifact targets the following badges (mirroring [the NSDI26 artifact "evaluation process"](https://www.usenix.org/conference/nsdi26/call-for-artifacts)):  
 
-* [ ] [Artifact available](#artifact-available): Reviewers are expected to confirm public availability of core components (10 minutes)  
-* [ ] [Artifact functional](#artifact-functional): Reviewers are expected to verify distributed execution workflow and run a minimal "Hello, world" example (10 minutes).
-* [ ] [Results reproducible](#results-reproducible): Reviewers are expected to reproduce the key result: FRACTAL’s correct and efficient fault recovery, demonstrated by its speedup over Bash in both regular-node and merger-node failure scenarios, as well as its performance improvement in fault-free conditions (Fig. 7, XX minutes). 
+* [ ] [Artifact available](#artifact-available): Reviewers are expected to confirm public availability of core components (~5mins)  
+* [ ] [Artifact functional](#artifact-functional): Reviewers are expected to verify distributed execution workflow and run a minimal "Hello, world" example (~10mins).
+* [ ] [Results reproducible](#results-reproducible): Reviewers are expected to reproduce the key result: Fractal’s correct and efficient fault recoveryfor both regular-node and merger-node failures, demonstrated by its performance compared to fault-free conditions (Fig. 7, ~60mins, optionally ~1 week).
 
-**To "kick the tires" for this artifact:**
-* Skim this README file to get an idea of the structure (2 minutes).
-* Jump straight into the [Exercisability](#exercisability) section of the README file (10 minutes).
+Note that Fractal builds on top of DiSh, an MIT-licensed open-source software that is part of the PaSh project.
+
+**To "kick the tires" for this artifact:** (1) Skim this README file to get an idea of the artifact's structure (2 minutes), and (2) Jump straight into the [exercisability](#exercisability) section of the README file (5 minutes).
 
 > [!IMPORTANT]
-> We have reserved one 4-node cluster and one 30-node cluster on CloudLab **from August 1st to August 24th** for artifact evaluation.
-> Reviewers should coordinate to not run experiments at the same time.
-> We strongly encourage reviewers to begin the evaluation at least one week before the reservation period ends.
-> If additional time is needed, please notify us as early as possible so we can arrange access to alternative resources.
-
-<a id="artifact-available"></a>  
-# Artifact Available (10 minutes)  
-Confirm core components are publicly available.  
-
-FRACTAL builds on top of DiSh, MIT-licensed open-source software. It is part of the PaSh project, hosted by the [Linux Foundation](https://www.linuxfoundation.org/press/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases). Below are some relevant links:  
-
-- FRACTAL is permanently hosted on the GitHub [binpash](https://github.com/binpash/) organization.  
-- FRACTAL's command annotations conform to the format outlined in [PaSh](https://github.com/binpash/pash), a MIT-licensed open-source software.  
-- We have a publicly-accessible discord Server ([Invite](http://join.binpa.sh/)) for troubleshooting and feedback.  
+> We have reserved a 4-node cluster and a 30-node cluster on CloudLab **from August 1st to August 24th** for artifact evaluation.
+> Reviewers should coordinate with each other to not run experiments at the same time—i.e., use HotCRP comments to notify each other of "locking" the infrastructure until a certain date (ideally, no more than a day).
+> _Please start evaluation early_ (in the background), as this kind of resource locking will delay the artifact evaluation process!
  
-<a id="artifact-functional"></a>  
-# Artifact Functional (10 minutes)  
+# Artifact Available (~5mins)
+Confirm Fractal is publicly available on GitHub. Below are some relevant links:  
+
+1. Fractal is openly hosted on GitHub ([repo](https://github.com/binpash/fractal/)), including [benchmarks](XXX) and [evaluation scripts](XXX).
+2. The Fractal repo is also permanently hosted on [Zenodo](XXX), as an additional level of archival assurannce.
+3. All data used in these experiments are publicly available (see URLS in [this README's Appendix](#appendix-input-locations)), as part of the Koala benchmark suite ([Usenix ATC'25 paper](https://www.usenix.org/system/files/atc25-lamprou.pdf), [website](https://kben.sh/, [full inputs](https://github.com/kbensh/koala/blob/main/INSTRUCTIONS.md#inputs)).
+4. Fractal's command annotations conform to the ones from [PaSh](https://github.com/binpash/annotations), another MIT-licensed open-source software.  
+5. We have a publicly-accessible discord Server ([Invite](http://join.binpa.sh/)) for troubleshooting and feedback.
+
+We note that Fractal is [MIT-licensed open-source software](XXX License XXX), part of the PaSh projecct and hosted by the [Linux Foundation](https://www.linuxfoundation.org/press/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases).
+ 
+# Artifact Functional (~10mins)  
+
+Confirm sufficient documentation, key components as described in the paper, and the system's exercisability:
+
+* Documentation:
+* Key components:
+* Exercisability: 
 
 Confirm sufficient documentation, key components as described in the paper, and execution with min inputs (about 30 minutes).  
 
@@ -55,7 +59,7 @@ quick intro, install, architecture figure.
 * **DFS split reader**: `runtime/dfs/README.md`: block-aligned HDFS reader used by executors for parallel ingestion (§4)
 * **Executor helper scripts**: `runtime/scripts/README.md`: build helpers, fault-injection utilities, and cluster maintenance shell tools (§4, §6)
 * **Runtime README (Go services)**: `runtime/README.md`: build & run instructions for Go daemons powering Remote Pipes, Discovery, and DFS (§4)
-* **Cluster bootstrap**: `docker-hadoop/README.md`: Docker-Compose/Swarm recipes for spinning up a multi-node FRACTAL+HDFS cluster locally or on CloudLab (§7)
+* **Cluster bootstrap**: `docker-hadoop/README.md`: Docker-Compose/Swarm recipes for spinning up a multi-node Fractal+HDFS cluster locally or on CloudLab (§7)
 * **Benchmark & evaluation**: `evaluation/README.md`: scripts and guidance to reproduce functional, performance, and fault-tolerance experiments (§7) -->
 
 <!-- For running the evaluation scripts refer to `evaluation/README.md`; for fault
@@ -69,10 +73,10 @@ adding benchmark suites or rebuilding cluster workers) see
 Fig. 3 of the paper gives an overview of the interaction among different components. Below we map every component to the source code in this repository.
 
 - **Execution engine (§4)**
-  - *DFG construction & fault-aware partitioning*: FRACTAL reuses the PaSh-JIT front-end to parse the user script and consult the JSON annotation corpus in [annotations](/pash/annotations/).  We then extend that pipeline in
+  - *DFG construction & fault-aware partitioning*: Fractal reuses the PaSh-JIT front-end to parse the user script and consult the JSON annotation corpus in [annotations](/pash/annotations/).  We then extend that pipeline in
     - [compilation helper](pash/compiler/dspash/ir_helper.py): splitting data flow graph to subgraphs, adding runtime wrappers.
     - [worker manager](pash/compiler/dspash/worker_manager.py): subgraph-to-node mapping, dependency tracking, selective re-execution.
-  - *Remote pipe* & *Dynamic output persistence*: FRACTAL decides at run time, **per sub-graph**, whether to spill a stream to disk.  The choice is encoded via the `--ft dynamic` flag and a `-s` (singular) tag in each `RemotePipe`.  If dynamic FT is on and the subgraph is not singular, the [datastream wrapper](runtime/pipe/datastream/datastream.go) writes to a spill-file whose path is registered in Discovery.  Upon a fault, worker manager queries Discovery and re-executes only the subgraphs whose outputs were not already persisted.
+  - *Remote pipe* & *Dynamic output persistence*: Fractal decides at run time, **per sub-graph**, whether to spill a stream to disk.  The choice is encoded via the `--ft dynamic` flag and a `-s` (singular) tag in each `RemotePipe`.  If dynamic FT is on and the subgraph is not singular, the [datastream wrapper](runtime/pipe/datastream/datastream.go) writes to a spill-file whose path is registered in Discovery.  Upon a fault, worker manager queries Discovery and re-executes only the subgraphs whose outputs were not already persisted.
   - *Executor runtime* & *Progress/Health monitors*: each node runs [a worker runtime](pash/compiler/dspash/worker.py) where `EventLoop` launches up to *N* subgraphs and `TimeRecorder` logs execution.  Completion of every send/receive emits a 17-byte event that worker manager consumes.  Cluster liveness comes from JMX polling in [hdfs utils](pash/compiler/dspash/hdfs_utils.py) with callbacks wired into the scheduler.
 
 - **Performance optimizations (§5)**
@@ -89,7 +93,7 @@ Together these files (and the PaSh-JIT submodule they build upon) cover every co
 
 **Scripts and Data:** Scripts to run experiments are provided in the [./evaluation](./evaluation/) directory. To run all benchmarks, use [evaluation/run_all.sh](./evaluation/run_all.sh). To run a specific benchmark, use the `run.sh` script located within each benchmark folder (e.g., [running](evaluation/classics/run.sh) the `classics` benchmark). The required input data for each benchmark can be downloaded using `inputs.sh`, which fetches datasets from persistent storage hosted on a Brown University cluster at https://atlas.cs.brown.edu/data.
 
-**Execution:** To facilitate evaluation, we pre-allocate and initialize both the 4-node and 30-node clusters with all input data pre-downloaded. We have created a `fractal-ae26` account on the two CloudLab clusters used in our evaluation of FRACTAL. 
+**Execution:** To facilitate evaluation, we pre-allocate and initialize both the 4-node and 30-node clusters with all input data pre-downloaded. We have created a `fractal-ae26` account on the two CloudLab clusters used in our evaluation of Fractal. 
 
 To connect to the control node of each cluster:
 
@@ -106,7 +110,7 @@ To connect to the client container:
 docker exec -it docker-hadoop-client-1 bash
 ```
 
-To run FRACTAL with a minimal `echo` example under a fault-free setting:
+To run Fractal with a minimal `echo` example under a fault-free setting:
 ```bash
 $FRACTAL_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!" 
 ```
@@ -133,28 +137,24 @@ $FRACTAL_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!"
 
 <!-- *(Developer note moved to CONTRIBUTING.md)* -->
 
-<a id="results-reproducible"></a>  
-# Results Reproducible (~ 5 hours)
+# Results Reproducible (~60mins)
 
-The key results in this paper's evaluation section are the following:
-1. *Fault-free execution*: FRACTAL also delivers near state-of-the-art performance in failure-free executions (§6.1, Fig.4).
-2. *Fault recovery execution*: FRACTAL provides *correct* and *efficient* recovery for both regular node failure and merger node failure (§6.2, Fig.5, Fig.7).
-<!-- 3. [Not urgent, nice to have] *Dynamic output persistence*: it demonstrates a subtle balance between accelerated fault recovery and overhead in fault-free execution (§6.3, Fig. 8). -->
+The key result in this paper’s evaluation is that **Fractal provides correct and efficient recovery** for both regular-node and merger-node failures. This is demonstrated by its performance compared to fault-free conditions (§6.2, Fig. 7).
 
 **Terminology correspondence:** Here is the correspondence of flag names between the paper and the artifact:
-* FRACTAL (no fault): `--width 8 --r_split --distributed_exec --ft dynamic`
-* FRACTAL (regular-node fault): `--width 8 --r_split --distributed_exec --ft dynamic --kill regular`
-* FRACTAL (merger-node fault):`--width 8 --r_split --distributed_exec --ft dynamic --kill merger`
+* Fractal (no fault): `--width 8 --r_split --distributed_exec --ft dynamic`
+* Fractal (regular-node fault): `--width 8 --r_split --distributed_exec --ft dynamic --kill regular`
+* Fractal (merger-node fault):`--width 8 --r_split --distributed_exec --ft dynamic --kill merger`
 
-**Execution and Plotting:** We provide two input load sizes for testing and evaluating FRACTAL:
-- `--small`: Uses a reduced input size, resulting in shorter execution time (~X hours).  
-- `--full`: Matches the input size used in the paper (~X hours).
+**Execution and Plotting:** We provide two input load sizes for testing and evaluating Fractal:
+- `--small`: Uses a reduced input size, resulting in shorter execution time (~XX hours).  
+- `--full`: Matches the input size used in the paper (~XX hours).
 
-The `--small` option produces results that closely match those presented in the paper. All key performance differences between configurations are still clearly observable.
+The `--small` option produces results that closely match those presented in the paper. All key performance differences between configurations are still clearly observable. 
 
-This section also provide detailed instrauctions on how to replicate the figures of the experimental evaluation of FRACTAL as described in Table 2: [Classics](./evaluation/classics/), [Unix50](./evaluation/unix50/), [NLP](./evaluation/nlp/), [Analytics](./evaluation/analytics/), and [Automation](./evaluation/automation/).
+This section also provide detailed instrauctions on how to replicate Fig. 7 of the experimental evaluation of Fractal as described in Table 2: [Classics](./evaluation/classics/), [Unix50](./evaluation/unix50/), [NLP](./evaluation/nlp/), [Analytics](./evaluation/analytics/), and [Automation](./evaluation/automation/).
 
-To run all the benchmarks with `--small` input from the control node **for each cluster**
+To run all the benchmarks with `--small` input from the control node **for each cluster**:
 
 ```bash
 # open the interactive shell for the client container
@@ -164,6 +164,8 @@ docker exec -it docker-hadoop-client-1 bash
 cd $FRACTAL_TOP/evaluation
 
 # There are two options here, either use --small or --full as an argument to determine the input size.
+# To facilitate the review process, we populate the data using `bash inputs_all.sh --small` (~20 minutes)
+# Optionally, reviewers can run `bash inputs_all.sh` to clean up and regenerate all data from scratch.
 bash run_all.sh --small
 ```
 
@@ -185,10 +187,13 @@ After parsing results from both clusters, run the following command on any contr
 
 Once the script completes, follow its prompt open the following URLs in a browser to view the generated figures, for example:
 ```
-Fig. 4: http://ms0813.utah.cloudlab.us/fig4.pdf  
-Fig. 5: http://ms0813.utah.cloudlab.us/fig5.pdf  
 Fig. 7: http://ms0813.utah.cloudlab.us/fig7.pdf
 ```
+
+Example output generated from the artifact:
+<p align="center">
+  <img src="ae-data/fig7.png" alt="example-output" width="500"/>
+</p>
 
 <!-- We have included in this repo sample data of the raw data timers (run.tmp), the final source data (data_final.csv) and the three output figures: [Fig. X](), [Fig. Y](), and [Fig. Z]() -->
 
@@ -211,7 +216,19 @@ Fig. 7: http://ms0813.utah.cloudlab.us/fig7.pdf
 > scp -i <pem> user@<vm-host>:~/plots/*.pdf ./local_plots/
 > ``` -->
 
-## [Optional] Hard faults (~1 week of manual effort)
+## [Optional (~1 week)] 
+
+We provide three optional experiments to validate additional results presented in the paper:
+* **Fault-free performance**: Fractal achieves near **state-of-the-art** performance in failure-free execution, comparable to DiSh and Hadoop Streaming (§6.1, Fig. 5).
+* **Dynamic output persistence**: Fractal strikes a subtle balance between accelerated fault recovery and low overhead during fault-free execution (§6.3, Fig. 8).
+* **Hard faults**: Fractal efficiently recovers from hard faults, such as complete worker machine shutdowns.
+
+### Fault-free execution
+FRACTAL also delivers near state-of-the-art performance in failure-free executions (§6.1, Fig.5).
+
+### Dynamic output persistence
+
+### Hard faults (manual efforts)
 Optionally, you may try to introduce *hard faults*. However, despite its conceptual simplicity, introducing and monitoring *hard faults* requires significant time and effort. 
 
 As shown at the bottom of page 10, replicating the presented hard faults experiment involves `3 completion percents × 3 system configs (AHS, regular ,
@@ -219,9 +236,9 @@ merger ) × 2 failure modes × 5 repetitions × 3 benchmarks = 270 experiments`,
 
 The procedures are listed below (let's set the experiment config for classics/top-n.sh, fault at 50%, merger fault):
 
-1. Prerequisites: set up a cloud deployment for FRACTAL
+1. Prerequisites: set up a cloud deployment for Fractal
 2. Follow the [Exercisability](#exercisability) section of the instruction file to enter the interactive shell for the client node
-2. Set up benchmark input: `cd $$FRACTAL_TOP/evaluation/classics; ./inputs.sh`
+2. Set up benchmark input: `cd $FRACTAL_TOP/evaluation/classics; ./inputs.sh`
 3. To simplify the experiment, comment out all lines from L23-32 except for L25 in run.sh file to run only top-n
 3. Run the fault-free execution to record the fault-free time: `./run.sh`
 4. Collect the ip address for all other remote nodes' datanode container. One simple way is to do `hostname -i`
@@ -230,7 +247,25 @@ The procedures are listed below (let's set the experiment config for classics/to
 - Line 1 -> IP (or hostname) of the merger node.
 - Line 2 -> IP of one regular (non-merger) nod
 7. Now when the timer has reached 0.5*{fault-free time}, shutdown the remote node corresponding to the merger node's ip. If you are using a cloudlab deployment, one way to do so is through cloudlab's web console for the corresponding log. Click the corresponding GUI and select the "terminate" option for non-graceful shutdown
-8. When FRACTAL detects, recovers, and eventually completes this run (in the client's container), reboot the just-shutdown node, and wait until it's back up
+8. When Fractal detects, recovers, and eventually completes this run (in the client's container), reboot the just-shutdown node, and wait until it's back up
 9. To make sure it is back and stable, we need to check whether all of its data blocks are back online (i.e., whether replication factor is satisfied)
 
+## Appendix: Input locations
+
+The Fractal project uses some of the Koala benchmarks ([Usenix ATC'25 paper](https://www.usenix.org/system/files/atc25-lamprou.pdf), [website](https://kben.sh/), [full inputs](https://github.com/kbensh/koala/blob/main/INSTRUCTIONS.md#inputs)), thus uses some of the inputs permanantely stored by the Koala authors: 
+[1M](https://atlas-group.cs.brown.edu/data/dummy/1M.txt), 
+[dictionary](https://atlas-group.cs.brown.edu/data/dummy/dict.txt), 
+[books](https://atlas-group.cs.brown.edu/data/gutenberg/books.txt), 
+[Bible](https://atlas-group.cs.brown.edu/data/gutenberg/8/0/0/8001/8001.txt), 
+[Exodus](https://atlas-group.cs.brown.edu/data/gutenberg/3/3/4/2/33420/33420-0.txt), 
+[Gutenberg](https://atlas-group.cs.brown.edu/data/gutenberg/), 
+[PCAP](https://atlas-group.cs.brown.edu/data/pcaps.zip), 
+[nginx logs](https://atlas-group.cs.brown.edu/data/nginx.zip), 
+[wav file](https://atlas-group.cs.brown.edu/data/wav.zip), 
+[small jpg files](https://atlas-group.cs.brown.edu/data/small/jpg.zip), 
+[full jpg files](https://atlas-group.cs.brown.edu/data/full/jpg.zip), 
+[unix50 inputs](http://atlas-group.cs.brown.edu/data/unix50/), 
+[COVID small](https://atlas-group.cs.brown.edu/data/covid-mts/in_small.csv.gz), 
+[COVID full](https://atlas-group.cs.brown.edu/data/covid-mts/in.csv.gz), 
+[NOAA data](http://atlas-group.cs.brown.edu/data/noaa/).
 

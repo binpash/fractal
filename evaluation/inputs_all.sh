@@ -20,13 +20,6 @@ dirs=(
     "automation"
 )
 
-# Initialize output files
-exec > >(tee -a "$output_dir/run_all.all" "$output_dir/run_all.out")
-exec 2> >(tee -a "$output_dir/run_all.all" "$output_dir/run_all.err" >&2)
-
-# Start timing the script
-start_time=$(date +%s)
-
 if [[ "$@" == *"--small"* ]]; then
     echo "Running in small mode"
     params="--small"
@@ -41,31 +34,11 @@ for dir in "${dirs[@]}"; do
     cd "./$dir" || continue
 
     # Run the evaluation scripts
-    # ./cleanup.sh
-    # sleep 10
-    # ./inputs.sh $params
-    # sleep 60
-    ./run.sh $params
+    ./cleanup.sh
+    sleep 10
+    ./inputs.sh $params
     
     # Go back to the parent directory
     cd ..
 done
 
-for dir in "${dirs[@]}"; do
-    # Change to the directory
-    cd "./$dir" || continue
-
-    # Verify
-    echo "[$dir] Verifying results..."
-    ./verify.sh $params 
-
-    # Go back to the parent directory
-    cd ..
-done
-
-# End timing the script
-end_time=$(date +%s)
-duration=$((end_time - start_time))
-
-# Save the duration to run_all.time
-echo "Total execution time: $duration seconds" | tee -a "$output_dir/run_all.time"
