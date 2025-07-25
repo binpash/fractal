@@ -99,9 +99,9 @@ To connect to the control node of each cluster:
 
 ```bash
 # Connect to the 4-node cluster
-ssh -i ./evaluation/cloudlab.pem fractal-ae26@ms0813.utah.cloudlab.us
+ssh -i ./evaluation/cloudlab.pem fractal@ms0910.utah.cloudlab.us
 # Connect to the 30-node cluster
-ssh -i ./evaluation/cloudlab.pem fractal-ae26@ms0809.utah.cloudlab.us
+ssh -i ./evaluation/cloudlab.pem fractal@ms0820.utah.cloudlab.us
 ```
 
 To connect to the client container:
@@ -182,7 +182,7 @@ After parsing results from both clusters, run the following command on any contr
 
 ```bash
 # Generate the plots
-./plotting/scripts/plot.sh ms0813.utah.cloudlab.us ms0809.utah.cloudlab.us
+./plotting/scripts/plot.sh ms0910.utah.cloudlab.us ms0820.utah.cloudlab.us
 ```
 
 Once the script completes, follow its prompt open the following URLs in a browser to view the generated figures, for example:
