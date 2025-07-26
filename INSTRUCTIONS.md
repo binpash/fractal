@@ -57,7 +57,7 @@ ssh -i fractal.pem fractal@ms0820.utah.cloudlab.us
 To connect to the client container:
 ```bash 
 # Run the interactive shell inside the client continaer
-docker exec -it docker-hadoop-client-1 bash
+sudo docker exec -it docker-hadoop-client-1 bash
 ```
 
 To run Fractal with a minimal `echo` example under a fault-free setting:
@@ -86,7 +86,7 @@ To run all the benchmarks with `--small` input from the control node **for each 
 
 ```bash
 # open the interactive shell for the client container
-docker exec -it docker-hadoop-client-1 bash
+sudo docker exec -it docker-hadoop-client-1 bash
 
 # enter the eval folder
 cd $FRACTAL_TOP/evaluation

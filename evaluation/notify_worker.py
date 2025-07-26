@@ -95,6 +95,20 @@ class Messenger():
                 worker.send_resurrect_request()
                 return
 
+    def send_resurrect_all(self):
+        """Send a resurrect RPC to every worker that is currently offline."""
+        for w in self.workers:
+            try:
+                if not w.is_online():
+                    # try to reconnect in case the socket was severed
+                    w.send_resurrect_request()
+                else:
+                    # Still send the request; the worker will ignore if already up
+                    w.send_resurrect_request()
+                print(f"[notify_worker] resurrect signal sent to {w.host()}")
+            except Exception as e:
+                print(f"[notify_worker] could not resurrect {w.host()}: {e}")
+
 if __name__ == "__main__":
     # Arity check
     if len(sys.argv) < 2:
@@ -114,7 +128,12 @@ if __name__ == "__main__":
                 print(f"Resurrecting worker node at address {resurrect_target}")
                 messenger.send_resurrect_request(resurrect_target)
         except FileNotFoundError:
-            print(f"Error: The file '{KILL_WITNESS_PATH}' does not exist.")
+            print(f"Error: The file '{KILL_WITNESS_PATH}' does not exist.")        
+
+    elif type == "resurrect_all":
+        print("[notify_worker] resurrecting ALL worker nodes")
+        messenger.send_resurrect_all()
+
     else:
         print("Unsupported type of request")
         sys.exit(1)

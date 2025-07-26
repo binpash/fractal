@@ -9,6 +9,31 @@ cd "$(realpath $(dirname "$0"))"
 export SUITE_CSV_PATH="$(pwd)/outputs/time.csv"
 mkdir -p "$(dirname "$SUITE_CSV_PATH")"
 
+############################################################
+# Flag parsing: --faultless (default) | --faulty | --microbench
+# Optional fault type --regular / --merger when --faulty chosen
+MODE=faultless
+SIZE_FLAG="--full"
+FAULT_KIND=""
+EXTRA_PASH_ARGS=()
+
+for arg in "$@"; do
+  case "$arg" in
+    --small|--full) SIZE_FLAG="$arg";;
+    --faultless)    MODE=faultless;;
+    --faulty)       MODE=faulty;;
+    --microbench)   MODE=microbench;;
+    --regular|--merger) FAULT_KIND="$arg";;
+    *) EXTRA_PASH_ARGS+=("$arg");;
+  esac
+done
+
+# No longer need fault-kind; default is to run all fault types when MODE=faulty
+if [[ $MODE == faulty && -n $FAULT_KIND ]]; then
+  echo "[classics/run.sh] Note: specific fault kind flag ('$FAULT_KIND') will be ignored as both faults are executed."
+fi
+############################################################
+
 if [[ "$@" == *"--small"* ]]; then
     scripts_inputs=(
         "nfa-regex;100M"
@@ -157,18 +182,24 @@ classics_hadoopstreaming() {
     cd "../.."
 }
 
-# adjust the debug flag as required
-d=1
+############################################################
+# Dispatch based on MODE variable
+d=1  # debug flag stays
 
-classics "bash"
-classics "dish"        "--width 8 --r_split -d $d --distributed_exec"
+case "$MODE" in
+  faultless)
+    classics "bash"
+    classics "dish"        "--width 8 --r_split -d $d --distributed_exec"
+    classics "dynamic"     "--width 8 --r_split -d $d --distributed_exec --ft dynamic";;
 
-classics "dynamic"     "--width 8 --r_split -d $d --distributed_exec --ft dynamic"
-classics "dynamic-m"   "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill merger"
-classics "dynamic-r"   "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill regular"
+  faulty)
+    classics "dynamic"     "--width 8 --r_split -d $d --distributed_exec --ft dynamic"
+    classics "dynamic-m"   "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill merger"
+    classics "dynamic-r"   "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill regular";;
+esac
 
-# # For microbenchmarks
-# classics "dynamic-on-m"     "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force on --kill merger"
-# classics "dynamic-off-m"    "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force off --kill merger"
-
-classics_hadoopstreaming
+# Hadoop Streaming is faultless only
+if [[ $MODE == faultless ]]; then
+  classics_hadoopstreaming $SIZE_FLAG
+fi
+############################################################

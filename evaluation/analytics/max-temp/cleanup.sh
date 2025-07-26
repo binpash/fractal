@@ -1,7 +1,16 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
+set -e
 cd "$(realpath $(dirname "$0"))"
-rm -rf ./inputs
+
+PURGE=0
+for arg in "$@"; do [[ "$arg" == "--purge" ]] && PURGE=1; done
+
 rm -rf ./outputs
-# hdfs dfs -rm -r /max-temp
-# hdfs dfs -rm -r /outputs/hadoop-streaming/max-temp
+
+if [[ $PURGE -eq 1 ]]; then
+  rm -rf ./inputs
+  hdfs dfs -rm -r -f /max-temp 2>/dev/null || true
+  hdfs dfs -rm -r -f /outputs/hadoop-streaming/max-temp 2>/dev/null || true
+fi
+
+echo "[cleanup] max-temp done (purge=$PURGE)"

@@ -5,6 +5,19 @@ export PASH_TOP=$(realpath $DISH_TOP/pash)
 export TIMEFORMAT=%R
 cd "$(realpath $(dirname "$0"))"
 
+############################################################
+MODE=faultless
+SIZE_FLAG="--full"
+for arg in "$@"; do
+  case "$arg" in
+    --small|--full) SIZE_FLAG="$arg";;
+    --faultless) MODE=faultless;;
+    --faulty) MODE=faulty;;
+    --microbench) MODE=microbench;;
+  esac
+done
+############################################################
+
 names_scripts=(
     "MediaConv1;img_convert"
     "MediaConv2;to_mp3"
@@ -145,9 +158,15 @@ media-conv() {
 # adjust the debug flag as required
 d=1
 
-media-conv "bash"
-media-conv "dish"          "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec"
-
-media-conv "dynamic"       "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic"
-media-conv "dynamic-m"     "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic --kill merger"
-media-conv "dynamic-r"     "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic --kill regular"
+case $MODE in
+    faultless)
+        media-conv "bash"
+        media-conv "dish"          "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec"
+        media-conv "dynamic"       "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic"
+        ;;
+    faulty)
+        media-conv "dynamic"       "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic --kill merger"
+        media-conv "dynamic-m"     "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic --kill merger"
+        media-conv "dynamic-r"     "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic --kill regular"
+        ;;
+esac

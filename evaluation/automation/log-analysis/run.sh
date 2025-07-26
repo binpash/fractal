@@ -1,9 +1,32 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -e
 
 export DISH_TOP=$(realpath $(dirname "$0")/../../..)
 export PASH_TOP=$(realpath $DISH_TOP/pash)
 export TIMEFORMAT=%R
 cd "$(realpath $(dirname "$0"))"
+
+############################################################
+MODE=faultless
+SIZE_FLAG="--full"
+for arg in "$@"; do
+  case "$arg" in
+    --small|--full) SIZE_FLAG="$arg";;
+    --faultless) MODE=faultless;;
+    --faulty) MODE=faulty;;
+    --microbench) MODE=microbench;;
+  esac
+done
+############################################################
+
+# Existing size flag check
+if [[ $SIZE_FLAG == "--small" ]]; then
+    echo "Using small input"
+    input_dir="/log-analysis/small"
+else
+    echo "Using full input"
+    input_dir="/log-analysis/full"
+fi
 
 names_scripts=(
     "LogAnalysis1;nginx"
@@ -131,12 +154,15 @@ log-analysis() {
 }
 
 
-# adjust the debug flag as required
 d=1
 
-log-analysis "bash"
-log-analysis "dish"          "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec"
-
-log-analysis "dynamic"       "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic"
-log-analysis "dynamic-m"     "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic --kill merger"
-log-analysis "dynamic-r"     "--width 8 --r_split -d $d --parallel_pipelines --parallel_pipelines_limit 24 --distributed_exec --ft dynamic --kill regular"
+case "$MODE" in
+  faultless)
+    log-analysis "bash"
+    log-analysis "dish" "--width 8 --r_split -d $d --distributed_exec"
+    log-analysis "dynamic" "--width 8 --r_split -d $d --distributed_exec --ft dynamic";;
+  faulty)
+    log-analysis "dynamic" "--width 8 --r_split -d $d --distributed_exec --ft dynamic"
+    log-analysis "dynamic-m" "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill merger"
+    log-analysis "dynamic-r" "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill regular";;
+esac

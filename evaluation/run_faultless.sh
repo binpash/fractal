@@ -1,5 +1,5 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
+set -e
 cd "$(realpath $(dirname "$0"))"
 
 # Absolute path to the outputs directory
@@ -11,20 +11,17 @@ if [ -d "$output_dir" ]; then
 fi
 mkdir -p "$output_dir"
 
-# List of directories to process, you can comment out any directory as needed
-dirs=(
-    "analytics"
-    "automation"
-    "classics"
-)
+# List of suites to process
+suites=(classics unix50 analytics nlp automation)
 
-# Initialize output files
+# Initialize output aggregation files (stdout,stderr)
 exec > >(tee -a "$output_dir/run_all.all" "$output_dir/run_all.out")
 exec 2> >(tee -a "$output_dir/run_all.all" "$output_dir/run_all.err" >&2)
 
 # Start timing the script
 start_time=$(date +%s)
 
+# Detect input size flag (default --full)
 if [[ "$@" == *"--small"* ]]; then
     echo "Running in small mode"
     params="--small"
@@ -33,15 +30,15 @@ else
     params="--full"
 fi
 
-# Loop through each directory once; the suite will run merger/regular internally
-for dir in "${dirs[@]}"; do
-    echo "[run_faulty] $dir"
-    ( cd "$dir" && ./run.sh --faulty $params )
+# Loop through each suite
+for s in "${suites[@]}"; do
+  echo "[run_faultless] $s"
+  ( cd "$s" && ./run.sh --faultless $params )
+  echo "[run_faultless] $s done"
 done
 
-# End timing the script
+# End timing
 end_time=$(date +%s)
 duration=$((end_time - start_time))
 
-# Save the duration to run_all.time
-echo "Total execution time: $duration seconds" | tee -a "$output_dir/run_all.time"
+echo "Total execution time: $duration seconds" | tee -a "$output_dir/run_all.time" 

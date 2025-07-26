@@ -5,11 +5,25 @@ export PASH_TOP=$(realpath $DISH_TOP/pash)
 export TIMEFORMAT=%R
 cd "$(realpath $(dirname "$0"))"
 
+# Insert after cd line
+############################################################
+MODE=faultless
+SIZE_FLAG="--full"
+for arg in "$@"; do
+  case "$arg" in
+    --small|--full) SIZE_FLAG="$arg";;
+    --faultless) MODE=faultless;;
+    --faulty|--microbench) MODE=unsupported;;
+  esac
+done
+if [[ $MODE == unsupported ]]; then echo "[unix50] only faultless runs supported"; exit 1; fi
+############################################################
+
 # Per-suite timing CSV
 export SUITE_CSV_PATH="$(pwd)/outputs/time.csv"
 mkdir -p "$(dirname "$SUITE_CSV_PATH")"
 
-if [[ "$@" == *"--small"* ]]; then
+if [[ $SIZE_FLAG == "--small" ]]; then
     scripts_inputs=(
         "1;1_300M"
         "2;1_300M"

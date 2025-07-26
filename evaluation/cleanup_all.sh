@@ -1,56 +1,39 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
+set -e
 cd "$(realpath $(dirname "$0"))"
 
-# Absolute path to the outputs directory
-output_dir="$(pwd)/outputs"
+output_dir="$(pwd)/outputs_cleanup_all"
+rm -rf "$output_dir" && mkdir -p "$output_dir"
 
-# Remove and recreate the outputs directory
-if [ -d "$output_dir" ]; then
-    rm -rf "$output_dir"
-fi
-mkdir -p "$output_dir"
+exec > >(tee -a "$output_dir/cleanup_all.all" "$output_dir/cleanup_all.out")
+exec 2> >(tee -a "$output_dir/cleanup_all.all" "$output_dir/cleanup_all.err" >&2)
 
-# List of directories to process, you can comment out any directory as needed
-dirs=(
-    "analytics"
-    "automation"
-    "classics"
-)
+start=$(date +%s)
 
-# Initialize output files
-exec > >(tee -a "$output_dir/run_all.all" "$output_dir/run_all.out")
-exec 2> >(tee -a "$output_dir/run_all.all" "$output_dir/run_all.err" >&2)
-
-# Start timing the script
-start_time=$(date +%s)
-
-if [[ "$@" == *"--small"* ]]; then
-    echo "Running in small mode"
-    params="--small"
-else
-    echo "Running in full mode"
-    params="--full"
-fi
-
-# Loop through each directory in the list
-for dir in "${dirs[@]}"; do
-    # Change to the directory
-    cd "./$dir" || continue
-
-    ./cleanup.sh $params
-
-    cd ..
+# Detect flags
+SIZE_FLAG="--full"; PURGE_FLAG=""
+for arg in "$@"; do
+  case "$arg" in
+    --small|--full) SIZE_FLAG="$arg";;
+    --purge) PURGE_FLAG="--purge";;
+  esac
 done
 
-rm -rf plotting/data
-rm -rf plotting/figures
-rm /var/www/html/*.pdf
-rm /var/www/html/*.csv
+echo "[cleanup_all] size=$SIZE_FLAG purge=${PURGE_FLAG:-no}"
 
-# End timing the script
-end_time=$(date +%s)
-duration=$((end_time - start_time))
+# Suites to clean
+suites=(analytics automation classics unix50 nlp)
 
-# Save the duration to run_all.time
-echo "Total execution time: $duration seconds" | tee -a "$output_dir/run_all.time"
+for s in "${suites[@]}"; do
+  echo "[cleanup_all] cleaning $s"
+  ( cd "$s" && ./cleanup.sh $SIZE_FLAG $PURGE_FLAG )
+  echo "[cleanup_all] $s done"
+done
+
+# Remove plotting artefacts
+rm -rf plotting/data plotting/figures 2>/dev/null || true
+rm -f /var/www/html/*.pdf /var/www/html/*.csv 2>/dev/null || true
+
+end=$(date +%s)
+
+echo "Total cleanup_all time: $((end-start)) seconds" | tee -a "$output_dir/cleanup_all.time"

@@ -52,10 +52,10 @@ Inject a fail-stop fault: `./fractal.sh --ft dynamic --kill regular scripts/samp
 
 Here are the key components of the Fractal repository:
 
-* [`pash/`](pash/): PaSh submodule – compiler & JIT groundwork
+* [`pash/`](https://github.com/binpash/pash/tree/nsdi26-ae): PaSh submodule – compiler & JIT groundwork
 * [`runtime/`](runtime/): Remote Pipe, DFS reader, Go libraries
-* [`pash/compiler/dspash/`](pash/compiler/dspash/): Fractal scheduler, executor, along with health and progress monitors
-* [`docker-hadoop/`](docker-hadoop/): Local and CloudLab cluster bootstrap
+* [`pash/compiler/dspash/`](https://github.com/binpash/pash/tree/nsdi26-ae/compiler/dspash/): Fractal scheduler, executor, along with health and progress monitors
+* [`docker-hadoop/`](https://github.com/binpash/docker-hadoop/tree/nsdi26-ae): Local and CloudLab cluster bootstrap
 * [`evaluation/`](evaluation/): Benchmarks & fault-injection scripts
 * [`scripts/`](scripts/): Miscallencous helper scripts
 
@@ -64,16 +64,16 @@ Here are the key components of the Fractal repository:
 ![Fractal architecture](ae-data/tech-outline.png)
 
 The list of components is explained below, along with their location in the code:
-* `A1`: DFG augmentation and isolation of the unsafe-main subgraph (in [`prepare_graph_for_remote_exec`](pash/compiler/dspash/ir_helper.py))
-* `A2`: Remote pipe instrumentation, which injects read/write nodes that track byte offsets (in [`remote_pipe`](/pash/compiler/definitions/ir/nodes/remote_pipe.py), [`pipes`](./runtime/pipe/))
-* `A3`: Dynamic output persistence, a heuristic that chooses between spilling to disk or streaming (in [`add_singular_flags`](./pash/compiler/dspash/ir_helper.py), [`check_persisted_discovery`](./pash/compiler/dspash/worker_manager.py), [`optimized write`](runtime/pipe/datastream/datastream.go))
-* `A4`: Scheduler and batched dispatch of subgraphs to executors ([`worker_manager`](pash/compiler/dspash/worker_manager.py))
+* `A1`: DFG augmentation and isolation of the unsafe-main subgraph (in [`prepare_graph_for_remote_exec`](https://github.com/binpash/pash/blob/nsdi26-ae/compiler/dspash/ir_helper.py#L396))
+* `A2`: Remote pipe instrumentation, which injects read/write nodes that track byte offsets (in [`remote_pipe`](https://github.com/binpash/pash/blob/nsdi26-ae/compiler/definitions/ir/nodes/remote_pipe.py#L4), [`pipes`](./runtime/pipe/))
+* `A3`: Dynamic output persistence, a heuristic that chooses between spilling to disk or streaming (in [`add_singular_flags`](https://github.com/binpash/pash/blob/nsdi26-ae/compiler/dspash/ir_helper.py#L390), [`check_persisted_discovery`](https://github.com/binpash/pash/blob/nsdi26-ae/compiler/dspash/worker_manager.py#L260), [`writeOptimized`](runtime/pipe/datastream/datastream.go#L278))
+* `A4`: Scheduler and batched dispatch of subgraphs to executors ([`worker_manager`](https://github.com/binpash/pash/blob/nsdi26-ae/compiler/dspash/worker_manager.py#L150))
 * `A5`: Progress monitor and discovery, a 17-byte completion events and endpoint registry ([`discovery`](runtime/pipe/discovery/), [`datastream`](runtime/pipe/datastream/datastream.go))
-* `A6`: Health monitor, which polls HDFS Namenode JMX to identify slow/failed nodes ([`hdfs_utils`](pash/compiler/dspash/hdfs_utils.py))
-* `B1`: Executor no-blocking event loop, which launches subgraphs ([`EventLoop`](pash/compiler/dspash/worker.py))
+* `A6`: Health monitor, which polls HDFS Namenode JMX to identify slow/failed nodes ([`hdfs_utils`](https://github.com/binpash/pash/tree/nsdi26-ae/compiler/dspash/hdfs_utils.py))
+* `B1`: Executor no-blocking event loop, which launches subgraphs ([`EventLoop`](https://github.com/binpash/pash/blob/nsdi26-ae/compiler/dspash/worker.py#L405))
 * `B2`: Remote pipe data path within executor (socket/file, buffered I/O) ([`datastream`](runtime/pipe/datastream/datastream.go))
 * `B3`: Distributed file reader, which streams HDFS splits locally ([`dfs`](runtime/dfs/))
-* `B4`: On-node cache of persisted outputs, which avoids re-computation after faults ([`optimized write`](runtime/pipe/datastream/datastream.go))
+* `B4`: On-node cache of persisted outputs, which avoids re-computation after faults ([`writeOptimized`](runtime/pipe/datastream/datastream.go#L278))
 
 ## Community and More
 
@@ -139,4 +139,4 @@ The PaSh paper, from OSDI'22:
 
 ## License & Contributions
 
-Fractal is an open-source, collaborative, [MIT-licensed](https://github.com/atlas-brown/slowpoke/blob/main/LICENSE) project available by the Linux Foundation and developed by researchers at [Brown University](https://cs.brown.edu/) and [UCLA](https://www.cs.ucla.edu/). If you'd like to contribute, please see the [`CONTRIBUTING.md`](./CONTRIBUTING.md) file—we welcome contributions! And _please come talk to us_ if you're looking to optimize shell programs!
+Fractal is an open-source, collaborative, [MIT-licensed](https://github.com/binpash/fractal/blob/main/LICENSE) project available by the Linux Foundation and developed by researchers at [Brown University](https://cs.brown.edu/) and [UCLA](https://www.cs.ucla.edu/). If you'd like to contribute, please see the [`CONTRIBUTING.md`](./CONTRIBUTING.md) file—we welcome contributions! And _please come talk to us_ if you're looking to optimize shell programs!
