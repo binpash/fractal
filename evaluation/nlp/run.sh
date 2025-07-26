@@ -5,11 +5,24 @@ export PASH_TOP=$(realpath $DISH_TOP/pash)
 export TIMEFORMAT=%R
 cd "$(realpath $(dirname "$0"))"
 
-# Per-suite timing CSV
-export SUITE_CSV_PATH="$(pwd)/outputs/time.csv"
-mkdir -p "$(dirname "$SUITE_CSV_PATH")"
-
-if [[ "$@" == *"--small"* ]]; then
+# After initial cd line insert parser
+############################################################
+MODE=faultless
+SIZE_FLAG="--full"
+for arg in "$@"; do
+  case "$arg" in
+    --small|--full) SIZE_FLAG="$arg";;
+    --faultless) MODE=faultless;;
+    --microbench) MODE=microbench;;
+    --faulty) MODE=faulty;;
+  esac
+done
+if [[ $MODE == faulty ]]; then
+  echo "[nlp] Fault injection not supported for NLP suite"; exit 1;
+fi
+############################################################
+# Replace old small check
+if [[ $SIZE_FLAG == "--small" ]]; then
     echo "Using small input"
     export ENTRIES=10
     export IN="/nlp/pg-small"
@@ -140,23 +153,17 @@ nlp() {
 # adjust the debug flag as required
 d=1
 
-# Parse --microbench flag
-MICRO=0
-for arg in "$@"; do
-  if [[ "$arg" == "--microbench" ]]; then MICRO=1; fi
-done
-
-# If running microbench, write timings to separate CSV to avoid mixing
-if [[ $MICRO -eq 1 ]]; then
+# Replace old microbench detection: remove old loop and use MODE check
+if [[ $MODE == microbench ]]; then
   export SUITE_CSV_PATH="$(pwd)/outputs/time_microbench.csv"
 fi
 
-if [[ $MICRO -eq 1 ]]; then
-    nlp "dynamic"       "--width 8 --r_split -d $d --distributed_exec --parallel_pipelines --parallel_pipelines_limit 24 --ft dynamic"
-    nlp "dynamic-on"    "--width 8 --r_split -d $d --distributed_exec --parallel_pipelines --parallel_pipelines_limit 24 --ft dynamic --dynamic_switch_force on"
-    nlp "dynamic-off"   "--width 8 --r_split -d $d --distributed_exec --parallel_pipelines --parallel_pipelines_limit 24 --ft dynamic --dynamic_switch_force off"
-else
+case "$MODE" in
+  faultless)
     nlp "bash"
     nlp "dish"          "--width 8 --r_split -d $d --distributed_exec --parallel_pipelines --parallel_pipelines_limit 24"
-    nlp "dynamic"       "--width 8 --r_split -d $d --distributed_exec --parallel_pipelines --parallel_pipelines_limit 24 --ft dynamic"
-fi
+    nlp "dynamic"       "--width 8 --r_split -d $d --distributed_exec --parallel_pipelines --parallel_pipelines_limit 24 --ft dynamic";;
+  microbench)
+    nlp "dynamic-on"    "--width 8 --r_split -d $d --distributed_exec --parallel_pipelines --parallel_pipelines_limit 24 --ft dynamic --dynamic_switch_force on"
+    nlp "dynamic-off"   "--width 8 --r_split -d $d --distributed_exec --parallel_pipelines --parallel_pipelines_limit 24 --ft dynamic --dynamic_switch_force off";;
+esac

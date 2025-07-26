@@ -5,7 +5,21 @@ export PASH_TOP=$(realpath $DISH_TOP/pash)
 export TIMEFORMAT=%R
 cd "$(realpath $(dirname "$0"))"
 
-if [[ "$@" == *"--small"* ]]; then
+############################################################
+# Flag parsing common across suites
+MODE=faultless
+SIZE_FLAG="--full"
+for arg in "$@"; do
+  case "$arg" in
+    --small|--full) SIZE_FLAG="$arg";;
+    --faultless) MODE=faultless;;
+    --faulty) MODE=faulty;;
+    --microbench) MODE=microbench;;
+  esac
+done
+############################################################
+
+if [[ $SIZE_FLAG == "--small" ]]; then
     echo "Using small input"
     input_file="/covid-mts/in_small.csv"
 else
@@ -130,27 +144,28 @@ covid-mts_hadoopstreaming() {
 # adjust the debug flag as required
 d=1
 
-# Detect --microbench flag
-MICRO=0
-for arg in "$@"; do
-  [[ "$arg" == "--microbench" ]] && MICRO=1
-done
-
-# Separate timing CSV for microbench
-if [[ $MICRO -eq 1 ]]; then
+# For microbench timing separation
+if [[ $MODE == microbench ]]; then
   export SUITE_CSV_PATH="$(pwd)/outputs/time_microbench.csv"
 fi
 
-if [[ $MICRO -eq 1 ]]; then
-    covid-mts "dynamic-m"        "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill merger"
-    covid-mts "dynamic-on-m"     "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force on --kill merger"
-    covid-mts "dynamic-off-m"    "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force off --kill merger"
-else
+case "$MODE" in
+  faultless)
     covid-mts "bash"
-    covid-mts "dish"             "--width 8 --r_split -d $d --distributed_exec"
-    covid-mts "dynamic"          "--width 8 --r_split -d $d --distributed_exec --ft dynamic"
-    covid-mts "dynamic-m"        "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill merger"
-    covid-mts "dynamic-r"        "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill regular"
-fi
+    covid-mts "dish"           "--width 8 --r_split -d $d --distributed_exec"
+    covid-mts "dynamic"        "--width 8 --r_split -d $d --distributed_exec --ft dynamic";;
 
-covid-mts_hadoopstreaming
+  faulty)
+    covid-mts "dynamic"        "--width 8 --r_split -d $d --distributed_exec --ft dynamic"
+    covid-mts "dynamic-m"      "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill merger"
+    covid-mts "dynamic-r"      "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill regular";;
+
+  microbench)
+    covid-mts "dynamic-on-m"   "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force on --kill merger"
+    covid-mts "dynamic-off-m"  "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force off --kill merger";;
+esac
+
+# Hadoop streaming only faultless
+if [[ $MODE == faultless ]]; then
+  covid-mts_hadoopstreaming $SIZE_FLAG
+fi

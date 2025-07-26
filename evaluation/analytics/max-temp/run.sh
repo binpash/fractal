@@ -1,11 +1,27 @@
 #!/bin/bash
+# Convert to env bash with parser
+# ... leave shebang but add parser after cd line
 
 export DISH_TOP=$(realpath $(dirname "$0")/../../..)
 export PASH_TOP=$(realpath $DISH_TOP/pash)
 export TIMEFORMAT=%R
 cd "$(realpath $(dirname "$0"))"
 
-if [[ "$@" == *"--small"* ]]; then
+############################################################
+# Flag parsing
+MODE=faultless
+SIZE_FLAG="--full"
+for arg in "$@"; do
+  case "$arg" in
+    --small|--full) SIZE_FLAG="$arg";;
+    --faultless) MODE=faultless;;
+    --faulty) MODE=faulty;;
+    --microbench) MODE=microbench;;
+  esac
+done
+############################################################
+
+if [[ $SIZE_FLAG == "--small" ]]; then
     scripts_inputs=(
         "temp-analytics;temperatures_small"
     )
@@ -136,28 +152,31 @@ max-temp_hadoopstreaming() {
     cd "../.."
 }
 
-# adjust the debug flag as required
-d=1
-
-MICRO=0
-for arg in "$@"; do
-  [[ "$arg" == "--microbench" ]] && MICRO=1
-done
-
-# Redirect per-suite timing for microbench runs
-if [[ $MICRO -eq 1 ]]; then
+# For microbench timing separation
+if [[ $MODE == microbench ]]; then
   export SUITE_CSV_PATH="$(pwd)/outputs/time_microbench.csv"
 fi
 
-if [[ $MICRO -eq 1 ]]; then
-    max-temp "dynamic-on-m"     "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force on --kill merger"
-    max-temp "dynamic-off-m"    "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force off --kill merger"
-else
-    max-temp "bash"
-    max-temp "dish"             "--width 8 --r_split -d $d --distributed_exec"
-    max-temp "dynamic"          "--width 8 --r_split -d $d --distributed_exec --ft dynamic"
-    max-temp "dynamic-m"        "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill merger"
-    max-temp "dynamic-r"        "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill regular"
-fi
+# Adjust debug flag
+d=1
 
-max-temp_hadoopstreaming
+case "$MODE" in
+  faultless)
+    max-temp "bash"
+    max-temp "dish" "--width 8 --r_split -d $d --distributed_exec"
+    max-temp "dynamic" "--width 8 --r_split -d $d --distributed_exec --ft dynamic";;
+
+  faulty)
+    max-temp "dynamic" "--width 8 --r_split -d $d --distributed_exec --ft dynamic"
+    max-temp "dynamic-m" "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill merger"
+    max-temp "dynamic-r" "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill regular";;
+
+  microbench)
+    max-temp "dynamic-on-m" "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force on --kill merger"
+    max-temp "dynamic-off-m" "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force off --kill merger";;
+esac
+
+# Hadoop streaming only faultless
+if [[ $MODE == faultless ]]; then
+  max-temp_hadoopstreaming $SIZE_FLAG
+fi

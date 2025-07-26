@@ -4,7 +4,21 @@ export TIMEFORMAT=%R
 cd "$(realpath $(dirname "$0"))"
 eval_dir="./scripts"
 
-if [[ "$1" == "--small" ]]; then
+############################################################
+# Flag parsing
+MODE=faultless
+SIZE_FLAG="--full"
+for arg in "$@"; do
+  case "$arg" in
+    --small|--full) SIZE_FLAG="$arg";;
+    --faultless) MODE=faultless;;
+    --faulty) MODE=faulty;;
+    --microbench) MODE=microbench;;
+  esac
+done
+############################################################
+
+if [[ $SIZE_FLAG == "--small" ]]; then
     echo "Using small input"
     input_dir="/file-enc/pcap_data_small"
 else
@@ -20,6 +34,11 @@ names_scripts=(
 # Per-suite timing CSV
 export SUITE_CSV_PATH="$(pwd)/../outputs/time.csv"
 mkdir -p "$(dirname "$SUITE_CSV_PATH")"
+
+# Microbench not supported here; but keep timing separation
+if [[ $MODE == microbench ]]; then
+  export SUITE_CSV_PATH="$(pwd)/outputs/time_microbench.csv"
+fi
 
 mkdir -p "outputs"
 all_res_file="./outputs/file-enc.res"
@@ -88,9 +107,14 @@ file-enc() {
 
 d=1
 
-file-enc "bash"
-file-enc "dish"          "--width 8 --r_split -d $d --distributed_exec --parallel_pipelines --parallel_pipelines_limit 24"
+case "$MODE" in
+  faultless)
+    file-enc "bash"
+    file-enc "dish" "--width 8 --r_split -d $d --distributed_exec --parallel_pipelines --parallel_pipelines_limit 24"
+    file-enc "dynamic" "--width 8 --r_split -d $d --distributed_exec --parallel_pipelines --parallel_pipelines_limit 24 --ft dynamic";;
 
-file-enc "dynamic"       "--width 8 --r_split -d $d --distributed_exec --parallel_pipelines --parallel_pipelines_limit 24 --ft dynamic"
-file-enc "dynamic-m"     "--width 8 --r_split -d $d --distributed_exec --parallel_pipelines --parallel_pipelines_limit 24 --ft dynamic --kill merger"
-file-enc "dynamic-r"     "--width 8 --r_split -d $d --distributed_exec --parallel_pipelines --parallel_pipelines_limit 24 --ft dynamic --kill regular"
+  faulty)
+    file-enc "dynamic" "--width 8 --r_split -d $d --distributed_exec --parallel_pipelines --parallel_pipelines_limit 24 --ft dynamic"
+    file-enc "dynamic-m" "--width 8 --r_split -d $d --distributed_exec --parallel_pipelines --parallel_pipelines_limit 24 --ft dynamic --kill merger"
+    file-enc "dynamic-r" "--width 8 --r_split -d $d --distributed_exec --parallel_pipelines --parallel_pipelines_limit 24 --ft dynamic --kill regular";;
+esac
