@@ -137,15 +137,15 @@ Example output generated from the artifact:
 > scp -i <pem> user@<vm-host>:~/plots/*.pdf ./local_plots/
 > ``` -->
 
-## Optional: Additional Experiments (multiple sdays)
+# Optional: Additional Experiments (multiple days)
 
-Three additional experiments confirm other results presented in the paper—these results are secondary to the key thesis and require significant additional time:
-* **Fault-free performance**: Fractal achieves performance that rivals that of state-of-the-art systems (§6.1, Fig. 4 and Fig. 5). Confirming this result requires running _other_ artifacts, some of which are tricky to set up and run, including the DiSh research prototype and now-unmaintained Hadoop Streaming.
-* **Dynamic output persistence**: Fractal strikes a subtle balance between accelerated fault recovery and low overhead during fault-free execution (§6.3, Fig. 8). This is shown using microbenchmarks, but the the earlier confirmed result captures the best possible configuration for each experiment.
-* **Hard faults**: The paper also includes experiements of full machine shutdowns (literally killing the Cloudlab node, not just the Fractal process tree); this requires significant time and effort, for results that are mostly identical to the ones presented earlier.
+Three additional experiments confirm other results presented in the paper—these results are secondary to the key thesis, require significant additional time, and depend on third-party software artifacts that take time and effort to set up:
+* **Fault-free performance**: Fractal achieves performance that rivals that of state-of-the-art systems (§6.1, Fig. 4 and Fig. 5). Confirming this result _requires running other software artifacts_, some of which are tricky to set up and run, including the [DiSh research prototype](https://github.com/binpash/dish/) and mostly-unmaintained [Hadoop Streaming](https://hadoop.apache.org/docs/r1.2.1/streaming.html).
+* **Dynamic output persistence**: Fractal strikes a subtle balance between accelerated fault recovery and low overhead during fault-free execution (§6.3, Fig. 8). This is shown using microbenchmarks, but the the [earlier result](#results-reproducible-60mins) confirmes the best possible configuration for each experiment.
+* **Hard faults**: The paper also includes experiements of full machine shutdowns (literally bringing down the entire Cloudlab node, not just the Fractal process tree); this requires significant time and effort, for results that are mostly identical to [the ones confirmed earlier](results-reproducible-60mins).
 
 ### Fault-free execution (3.5 hours)
-FRACTAL also delivers near state-of-the-art performance in failure-free executions compared to DiSh and Apache Hadoop Streaming (§6.1, Fig. 4 and Fig. 5).
+Fractal also delivers near state-of-the-art performance in failure-free executions compared to DiSh and Apache Hadoop Streaming (§6.1, Fig. 4 and Fig. 5).
 
 To run all the benchmarks with `--small` input from the control node **for each cluster**:
 
@@ -241,7 +241,7 @@ The procedures are listed below (let's set the experiment config for classics/to
 8. When Fractal detects, recovers, and eventually completes this run (in the client's container), reboot the just-shutdown node, and wait until it's back up
 9. To make sure it is back and stable, we need to check whether all of its data blocks are back online (i.e., whether replication factor is satisfied)
 
-## Appendix: Input locations
+# Appendix: Input locations
 
 The Fractal project uses some of the Koala benchmarks ([Usenix ATC'25 paper](https://www.usenix.org/system/files/atc25-lamprou.pdf), [website](https://kben.sh/), [full inputs](https://github.com/kbensh/koala/blob/main/INSTRUCTIONS.md#inputs)), thus uses some of the inputs permanantely stored by the Koala authors: 
 [1M](https://atlas-group.cs.brown.edu/data/dummy/1M.txt), 
