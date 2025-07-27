@@ -137,7 +137,7 @@ Example output generated from the artifact:
 > scp -i <pem> user@<vm-host>:~/plots/*.pdf ./local_plots/
 > ``` -->
 
-## Optional: Additional Experiments (multiple sdays)
+# Optional: Additional Experiments (multiple sdays)
 
 Three additional experiments confirm other results presented in the paper—these results are secondary to the key thesis and require significant additional time:
 * **Fault-free performance**: Fractal achieves performance that rivals that of state-of-the-art systems (§6.1, Fig. 4 and Fig. 5). Confirming this result requires running _other_ artifacts, some of which are tricky to set up and run, including the DiSh research prototype and now-unmaintained Hadoop Streaming.
@@ -241,7 +241,7 @@ The procedures are listed below (let's set the experiment config for classics/to
 8. When Fractal detects, recovers, and eventually completes this run (in the client's container), reboot the just-shutdown node, and wait until it's back up
 9. To make sure it is back and stable, we need to check whether all of its data blocks are back online (i.e., whether replication factor is satisfied)
 
-## Appendix: Input locations
+# Appendix: Input locations
 
 The Fractal project uses some of the Koala benchmarks ([Usenix ATC'25 paper](https://www.usenix.org/system/files/atc25-lamprou.pdf), [website](https://kben.sh/), [full inputs](https://github.com/kbensh/koala/blob/main/INSTRUCTIONS.md#inputs)), thus uses some of the inputs permanantely stored by the Koala authors: 
 [1M](https://atlas-group.cs.brown.edu/data/dummy/1M.txt), 
