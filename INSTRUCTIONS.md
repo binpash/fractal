@@ -31,7 +31,7 @@ Confirm Fractal is publicly available on GitHub. Below are some relevant links:
 4. Fractal's command annotations conform to the ones from [PaSh](https://github.com/binpash/annotations), another MIT-licensed open-source software.  
 5. We have a publicly-accessible discord Server ([Invite](http://join.binpa.sh/)) for troubleshooting and feedback.
 
-We note that Fractal is [MIT-licensed open-source software](XXX License XXX), part of the PaSh projecct and hosted by the [Linux Foundation](https://www.linuxfoundation.org/press/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases).
+We note that Fractal is [MIT-licensed open-source software](./LICENSE.md), part of the PaSh projecct and hosted by the [Linux Foundation](https://www.linuxfoundation.org/press/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases).
  
 # Artifact Functional (~10mins)  
 
