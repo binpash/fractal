@@ -137,7 +137,7 @@ Example output generated from the artifact:
 > scp -i <pem> user@<vm-host>:~/plots/*.pdf ./local_plots/
 > ``` -->
 
-## Optional: Additional Experiments (~1 week)
+## Optional: Additional Experiments (multiple sdays)
 
 Three additional experiments confirm other results presented in the paper—these results are secondary to the key thesis and require significant additional time:
 * **Fault-free performance**: Fractal achieves performance that rivals that of state-of-the-art systems. Confirming this result requires running _other_ artifacts, some of which are tricky to set up and run, including the DiSh research prototype and now-unmaintained Hadoop Streaming.
