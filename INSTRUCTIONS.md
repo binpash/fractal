@@ -140,7 +140,7 @@ Example output generated from the artifact:
 ## Optional: Additional Experiments (~1 week)
 
 Three additional experiments confirm other results presented in the paper—these results are secondary to the key thesis and require significant additional time:
-* **Fault-free performance**: Fractal achieves performance that rivals that of state-of-the-art systems. Confirming this result requires running _other_ artifacts, some of which are tricky to set up and run, including the DiSh research prototype and now-unmaintained Hadoop Streaming.
+* **Fault-free performance**: Fractal achieves performance that rivals that of state-of-the-art systems (§6.1, Fig. 4 and Fig. 5). Confirming this result requires running _other_ artifacts, some of which are tricky to set up and run, including the DiSh research prototype and now-unmaintained Hadoop Streaming.
 * **Dynamic output persistence**: Fractal strikes a subtle balance between accelerated fault recovery and low overhead during fault-free execution (§6.3, Fig. 8). This is shown using microbenchmarks, but the the earlier confirmed result captures the best possible configuration for each experiment.
 * **Hard faults**: The paper also includes experiements of full machine shutdowns (literally killing the Cloudlab node, not just the Fractal process tree); this requires significant time and effort, for results that are mostly identical to the ones presented earlier.
 
