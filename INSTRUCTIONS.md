@@ -144,17 +144,91 @@ Example output generated from the artifact:
 > scp -i <pem> user@<vm-host>:~/plots/*.pdf ./local_plots/
 > ``` -->
 
-## [Optional (~1 week)] 
+## Additional Experiments (~1 week)
 
-We provide three optional experiments to validate additional results presented in the paper:
-* **Fault-free performance**: Fractal achieves near **state-of-the-art** performance in failure-free execution, comparable to DiSh and Hadoop Streaming (§6.1, Fig. 5).
+We provide instructions to three additional experiments:
+* **Fault-free performance**: Fractal achieves near **state-of-the-art** performance in failure-free execution, comparable to DiSh and Hadoop Streaming (§6.1, Fig.4 and Fig.5).
 * **Dynamic output persistence**: Fractal strikes a subtle balance between accelerated fault recovery and low overhead during fault-free execution (§6.3, Fig. 8).
 * **Hard faults**: Fractal efficiently recovers from hard faults, such as complete worker machine shutdowns.
 
-### Fault-free execution
-FRACTAL also delivers near state-of-the-art performance in failure-free executions (§6.1, Fig.5).
+### Fault-free execution (3.5 hours)
+FRACTAL also delivers near state-of-the-art performance in failure-free executions (§6.1, Fig.4 and Fig.5).
 
-### Dynamic output persistence
+To run all the benchmarks with `--small` input from the control node **for each cluster**:
+
+```bash
+# open the interactive shell for the client container
+sudo docker exec -it docker-hadoop-client-1 bash
+
+# enter the eval folder
+cd $FRACTAL_TOP/evaluation
+
+# There are two options here, either use --small or --full as an argument to determine the input size.
+# To facilitate the review process, we populate the data using `bash inputs_all.sh --small` (~20 minutes)
+# Optionally, reviewers can run `bash inputs_all.sh` to clean up and regenerate all data from scratch.
+bash run_faultless.sh --small
+```
+
+Generating the plots requires data from both clusters. To parse the per-cluster results, run the following command with `--site 4` for the 4-node cluster or `--site 30` for the 30-node cluster:
+
+```bash
+# Parse results for a single cluster
+./plotting/scripts/parse.sh --site 4
+# OR
+./plotting/scripts/parse.sh --site 30
+```
+
+After parsing results from both clusters, run the following command on any control node to generate the final figures by aggregating the results:
+
+```bash
+# Generate the plots
+./plotting/scripts/plot.sh ms0910.utah.cloudlab.us ms0820.utah.cloudlab.us
+```
+
+Once the script completes, follow its prompt open the following URLs in a browser to view the generated figures, for example:
+```
+Fig. 4: http://ms0910.utah.cloudlab.us/fig4.pdf
+Fig. 5: http://ms0910.utah.cloudlab.us/fig5.pdf
+```
+
+### Dynamic output persistence (30 mins)
+Fractal disables output persistence for singular subgraphs and selectively enables it for others based on cost heuristics.
+
+To run the microbenmark for dynamic persistence with `--small` input from one of the control node **for each cluster**:
+
+```bash
+# open the interactive shell for the client container
+sudo docker exec -it docker-hadoop-client-1 bash
+
+# enter the eval folder
+cd $FRACTAL_TOP/evaluation
+
+# There are two options here, either use --small or --full as an argument to determine the input size.
+# To facilitate the review process, we populate the data using `bash inputs_all.sh --small` (~20 minutes)
+# Optionally, reviewers can run `bash inputs_all.sh` to clean up and regenerate all data from scratch.
+bash run_faultless.sh --small
+```
+
+Generating the plots requires data from both clusters. To parse the per-cluster results, run the following command with `--site 4` for the 4-node cluster or `--site 30` for the 30-node cluster:
+
+```bash
+# Parse results for a single cluster
+./plotting/scripts/parse.sh --site 4
+# OR
+./plotting/scripts/parse.sh --site 30
+```
+
+After parsing results from both clusters, run the following command on any control node to generate the final figures by aggregating the results:
+
+```bash
+# Generate the plots
+./plotting/scripts/plot.sh ms0910.utah.cloudlab.us ms0820.utah.cloudlab.us
+```
+
+Once the script completes, follow its prompt open the following URLs in a browser to view the generated figures, for example:
+```
+Fig. 8: http://ms0910.utah.cloudlab.us/fig8.pdf
+```
 
 ### Hard faults (manual efforts)
 Optionally, you may try to introduce *hard faults*. However, despite its conceptual simplicity, introducing and monitoring *hard faults* requires significant time and effort. 
