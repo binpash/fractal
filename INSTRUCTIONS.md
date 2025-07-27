@@ -31,7 +31,7 @@ Confirm Fractal is publicly available on GitHub. Below are some relevant links:
 4. Fractal's command annotations conform to the ones from [PaSh](https://github.com/binpash/annotations), another MIT-licensed open-source software.  
 5. We have a publicly-accessible discord Server ([Invite](http://join.binpa.sh/)) for troubleshooting and feedback.
 
-We note that Fractal is [MIT-licensed open-source software](XXX License XXX), part of the PaSh projecct and hosted by the [Linux Foundation](https://www.linuxfoundation.org/press/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases).
+We note that Fractal is [MIT-licensed open-source software](./LICENSE.md), part of the PaSh projecct and hosted by the [Linux Foundation](https://www.linuxfoundation.org/press/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases).
  
 # Artifact Functional (~10mins)  
 
@@ -67,23 +67,16 @@ $FRACTAL_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!"
 
 # Results Reproducible (~60mins)
 
-The key result in this paper’s evaluation is that **Fractal provides correct and efficient recovery** for both regular-node and merger-node failures. This is demonstrated by its performance compared to fault-free conditions (§6.2, Fig. 7).
+The key result in this paper’s evaluation is that **Fractal provides correct and efficient recovery** for both regular-node and merger-node failures. This is demonstrated by its performance compared to fault-free conditions (§6.2, Fig. 7). These results were produced using the `--full` inputs of the Koala benchmarks; to accelerate artifact evaluation, in this section we will be using the `--small` inputs.
 
 **Terminology correspondence:** Here is the correspondence of flag names between the paper and the artifact:
 * Fractal (no fault): `--width 8 --r_split --distributed_exec --ft dynamic`
 * Fractal (regular-node fault): `--width 8 --r_split --distributed_exec --ft dynamic --kill regular`
 * Fractal (merger-node fault):`--width 8 --r_split --distributed_exec --ft dynamic --kill merger`
 
-**Execution and Plotting:** We provide two input load sizes for testing and evaluating Fractal:
-- `--small`: Uses a reduced input size, resulting in shorter execution time (~XX hours).  
-- `--full`: Matches the input size used in the paper (~XX hours).
+**Execution and plotting:** This section provides detailed instrauctions on how to replicate Fig. 7 of the experimental evaluation of Fractal as described in Table 2: [Classics](./evaluation/classics/), [Unix50](./evaluation/unix50/), [NLP](./evaluation/nlp/), [Analytics](./evaluation/analytics/), and [Automation](./evaluation/automation/).
 
-The `--small` option produces results that closely match those presented in the paper. All key performance differences between configurations are still clearly observable. 
-
-This section also provide detailed instrauctions on how to replicate Fig. 7 of the experimental evaluation of Fractal as described in Table 2: [Classics](./evaluation/classics/), [Unix50](./evaluation/unix50/), [NLP](./evaluation/nlp/), [Analytics](./evaluation/analytics/), and [Automation](./evaluation/automation/).
-
-To run all the benchmarks with `--small` input from the control node **for each cluster**:
-
+To run all the benchmarks from the control node **of each cluster**:
 ```bash
 # open the interactive shell for the client container
 sudo docker exec -it docker-hadoop-client-1 bash
@@ -144,12 +137,12 @@ Example output generated from the artifact:
 > scp -i <pem> user@<vm-host>:~/plots/*.pdf ./local_plots/
 > ``` -->
 
-## Additional Experiments (~1 week)
+## Optional: Additional Experiments (~1 week)
 
-We provide instructions to three additional experiments:
-* **Fault-free performance**: Fractal achieves near **state-of-the-art** performance in failure-free execution, comparable to DiSh and Hadoop Streaming (§6.1, Fig. 4 and Fig. 5).
-* **Dynamic output persistence**: Fractal strikes a subtle balance between accelerated fault recovery and low overhead during fault-free execution (§6.3, Fig. 8).
-* **Hard faults**: Fractal efficiently recovers from hard faults, such as complete worker machine shutdowns.
+Three additional experiments confirm other results presented in the paper—these results are secondary to the key thesis and require significant additional time:
+* **Fault-free performance**: Fractal achieves performance that rivals that of state-of-the-art systems. Confirming this result requires running _other_ artifacts, some of which are tricky to set up and run, including the DiSh research prototype and now-unmaintained Hadoop Streaming.
+* **Dynamic output persistence**: Fractal strikes a subtle balance between accelerated fault recovery and low overhead during fault-free execution (§6.3, Fig. 8). This is shown using microbenchmarks, but the the earlier confirmed result captures the best possible configuration for each experiment.
+* **Hard faults**: The paper also includes experiements of full machine shutdowns (literally killing the Cloudlab node, not just the Fractal process tree); this requires significant time and effort, for results that are mostly identical to the ones presented earlier.
 
 ### Fault-free execution (3.5 hours)
 FRACTAL also delivers near state-of-the-art performance in failure-free executions compared to DiSh and Apache Hadoop Streaming (§6.1, Fig. 4 and Fig. 5).
