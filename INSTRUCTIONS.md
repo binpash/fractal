@@ -145,7 +145,7 @@ Three additional experiments confirm other results presented in the paper—thes
 * **Hard faults**: The paper also includes experiements of full machine shutdowns (literally bringing down the entire Cloudlab node, not just the Fractal process tree); this requires significant time and effort, for results that are mostly identical to [the ones confirmed earlier](results-reproducible-60mins).
 
 ### Fault-free execution (3.5 hours)
-FRACTAL also delivers near state-of-the-art performance in failure-free executions compared to DiSh and Apache Hadoop Streaming (§6.1, Fig. 4 and Fig. 5).
+Fractal also delivers near state-of-the-art performance in failure-free executions compared to DiSh and Apache Hadoop Streaming (§6.1, Fig. 4 and Fig. 5).
 
 To run all the benchmarks with `--small` input from the control node **for each cluster**:
 
