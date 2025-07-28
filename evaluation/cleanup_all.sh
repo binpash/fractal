@@ -2,14 +2,6 @@
 set -e
 cd "$(realpath $(dirname "$0"))"
 
-output_dir="$(pwd)/outputs_cleanup_all"
-rm -rf "$output_dir" && mkdir -p "$output_dir"
-
-exec > >(tee -a "$output_dir/cleanup_all.all" "$output_dir/cleanup_all.out")
-exec 2> >(tee -a "$output_dir/cleanup_all.all" "$output_dir/cleanup_all.err" >&2)
-
-start=$(date +%s)
-
 # Detect flags
 SIZE_FLAG="--full"; PURGE_FLAG=""
 for arg in "$@"; do
@@ -31,7 +23,6 @@ for s in "${suites[@]}"; do
 done
 
 rm -rf outputs 2>/dev/null || true
-rm -rf outputs_cleanup_all 2>/dev/null || true
 rm -rf outputs_microbench 2>/dev/null || true
 rm -rf results 2>/dev/null || true
 
@@ -42,6 +33,3 @@ rm unix50/scripts/hadoop-streaming/*out.txt 2>/dev/null || true
 rm -rf plotting/data plotting/figures 2>/dev/null || true
 rm -f /var/www/html/*.pdf /var/www/html/*.csv 2>/dev/null || true
 
-end=$(date +%s)
-
-echo "Total cleanup_all time: $((end-start)) seconds" | tee -a "$output_dir/cleanup_all.time"
