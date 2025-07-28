@@ -25,24 +25,24 @@ We will provide the private key and password through HotCRP for reviewers to acc
 # Artifact Available (~5mins)
 Confirm Fractal is publicly available on GitHub. Below are some relevant links:  
 
-1. Fractal is openly hosted on GitHub ([repo](https://github.com/binpash/fractal/)), including [benchmarks](XXX) and [evaluation scripts](XXX).
-2. The Fractal repo is also permanently hosted on [Zenodo](XXX), as an additional level of archival assurannce.
+1. Fractal is openly hosted on GitHub ([repo](https://github.com/binpash/fractal/)), including [benchmarks](https://github.com/binpash/fractal/evaluation) and [evaluation scripts](https://github.com/binpash/fractal/evaluation).
+2. The Fractal repo is also permanently hosted on [Zenodo](https://zenodo.org/records/16429870), as an additional level of archival assurannce.
 3. All data used in these experiments are publicly available (see URLS in [this README's Appendix](#appendix-input-locations)), as part of the Koala benchmark suite ([Usenix ATC'25 paper](https://www.usenix.org/system/files/atc25-lamprou.pdf), [website](https://kben.sh/, [full inputs](https://github.com/kbensh/koala/blob/main/INSTRUCTIONS.md#inputs)).
 4. Fractal's command annotations conform to the ones from [PaSh](https://github.com/binpash/annotations), another MIT-licensed open-source software.  
 5. We have a publicly-accessible discord Server ([Invite](http://join.binpa.sh/)) for troubleshooting and feedback.
 
-We note that Fractal is [MIT-licensed open-source software](XXX License XXX), part of the PaSh projecct and hosted by the [Linux Foundation](https://www.linuxfoundation.org/press/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases).
+We note that Fractal is [MIT-licensed open-source software](./LICENSE.md), part of the PaSh projecct and hosted by the [Linux Foundation](https://www.linuxfoundation.org/press/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases).
  
 # Artifact Functional (~10mins)  
 
 Confirm sufficient documentation, key components as described in the paper, and the system's exercisability:
 
-**Documentation:** Fractal contains documentation of its top-level structure (e.g., [overall architecture](./README.md), [control-plane](./pash/compiler/dspash/README.md), [runtime](./runtime/README.md)), its key components (e.g., [remote pipes](./runtime/pipe/README.md), [DFS reader](./runtime/dfs/README.md), [runtime helpers](./runtime/scripts/README.md)), its setup and evaluation (e.g., [cluster boostrap](./docker-hadoop/README.md), [evaluation](./evaluation/README.md)), and other elements (e.g., [contribution](./CONTRIBUTING.md), [community](https://github.com/binpash/fractal/tree/main?tab=readme-ov-file#community-and-more). 
+**Documentation:** Fractal contains documentation of its top-level structure (e.g., [overall architecture](./README.md), [control-plane](https://github.com/binpash/pash/tree/nsdi26-ae/compiler/dspash/README.md), [runtime](./runtime/README.md)), its key components (e.g., [remote pipes](./runtime/pipe/README.md), [DFS reader](./runtime/dfs/README.md), [runtime helpers](./runtime/scripts/README.md)), its setup and evaluation (e.g., [cluster boostrap](https://github.com/binpash/docker-hadoop/tree/nsdi26-ae/README.md), [evaluation](./evaluation/README.md)), and other elements (e.g., [contribution](./CONTRIBUTING.md), [community](https://github.com/binpash/fractal/tree/main?tab=readme-ov-file#community-and-more). 
 
 **Copmleteness:** The repository's top-level README file offers [a high-level overview](https://github.com/binpash/fractal/?tab=readme-ov-file#repository-structure). In more detail: to support fault-tolerant execution, Fractal:
 
-1. extends the [dataflow compilation with sugraphs and wrappers](pash/compiler/dspash/ir_helper.py) and the [worker manager with subgraph-to-node mapping, dependency tracking, and selective re-execution](pash/compiler/dspash/worker_manager.py) (§4.1–§4.2), and introduces a runtime [datastream wrapper](runtime/pipe/datastream/datastream.go) to decide whether to spill a stream to disk (`--ft dynamic` flag and a `-s` (singular) tag in each `RemotePipe`), reexecuting only non-persisted outputs, and [polls HDFS](pash/compiler/dspash/hdfs_utils.py) via JMX callbacks wired into the scheduler.
-2. optimizes execution through an [event-driven worker runtime (§5.1)](pash/compiler/dspash/worker.py) whose lock-free `EventLoop` launches up to *N* subgraphs and `TimeRecorder` logs execution, [buffered-IO sentinel stripping (§5.2)](XXX) where 8-byte EOF tokens are removed on-the-fly using a single 4096-byte buffer, and [batched scheduling (§5.3)](XXX) where the worker manager builds `worker_to_batches` and issues one `Batch-Exec-Graph` RPC per worker;
+1. extends the [dataflow compilation with sugraphs and wrappers](https://github.com/binpash/pash/tree/nsdi26-ae/compiler/dspash/ir_helper.py) and the [worker manager with subgraph-to-node mapping, dependency tracking, and selective re-execution](pash/compiler/dspash/worker_manager.py) (§4.1–§4.2), and introduces a runtime [datastream wrapper](runtime/pipe/datastream/datastream.go) to decide whether to spill a stream to disk (`--ft dynamic` flag and a `-s` (singular) tag in each `RemotePipe`), reexecuting only non-persisted outputs, and [polls HDFS](https://github.com/binpash/pash/tree/nsdi26-ae/compiler/dspash/hdfs_utils.py) via JMX callbacks wired into the scheduler.
+2. optimizes execution through an [event-driven worker runtime (§5.1)](https://github.com/binpash/pash/tree/nsdi26-ae/compiler/dspash/worker.py) whose lock-free `EventLoop` launches up to *N* subgraphs and `TimeRecorder` logs execution, [buffered-IO sentinel stripping (§5.2)](./runtime/pipe/datastream/datastream.go#L106) where 8-byte EOF tokens are removed on-the-fly using a single 4096-byte buffer, and [batched scheduling (§5.3)](https://github.com/binpash/pash/blob/nsdi26-ae/compiler/dspash/worker.py#L256) where the worker manager builds `worker_to_batches` and issues one `Batch-Exec-Graph` RPC per worker;
 3. introduces a fault-injection component supported by [helpers](runtime/scripts/killall.sh) that terminate entire process trees (which evaluation scripts driving these hooks to reproduce the fault-tolerance experiments of §6). Together these files (and the PaSh-JIT submodule they build upon) cover every component shown in Fig. 3, demonstrating that the released code fully realises the design presented in the paper.
 
 <a name="exercisability"></a>
@@ -67,23 +67,16 @@ $FRACTAL_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!"
 
 # Results Reproducible (~60mins)
 
-The key result in this paper’s evaluation is that **Fractal provides correct and efficient recovery** for both regular-node and merger-node failures. This is demonstrated by its performance compared to fault-free conditions (§6.2, Fig. 7).
+The key result in this paper’s evaluation is that **Fractal provides correct and efficient recovery** for both regular-node and merger-node failures. This is demonstrated by its performance compared to fault-free conditions (§6.2, Fig. 7). These results were produced using the `--full` inputs of the Koala benchmarks; to accelerate artifact evaluation, in this section we will be using the `--small` inputs.
 
 **Terminology correspondence:** Here is the correspondence of flag names between the paper and the artifact:
 * Fractal (no fault): `--width 8 --r_split --distributed_exec --ft dynamic`
 * Fractal (regular-node fault): `--width 8 --r_split --distributed_exec --ft dynamic --kill regular`
 * Fractal (merger-node fault):`--width 8 --r_split --distributed_exec --ft dynamic --kill merger`
 
-**Execution and Plotting:** We provide two input load sizes for testing and evaluating Fractal:
-- `--small`: Uses a reduced input size, resulting in shorter execution time (~XX hours).  
-- `--full`: Matches the input size used in the paper (~XX hours).
+**Execution and plotting:** This section provides detailed instrauctions on how to replicate Fig. 7 of the experimental evaluation of Fractal as described in Table 2: [Classics](./evaluation/classics/), [Unix50](./evaluation/unix50/), [NLP](./evaluation/nlp/), [Analytics](./evaluation/analytics/), and [Automation](./evaluation/automation/).
 
-The `--small` option produces results that closely match those presented in the paper. All key performance differences between configurations are still clearly observable. 
-
-This section also provide detailed instrauctions on how to replicate Fig. 7 of the experimental evaluation of Fractal as described in Table 2: [Classics](./evaluation/classics/), [Unix50](./evaluation/unix50/), [NLP](./evaluation/nlp/), [Analytics](./evaluation/analytics/), and [Automation](./evaluation/automation/).
-
-To run all the benchmarks with `--small` input from the control node **for each cluster**:
-
+To run all the benchmarks from the control node **of each cluster**:
 ```bash
 # open the interactive shell for the client container
 sudo docker exec -it docker-hadoop-client-1 bash
@@ -144,20 +137,90 @@ Example output generated from the artifact:
 > scp -i <pem> user@<vm-host>:~/plots/*.pdf ./local_plots/
 > ``` -->
 
-## [Optional (~1 week)] 
+# Optional: Additional Experiments (multiple days)
 
-We provide three optional experiments to validate additional results presented in the paper:
-* **Fault-free performance**: Fractal achieves near **state-of-the-art** performance in failure-free execution, comparable to DiSh and Hadoop Streaming (§6.1, Fig. 5).
-* **Dynamic output persistence**: Fractal strikes a subtle balance between accelerated fault recovery and low overhead during fault-free execution (§6.3, Fig. 8).
-* **Hard faults**: Fractal efficiently recovers from hard faults, such as complete worker machine shutdowns.
+Three additional experiments confirm other results presented in the paper—these results are secondary to the key thesis, require significant additional time, and depend on third-party software artifacts that take time and effort to set up:
+* **Fault-free performance**: Fractal achieves performance that rivals that of state-of-the-art systems (§6.1, Fig. 4 and Fig. 5). Confirming this result _requires running other software artifacts_, some of which are tricky to set up and run, including the [DiSh research prototype](https://github.com/binpash/dish/) and mostly-unmaintained [Hadoop Streaming](https://hadoop.apache.org/docs/r1.2.1/streaming.html).
+* **Dynamic output persistence**: Fractal strikes a subtle balance between accelerated fault recovery and low overhead during fault-free execution (§6.3, Fig. 8). This is shown using microbenchmarks, but the the [earlier result](#results-reproducible-60mins) confirmes the best possible configuration for each experiment.
+* **Hard faults**: The paper also includes experiements of full machine shutdowns (literally bringing down the entire Cloudlab node, not just the Fractal process tree); this requires significant time and effort, for results that are mostly identical to [the ones confirmed earlier](results-reproducible-60mins).
 
-### Fault-free execution
-FRACTAL also delivers near state-of-the-art performance in failure-free executions (§6.1, Fig.5).
+### Fault-free execution (3.5 hours)
+Fractal also delivers near state-of-the-art performance in failure-free executions compared to DiSh and Apache Hadoop Streaming (§6.1, Fig. 4 and Fig. 5).
 
-### Dynamic output persistence
+To run all the benchmarks with `--small` input from the control node **for each cluster**:
+
+```bash
+# open the interactive shell for the client container
+sudo docker exec -it docker-hadoop-client-1 bash
+
+# enter the eval folder
+cd $FRACTAL_TOP/evaluation
+
+# run fautless 
+bash run_faultless.sh --small
+```
+
+Generating the plots requires data from both clusters. To parse the per-cluster results, run the following command with `--site 4` for the 4-node cluster or `--site 30` for the 30-node cluster:
+
+```bash
+# parse results for a single cluster
+./plotting/scripts/parse.sh --site 4
+# or --site if on the 30-node cluster
+# ./plotting/scripts/parse.sh --site 30
+```
+
+After parsing results from both clusters, run the following command on any control node to generate the final figures by aggregating the results:
+
+```bash
+# generate the plots
+./plotting/scripts/plot.sh ms0910.utah.cloudlab.us ms0820.utah.cloudlab.us
+```
+
+Once the script completes, follow its prompt open the following URLs in a browser to view the generated figures, for example:
+```
+Fig. 4: http://ms0910.utah.cloudlab.us/fig4.pdf
+Fig. 5: http://ms0910.utah.cloudlab.us/fig5.pdf
+```
+
+### Dynamic output persistence (30 mins)
+Fractal disables output persistence for singular subgraphs and selectively enables it for others based on cost heuristics.
+
+To run the microbenmark for dynamic persistence with `--small` input from one of the control node, e.g., 4-node cluster:
+
+```bash
+# open the interactive shell for the client container
+sudo docker exec -it docker-hadoop-client-1 bash
+
+# enter the eval folder
+cd $FRACTAL_TOP/evaluation
+
+# There are two options here, either use --small or --full as an argument to determine the input size.
+# To facilitate the review process, we populate the data using `bash inputs_all.sh --small` (~20 minutes)
+# Optionally, reviewers can run `bash inputs_all.sh` to clean up and regenerate all data from scratch.
+bash run_microbench.sh --small
+```
+
+Generating the plots requires data from both clusters. To parse the per-cluster results, run the following command either with `--site 4` for the 4-node cluster (*microbenchmark is only run on the 4-node cluster*):
+
+```bash
+# Parse results for a single cluster
+./plotting/scripts/parse.sh --site 4
+```
+
+After parsing results from both clusters, run the following command on any control node to generate the final figures by aggregating the results:
+
+```bash
+# Generate the plots
+./plotting/scripts/plot.sh ms0910.utah.cloudlab.us ms0820.utah.cloudlab.us
+```
+
+Once the script completes, follow its prompt open the following URLs in a browser to view the generated figures, for example:
+```
+Fig. 8: http://ms0910.utah.cloudlab.us/fig8.pdf
+```
 
 ### Hard faults (manual efforts)
-Optionally, you may try to introduce *hard faults*. However, despite its conceptual simplicity, introducing and monitoring *hard faults* requires significant time and effort. 
+Optionally, you may try to introduce *hard faults*. However, despite its conceptual simplicity, introducing and monitoring *hard faults* requires *significant time and effort*.
 
 As shown at the bottom of page 10, replicating the presented hard faults experiment involves `3 completion percents × 3 system configs (AHS, regular ,
 merger ) × 2 failure modes × 5 repetitions × 3 benchmarks = 270 experiments`, which took about a week of manual effort.
@@ -178,7 +241,7 @@ The procedures are listed below (let's set the experiment config for classics/to
 8. When Fractal detects, recovers, and eventually completes this run (in the client's container), reboot the just-shutdown node, and wait until it's back up
 9. To make sure it is back and stable, we need to check whether all of its data blocks are back online (i.e., whether replication factor is satisfied)
 
-## Appendix: Input locations
+# Appendix: Input locations
 
 The Fractal project uses some of the Koala benchmarks ([Usenix ATC'25 paper](https://www.usenix.org/system/files/atc25-lamprou.pdf), [website](https://kben.sh/), [full inputs](https://github.com/kbensh/koala/blob/main/INSTRUCTIONS.md#inputs)), thus uses some of the inputs permanantely stored by the Koala authors: 
 [1M](https://atlas-group.cs.brown.edu/data/dummy/1M.txt), 
