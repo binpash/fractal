@@ -9,7 +9,7 @@ This artifact targets the following badges (mirroring [the NSDI26 artifact "eval
 
 * [x] [Artifact available](#artifact-available): Reviewers are expected to confirm public availability of core components (~5mins)  
 * [x] [Artifact functional](#artifact-functional): Reviewers are expected to verify distributed execution workflow and run a minimal "Hello, world" example (~10mins).
-* [x] [Results reproducible](#results-reproducible): Reviewers are expected to reproduce the key result: Fractal’s correct and efficient fault recoveryfor both regular-node and merger-node failures, demonstrated by its performance compared to fault-free conditions (Fig. 7, ~60mins, optionally ~1 week).
+* [x] [Results reproducible](#results-reproducible): Reviewers are expected to reproduce the key result: Fractal’s correct and efficient fault recoveryfor both regular-node and merger-node failures, demonstrated by its performance compared to fault-free conditions (Fig. 7, ~65mins, optionally ~1 week).
 
 Note that Fractal builds on top of DiSh, an MIT-licensed open-source software that is part of the PaSh project.
 
@@ -65,7 +65,7 @@ To run Fractal with a minimal `echo` example under a fault-free setting:
 $FRACTAL_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!" 
 ```
 
-# Results Reproducible (~60mins)
+# Results Reproducible (~65mins)
 
 The key result in this paper’s evaluation is that **Fractal provides correct and efficient recovery** for both regular-node and merger-node failures. This is demonstrated by its performance compared to fault-free conditions (§6.2, Fig. 7). These results were produced using the `--full` inputs of the Koala benchmarks; to accelerate artifact evaluation, in this section we will be using the `--small` inputs.
 
@@ -76,7 +76,11 @@ The key result in this paper’s evaluation is that **Fractal provides correct a
 
 **Execution and plotting:** This section provides detailed instrauctions on how to replicate Fig. 7 of the experimental evaluation of Fractal as described in Table 2: [Classics](./evaluation/classics/), [Unix50](./evaluation/unix50/), [NLP](./evaluation/nlp/), [Analytics](./evaluation/analytics/), and [Automation](./evaluation/automation/).
 
-To run all the benchmarks from the control node **of each cluster**:
+> [!IMPORTANT]
+> For this step, we recommend using `screen` or `tmux` to avoid accidental disconnect. 
+> The plot requires data from both clusters. We recommend starting experiments **on both clusters simultaneously**, as each takes ~65mins to complete.
+
+To run all the benchmarks from **the control node of both clusters**:
 ```bash
 # open the interactive shell for the client container
 sudo docker exec -it docker-hadoop-client-1 bash
@@ -84,22 +88,27 @@ sudo docker exec -it docker-hadoop-client-1 bash
 # enter the eval folder
 cd $FRACTAL_TOP/evaluation
 
+# cleanup previous results 
+bash cleanup_all.sh
+
 # There are two options here, either use --small or --full as an argument to determine the input size.
 # To facilitate the review process, we populate the data using `bash inputs_all.sh --small` (~20 minutes)
 # Optionally, reviewers can run `bash inputs_all.sh` to clean up and regenerate all data from scratch.
 bash run_faulty.sh --small
 ```
 
-Generating the plots requires data from both clusters. To parse the per-cluster results, run the following command with `--site 4` for the 4-node cluster or `--site 30` for the 30-node cluster:
+Generating the plots requires data from both clusters. To parse the per-cluster results, run the following command with `--site 4` for the 4-node cluster:
 
 ```bash
 # Parse results for a single cluster
 ./plotting/scripts/parse.sh --site 4
-# OR
+```
+Or `--site 30` for the 30-node cluster:
+```bash
 ./plotting/scripts/parse.sh --site 30
 ```
 
-After parsing results from both clusters, run the following command on any control node to generate the final figures by aggregating the results:
+After parsing results from both clusters, run the following command from **one of the control nodes** to generate the final figures by aggregating the results:
 
 ```bash
 # Generate the plots
@@ -108,7 +117,7 @@ After parsing results from both clusters, run the following command on any contr
 
 Once the script completes, follow its prompt open the following URLs in a browser to view the generated figures, for example:
 ```
-Fig. 7: http://ms0910.utah.cloudlab.us/fig7.pdf
+Fig. 7: http://<node>.cloudlab.us/fig7.pdf
 ```
 
 Example output generated from the artifact:
@@ -141,8 +150,8 @@ Example output generated from the artifact:
 
 Three additional experiments confirm other results presented in the paper—these results are secondary to the key thesis, require significant additional time, and depend on third-party software artifacts that take time and effort to set up:
 * **Fault-free performance**: Fractal achieves performance that rivals that of state-of-the-art systems (§6.1, Fig. 4 and Fig. 5). Confirming this result _requires running other software artifacts_, some of which are tricky to set up and run, including the [DiSh research prototype](https://github.com/binpash/dish/) and mostly-unmaintained [Hadoop Streaming](https://hadoop.apache.org/docs/r1.2.1/streaming.html).
-* **Dynamic output persistence**: Fractal strikes a subtle balance between accelerated fault recovery and low overhead during fault-free execution (§6.3, Fig. 8). This is shown using microbenchmarks, but the the [earlier result](#results-reproducible-60mins) confirmes the best possible configuration for each experiment.
-* **Hard faults**: The paper also includes experiements of full machine shutdowns (literally bringing down the entire Cloudlab node, not just the Fractal process tree); this requires significant time and effort, for results that are mostly identical to [the ones confirmed earlier](results-reproducible-60mins).
+* **Dynamic output persistence**: Fractal strikes a subtle balance between accelerated fault recovery and low overhead during fault-free execution (§6.3, Fig. 8). This is shown using microbenchmarks, but the the [earlier result](#results-reproducible-65mins) confirmes the best possible configuration for each experiment.
+* **Hard faults**: The paper also includes experiements of full machine shutdowns (literally bringing down the entire Cloudlab node, not just the Fractal process tree); this requires significant time and effort, for results that are mostly identical to [the ones confirmed earlier](results-reproducible-65mins).
 
 ### Fault-free execution (3.5 hours)
 Fractal also delivers near state-of-the-art performance in failure-free executions compared to DiSh and Apache Hadoop Streaming (§6.1, Fig. 4 and Fig. 5).
