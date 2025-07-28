@@ -197,10 +197,10 @@ cd $FRACTAL_TOP/evaluation
 # There are two options here, either use --small or --full as an argument to determine the input size.
 # To facilitate the review process, we populate the data using `bash inputs_all.sh --small` (~20 minutes)
 # Optionally, reviewers can run `bash inputs_all.sh` to clean up and regenerate all data from scratch.
-bash run_faultless.sh --small
+bash run_microbench.sh --small
 ```
 
-Generating the plots requires data from both clusters. To parse the per-cluster results, run the following command either with `--site 4` for the 4-node cluster (or `--site 30` for the 30-node cluster):
+Generating the plots requires data from both clusters. To parse the per-cluster results, run the following command either with `--site 4` for the 4-node cluster (*microbenchmark is only run on the 4-node cluster*):
 
 ```bash
 # Parse results for a single cluster
@@ -220,7 +220,7 @@ Fig. 8: http://ms0910.utah.cloudlab.us/fig8.pdf
 ```
 
 ### Hard faults (manual efforts)
-Optionally, you may try to introduce *hard faults*. However, despite its conceptual simplicity, introducing and monitoring *hard faults* requires significant time and effort. 
+Optionally, you may try to introduce *hard faults*. However, despite its conceptual simplicity, introducing and monitoring *hard faults* requires *significant time and effort*.
 
 As shown at the bottom of page 10, replicating the presented hard faults experiment involves `3 completion percents × 3 system configs (AHS, regular ,
 merger ) × 2 failure modes × 5 repetitions × 3 benchmarks = 270 experiments`, which took about a week of manual effort.

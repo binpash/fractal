@@ -3,7 +3,7 @@ set -e
 cd "$(realpath $(dirname "$0"))"
 
 # Absolute path to outputs directory for microbench
-output_dir="$(pwd)/outputs_microbench"
+output_dir="$(pwd)/plotting/data/intermediary"
 rm -rf "$output_dir" && mkdir -p "$output_dir"
 
 # Tee stdout/stderr
@@ -28,7 +28,7 @@ done
 # -------------------------------------------------------------
 # Merge per-suite timing CSVs and add “-microbench” suffix
 # -------------------------------------------------------------
-merged="$output_dir/time.csv"
+merged="$output_dir/time_microbench.csv"
 header_written=0
 for f in \
     "$(pwd)/nlp/outputs/time_microbench.csv" \
@@ -36,13 +36,19 @@ for f in \
     "$(pwd)/analytics/max-temp/outputs/time_microbench.csv" ; do
   if [[ -f "$f" ]]; then
     if [[ $header_written -eq 0 ]]; then
-      cat "$f" > "$merged"
-      header_written=1
-    fi
-    tail -n +2 "$f" | \
+      # For the first file, process the entire file (header + body)
+      # and write it to the destination, creating the file.
       sed -e 's/,dynamic,/,dynamic-microbench,/' \
           -e 's/,enabled,/,enabled-microbench,/' \
-          -e 's/,disabled,/,disabled-microbench,/' >> "$merged"
+          -e 's/,disabled,/,disabled-microbench,/' "$f" > "$merged"
+      header_written=1
+    else
+      # For subsequent files, skip the header and append.
+      tail -n +2 "$f" | \
+        sed -e 's/,dynamic,/,dynamic-microbench,/' \
+            -e 's/,enabled,/,enabled-microbench,/' \
+            -e 's/,disabled,/,disabled-microbench,/' >> "$merged"
+    fi
     rm "$f"
   fi
 done

@@ -14,6 +14,17 @@ shift 2
 
 python3 $ROOT_DIR/scripts/aggregate_times.py "$SITE_NODES"
 
+# Append micro-bench timings (only exist for the 4-node site)
+if [[ "$SITE_NODES" == "4" ]]; then
+  mb="$ROOT_DIR/data/intermediary/time_microbench.csv"
+  if [[ -f "$mb" ]]; then
+    # skip header, enforce nodes=4, and append
+    tail -n +2 "$mb" | awk -F',' 'BEGIN{OFS=","}{print $1,$2,$3,4,$4,$5}' >> \
+        "$ROOT_DIR/data/intermediary/raw_times_site4.csv"
+    echo "[parse] merged microbench rows into raw_times_site4.csv"
+  fi
+fi
+
 cp "$ROOT_DIR/data/intermediary/raw_times_site${SITE_NODES}.csv" "/var/www/html/raw_times_site${SITE_NODES}.csv"
 
 # # Destination file labelled per site under data/intermediary/

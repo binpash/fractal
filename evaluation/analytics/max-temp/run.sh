@@ -172,6 +172,7 @@ case "$MODE" in
     max-temp "dynamic-r" "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill regular";;
 
   microbench)
+    max-temp "dynamic-m" "--width 8 --r_split -d $d --distributed_exec --ft dynamic --kill merger"
     max-temp "dynamic-on-m" "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force on --kill merger"
     max-temp "dynamic-off-m" "--width 8 --r_split -d $d --distributed_exec --ft dynamic --dynamic_switch_force off --kill merger";;
 esac

@@ -24,6 +24,10 @@ BENCHMARKS_NAME_MAP = {
     "nlp": "NLP",
     "unix50": "Unix50"
 }
+
+# When you are looking inside a directory named dynamic-m, 
+# any timing values you find should be recorded in the final CSV 
+# with system set to fractal-m and persistence_mode set to dynamic.
 SYS_TO_SYSNAME_PERSISTENCE_MODE = {
     "bash": ["bash", "dynamic"],
     "hadoop": ["ahs", ""],
