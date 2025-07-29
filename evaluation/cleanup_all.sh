@@ -25,6 +25,7 @@ done
 rm -rf outputs 2>/dev/null || true
 rm -rf outputs_microbench 2>/dev/null || true
 rm -rf results 2>/dev/null || true
+rm -rf /tmp/pash_* 2>/dev/null || true
 
 rm classics/scripts/hadoop-streaming/*out.txt 2>/dev/null || true
 rm unix50/scripts/hadoop-streaming/*out.txt 2>/dev/null || true

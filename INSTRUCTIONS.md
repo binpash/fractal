@@ -45,9 +45,9 @@ Confirm sufficient documentation, key components as described in the paper, and 
 3. introduces a fault-injection component supported by [helpers](runtime/scripts/killall.sh) that terminate entire process trees (which evaluation scripts driving these hooks to reproduce the fault-tolerance experiments of §6). Together these files (and the PaSh-JIT submodule they build upon) cover every component shown in Fig. 3, demonstrating that the released code fully realises the design presented in the paper.
 
 <a name="exercisability"></a>
-**Exercisability:** (1) _Scripts and data_: Scripts to run experiments are provided in the [./evaluation](./evaluation/) directory: [evaluation/run_all.sh](./evaluation/run_all.sh) runs all benchmarks, and the `run.sh` in each benchmark folder (e.g., [the one in classics](evaluation/classics/run.sh)) runs individual benchmarks. Input data are downloadable via `inputs.sh`, which fetches datasets from persistent storage hosted on a Brown University (see [Appendix I](#appendix-input-locations)).  (2) _Execution:_ To facilitate evaluation, we pre-allocate and initialize a 4-node and a 30-node cluster with all input data pre-downloaded, available via the `fractal` account (see HotCRP for passwords). 
+**Exercisability:** (1) _Scripts and data_: Scripts to run experiments are provided in the [evaluation](./evaluation/) directory: [evaluation/run_all.sh](./evaluation/run_all.sh) runs all benchmarks, and the `run.sh` in each benchmark folder (e.g., [the one in classics](evaluation/classics/run.sh)) runs individual benchmarks. Input data are downloadable via `inputs.sh`, which fetches datasets from persistent storage hosted on a Brown University (see [Appendix I](#appendix-input-locations)).  (2) _Execution:_ To facilitate evaluation, we pre-allocate and initialize a 4-node and a 30-node cluster with all input data pre-downloaded, available via the `fractal` account (see HotCRP for passwords). 
 
-To connect to the _control node_ of from **both clusters**:
+To connect to the _control node_ from **both clusters**:
 ```bash
 # Connect to the 4-node cluster
 ssh -i fractal.pem fractal@ms1137.utah.cloudlab.us
