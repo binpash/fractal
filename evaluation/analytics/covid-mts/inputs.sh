@@ -17,7 +17,7 @@ if [[ "$@" == *"--small"* ]]; then
     rm in_small.csv
 else
     if [ ! -f ./in.csv ]; then
-        curl -s -f 'https://atlas-group.cs.brown.edu/data/covid-mts/in.csv.gz' > in.csv.gz
+        curl -s -f 'https://atlas-group.cs.brown.edu/data/covid-mts/in_full.csv.gz' > in.csv.gz
         gzip -d in.csv.gz
         # Add newline to the original file
         echo >> in.csv
