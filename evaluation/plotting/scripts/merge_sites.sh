@@ -32,7 +32,7 @@ header="benchmark,script,system,nodes,persistence_mode,time"
 echo "$header" > "$out"
 
 # Concatenate all, skip headers, deduplicate identical lines
-awk -F',' 'NR==FNR {next} {if(!seen[$0]++){print}}' "$out" "$temp_file1" "$temp_file2"= | grep -v "^$header" >> "$out"
+awk -F',' 'NR==FNR {next} {if(!seen[$0]++){print}}' "$out" "$temp_file1" "$temp_file2" | grep -v "^$header" >> "$out"
 
 echo "[merge_sites] wrote $(( $(wc -l <"$out") - 1 )) rows to $out" 
 
