@@ -46,15 +46,30 @@ we have byte-level precision with no buffering surprises.
 # Inside this repo
 pip install -e .   # or export PYTHONPATH to point to repo root
 
+# Single-node command-level demo
 bash frac/examples/command-level/test.sh
+
+# Multi-node distributed system demo (requires Node.js)
+bash frac/examples/multi-node/test.sh
 ```
 
-Expected output (snippet):
+Expected output (command-level):
 
 ```
 [demo] Found 5 matches
 [demo] Ground truth (500 bytes): 5 matches
 ✅ SUCCESS: Fault injection matches 500-byte ground truth!
+```
+
+Expected output (multi-node):
+
+```
+[frac] node worker-2 killed (PID 12346)
+...
+[frac] node worker-2 resurrected on port 8002
+[demo] Total requests: 218
+[demo] Successful (200): 201
+[demo] Failed (503): 17
 ```
 
 ### CLI synopsis

@@ -12,6 +12,33 @@ from .api import ByteEvent, DelayEvent, TimeEvent, TokenEvent
 from .local import LocalProcessNode, LocalFrac, LocalStreamingHooks
 
 
+def load_plugin(plugin_path: str):
+    """Load a plugin module from the given path."""
+    import importlib.util
+    import sys
+    from pathlib import Path
+    
+    plugin_path = Path(plugin_path).resolve()
+    if not plugin_path.exists():
+        sys.exit(f"frac: plugin file not found: {plugin_path}")
+    
+    # Load the module
+    spec = importlib.util.spec_from_file_location("plugin", plugin_path)
+    if spec is None or spec.loader is None:
+        sys.exit(f"frac: failed to load plugin: {plugin_path}")
+    
+    plugin = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(plugin)
+    
+    # Verify required functions exist
+    required_funcs = ['create_node', 'create_hooks', 'create_frac']
+    for func_name in required_funcs:
+        if not hasattr(plugin, func_name):
+            sys.exit(f"frac: plugin missing required function: {func_name}")
+    
+    return plugin
+
+
 def cmd_byte_kill(args: argparse.Namespace) -> None:
     """Execute byte-kill command for local processes."""
     if not args.cmd:
@@ -47,25 +74,51 @@ def cmd_byte_kill(args: argparse.Namespace) -> None:
 
 def cmd_inject(args: argparse.Namespace) -> None:
     """Execute inject command for remote nodes (requires plugin)."""
-    # This would load a user-defined plugin file
-    # For now, just show the structure
-    sys.stderr.write("[frac] inject: node-level injection requires plugin implementation\n")
-    sys.stderr.write(f"[frac] would inject into node: {args.node}\n")
-    sys.stderr.write(f"[frac] event type: {args.event}\n")
+    if not args.plugin:
+        sys.exit("frac inject: --plugin is required for remote node injection")
     
-    # TODO: Load plugin from --plugin path or environment variable
-    # plugin = load_plugin(args.plugin or os.environ.get('FRAC_PLUGIN'))
-    # node = plugin.create_node(args.node)
-    # hooks = plugin.create_hooks(node)
-    # event = create_event_from_args(args)
-    # frac = plugin.create_frac()
-    # frac.inject(node, event, hooks)
+    # Load plugin
+    plugin = load_plugin(args.plugin)
+    
+    # Create components using plugin
+    node = plugin.create_node(args.node)
+    hooks = plugin.create_hooks(node)
+    event = create_event_from_args(args)
+    frac = plugin.create_frac()
+    
+    # Inject fault
+    frac.inject(node, event, hooks)
+    
+    print(f"[frac] fault injection armed for node {args.node}")
 
 
 def cmd_resurrect(args: argparse.Namespace) -> None:
     """Execute resurrect command for remote nodes."""
-    sys.stderr.write(f"[frac] resurrect: would resurrect node: {args.node}\n")
-    # TODO: Similar plugin loading as inject
+    if not args.plugin:
+        sys.exit("frac resurrect: --plugin is required for remote node resurrection")
+    
+    # Load plugin
+    plugin = load_plugin(args.plugin)
+    
+    # Create components using plugin
+    node = plugin.create_node(args.node)
+    hooks = plugin.create_hooks(node)
+    event = create_event_from_args(args)  # Use delay event for timed resurrection
+    frac = plugin.create_frac()
+    
+    # For resurrection, we need to bind the resurrect method instead of kill
+    original_fire = hooks.fire
+    
+    def fire_with_resurrect():
+        node.resurrect()
+        original_fire()
+    
+    hooks.fire = fire_with_resurrect
+    
+    # Arm the resurrection event
+    event.arm(hooks)
+    
+    print(f"[frac] resurrection armed for node {args.node}")
 
 
 def create_event_from_args(args: argparse.Namespace) -> Any:
@@ -141,6 +194,13 @@ def main(argv: list[str] | None = None) -> None:
         "--node", required=True,
         help="Node identifier"
     )
+    resurrect.add_argument(
+        "--event", choices=["delay", "bytes", "token"], required=True,
+        help="Event type for when to resurrect"
+    )
+    resurrect.add_argument("--ms", type=int, help="Milliseconds for delay event")
+    resurrect.add_argument("--bytes", type=int, help="Bytes for bytes event")
+    resurrect.add_argument("--token", help="Token string for token event")
     resurrect.add_argument(
         "--plugin",
         help="Path to plugin file"
