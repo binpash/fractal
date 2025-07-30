@@ -1,5 +1,5 @@
 # Overview  
-The paper makes the following contributions:  
+The paper makes the following claims requiring artifact evaluation on page 2 (Comments to AEC reviewers are after `:`):  
 
 1. **Execution engine**: Fractal's light-weight instrumentation, progress and health monitors, and the executor.
 2. **Performance optimizations**: Fractal's event-driven executor, buffered-io sentinel striping, and batched scheduling.  
@@ -25,10 +25,11 @@ We will provide the private key and password through HotCRP for reviewers to acc
 # Artifact Available (~5mins)
 Confirm Fractal is publicly available on GitHub. Below are some relevant links:  
 
-1. Fractal is openly hosted on GitHub ([repo](https://github.com/binpash/fractal/)), including [benchmarks](https://github.com/binpash/fractal/tree/main/evaluation) and [evaluation scripts](https://github.com/binpash/fractal/tree/main/evaluation).
+1. Fractal is openly hosted on GitHub ([repo](https://github.com/binpash/fractal/)), including [benchmarks](https://github.com/binpash/fractal/evaluation), [evaluation scripts](https://github.com/binpash/fractal/evaluation), and [frac](./frac).
 2. The Fractal repo is also permanently hosted on [Zenodo](https://zenodo.org/records/16429870), as an additional level of archival assurannce.
 3. All data used in these experiments are publicly available (see URLS in [this README's Appendix](#appendix-input-locations)), as part of the Koala benchmark suite ([Usenix ATC'25 paper](https://www.usenix.org/system/files/atc25-lamprou.pdf), [website](https://kben.sh/, [full inputs](https://github.com/kbensh/koala/blob/main/INSTRUCTIONS.md#inputs)).
 4. Fractal's command annotations conform to the ones from [PaSh](https://github.com/binpash/annotations), another MIT-licensed open-source software.  
+5. We have a publicly-accessible discord Server ([Invite](http://join.binpa.sh/)) for troubleshooting and feedback.
 
 We note that Fractal is [MIT-licensed open-source software](./LICENSE.md), part of the PaSh projecct and hosted by the [Linux Foundation](https://www.linuxfoundation.org/press/press-release/linux-foundation-to-host-the-pash-project-accelerating-shell-scripting-with-automated-parallelization-for-industrial-use-cases).
  
@@ -36,18 +37,16 @@ We note that Fractal is [MIT-licensed open-source software](./LICENSE.md), part 
 
 Confirm sufficient documentation, key components as described in the paper, and the system's exercisability:
 
-**Documentation:** Fractal contains documentation of its top-level structure (e.g., [overall architecture](./README.md), [control-plane](https://github.com/binpash/pash/tree/nsdi26-ae/compiler/dspash/README.md), [runtime](./runtime/README.md)), its key components (e.g., [remote pipes](./runtime/pipe/README.md), [DFS reader](./runtime/dfs/README.md), [runtime helpers](./runtime/scripts/README.md)), its setup and evaluation (e.g., [cluster boostrap](https://github.com/binpash/docker-hadoop/tree/nsdi26-ae/README.md), [evaluation](./evaluation/README.md)), and other elements (e.g., [contribution](./CONTRIBUTING.md), [community](https://github.com/binpash/fractal/tree/main?tab=readme-ov-file#community-and-more)). 
+**Documentation:** Fractal contains documentation of its top-level structure (e.g., [overall architecture](./README.md), [control-plane](https://github.com/binpash/pash/tree/nsdi26-ae/compiler/dspash/README.md), [runtime](./runtime/README.md)), its key components (e.g., [remote pipes](./runtime/pipe/README.md), [DFS reader](./runtime/dfs/README.md), [runtime helpers](./runtime/scripts/README.md)), its setup and evaluation (e.g., [cluster boostrap](https://github.com/binpash/docker-hadoop/tree/nsdi26-ae/README.md), [evaluation](./evaluation/README.md)), [frac subsystem](./frac/README.md), and other elements (e.g., [contribution](./CONTRIBUTING.md), [community](https://github.com/binpash/fractal/tree/main?tab=readme-ov-file#community-and-more). 
 
 **Copmleteness:** The repository's top-level README file offers [a high-level overview](https://github.com/binpash/fractal/?tab=readme-ov-file#repository-structure). In more detail: to support fault-tolerant execution, Fractal:
 
 1. extends the [dataflow compilation with sugraphs and wrappers](https://github.com/binpash/pash/tree/nsdi26-ae/compiler/dspash/ir_helper.py) and the [worker manager with subgraph-to-node mapping, dependency tracking, and selective re-execution](pash/compiler/dspash/worker_manager.py) (§4.1–§4.2), and introduces a runtime [datastream wrapper](runtime/pipe/datastream/datastream.go) to decide whether to spill a stream to disk (`--ft dynamic` flag and a `-s` (singular) tag in each `RemotePipe`), reexecuting only non-persisted outputs, and [polls HDFS](https://github.com/binpash/pash/tree/nsdi26-ae/compiler/dspash/hdfs_utils.py) via JMX callbacks wired into the scheduler.
 2. optimizes execution through an [event-driven worker runtime (§5.1)](https://github.com/binpash/pash/tree/nsdi26-ae/compiler/dspash/worker.py) whose lock-free `EventLoop` launches up to *N* subgraphs and `TimeRecorder` logs execution, [buffered-IO sentinel stripping (§5.2)](./runtime/pipe/datastream/datastream.go#L106) where 8-byte EOF tokens are removed on-the-fly using a single 4096-byte buffer, and [batched scheduling (§5.3)](https://github.com/binpash/pash/blob/nsdi26-ae/compiler/dspash/worker.py#L256) where the worker manager builds `worker_to_batches` and issues one `Batch-Exec-Graph` RPC per worker;
-3. introduces a fault-injection component supported by [helpers](runtime/scripts/killall.sh) that terminate entire process trees (which evaluation scripts driving these hooks to reproduce the fault-tolerance experiments of §6). Together these files (and the PaSh-JIT submodule they build upon) cover every component shown in Fig. 3, demonstrating that the released code fully realises the design presented in the paper.
+3. introduces a fault-injection component supported by [helpers](runtime/scripts/killall.sh) that terminate entire process trees (which evaluation scripts driving these hooks to reproduce the fault-tolerance experiments of §6). The automated fault injection subsystem is modularized under [frac](./frac), which contains [two minimal examples](./frac/examples). Together these files (and the PaSh-JIT submodule they build upon) cover every component shown in Fig. 3, demonstrating that the released code fully realises the design presented in the paper.
 
 <a name="exercisability"></a>
-**Exercisability:** (1) _Scripts and data_: Scripts to run experiments are provided in the [evaluation](./evaluation/) directory: [evaluation/run_all.sh](./evaluation/run_all.sh) runs all benchmarks, and the `run.sh` in each benchmark folder (e.g., [the one in classics](evaluation/classics/run.sh)) runs individual benchmarks. Input data are downloadable via `inputs.sh`, which fetches datasets from persistent storage hosted on a Brown University (see [Appendix I](#appendix-input-locations)).  (2) _Execution:_ To facilitate evaluation, we pre-allocate and initialize a 4-node and a 30-node cluster with all input data pre-downloaded, available via the `fractal` account (see HotCRP for passwords). 
-
-To connect to the _control node_ of **both clusters**:
+**Exercisability:** (1) _Scripts and data_: Scripts to run experiments are provided in the [./evaluation](./evaluation/) directory: [evaluation/run_all.sh](./evaluation/run_all.sh) runs all benchmarks, and the`run.sh` in each benchmark folder (e.g., [the one in classics](evaluation/classics/run.sh) runs individual benchmarks. Input data are downloadable via`inputs.sh`, which fetches datasets from persistent storage hosted on a Brown University (see [Appendix I](#appendix-input-locations)).  (2) _Execution:_ To facilitate evaluation, we pre-allocate and initialize a 4-node and a 30-node cluster with all input data pre-downloaded, available via the `fractal` account (see HotCRP for passwords). To connect to the _control node_ of each cluster:
 ```bash
 # Connect to the 4-node cluster
 ssh -i fractal.pem fractal@ms1137.utah.cloudlab.us
@@ -70,7 +69,7 @@ $FRACTAL_TOP/pash/pa.sh --distributed_exec -c "echo Hello World!"
 
 The key result in this paper’s evaluation is that **Fractal provides correct and efficient recovery** for both regular-node and merger-node failures. This is demonstrated by its performance compared to fault-free conditions (§6.2, Fig. 7). These results were produced using the `--full` inputs of the Koala benchmarks; to accelerate artifact evaluation, in this section we will be using the `--small` inputs.
 
-**Terminology correspondence:** The review process does not require reviewers to set any parameters; all necessary configurations are pre-populated to ensure consistency and ease of use. Here is the correspondence of flag names between the paper and the artifact for reference:
+**Terminology correspondence:** Here is the correspondence of flag names between the paper and the artifact:
 * Fractal (no fault): `--width 8 --r_split --distributed_exec --ft dynamic`
 * Fractal (regular-node fault): `--width 8 --r_split --distributed_exec --ft dynamic --kill regular`
 * Fractal (merger-node fault):`--width 8 --r_split --distributed_exec --ft dynamic --kill merger`
@@ -89,7 +88,7 @@ sudo docker exec -it docker-hadoop-client-1 bash
 # enter the eval folder
 cd $FRACTAL_TOP/evaluation
 
-# cleanup existing results from other reviewers
+# cleanup previous results 
 bash cleanup_all.sh
 
 # There are two options here, either use --small or --full as an argument to determine the input size.
