@@ -22,7 +22,7 @@ We will provide the private key and password through HotCRP for reviewers to acc
 > Reviewers should coordinate with each other to not run experiments at the same time—i.e., use HotCRP comments to notify each other of "locking" the infrastructure until a certain date (ideally, no more than a day).
 > _Please start evaluation early_ (in the background), as this kind of resource locking will delay the artifact evaluation process!
 >
-> [Update on August 24th] We hope everything is going smoothly so far. As mentioned earlier, our CloudLab reservations run through August 24th. However, we will continue doing our best to allocate machines for reviewers. Depending on resource availability, we will periodically update the cluster IPs in the document. Please keep us posted on HotCRP about how things are going—we are always here to help!
+> **[Update on August 24th]** We hope everything is going smoothly so far. As mentioned earlier, our CloudLab reservations run through August 24th. However, we will continue doing our best to allocate machines for reviewers. Depending on resource availability, we will periodically update the cluster IPs in the document. Please keep us posted on HotCRP about how things are going—we are always here to help!
  
 # Artifact Available (~5mins)
 Confirm Fractal is publicly available on GitHub. Below are some relevant links:  
