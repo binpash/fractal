@@ -21,6 +21,10 @@ We will provide the private key and password through HotCRP for reviewers to acc
 > We have reserved a 4-node cluster and a 30-node cluster on CloudLab **from August 1st to August 24th** for artifact evaluation.
 > Reviewers should coordinate with each other to not run experiments at the same time—i.e., use HotCRP comments to notify each other of "locking" the infrastructure until a certain date (ideally, no more than a day).
 > _Please start evaluation early_ (in the background), as this kind of resource locking will delay the artifact evaluation process!
+>
+> [Update on August 24th] We hope everything is going smoothly so far. As mentioned earlier, our CloudLab reservations run through August 24th.  
+> However, we will continue doing our best to allocate machines for reviewers. Depending on resource availability, we will periodically update the cluster IPs in the document.  
+> Please keep us posted on HotCRP about how things are going---we are always here to help!
  
 # Artifact Available (~5mins)
 Confirm Fractal is publicly available on GitHub. Below are some relevant links:  
@@ -50,9 +54,9 @@ Confirm sufficient documentation, key components as described in the paper, and 
 To connect to the _control node_ of **both clusters**:
 ```bash
 # Connect to the 4-node cluster
-ssh -i fractal.pem fractal@ms1137.utah.cloudlab.us
+ssh -i fractal.pem fractal@ms1029.utah.cloudlab.us
 # Connect to the 30-node cluster
-ssh -i fractal.pem fractal@ms0820.utah.cloudlab.us
+ssh -i fractal.pem fractal@ms1107.utah.cloudlab.us
 ```
 
 To connect to the client container:
@@ -113,7 +117,7 @@ After parsing results from both clusters, run the following command from **one o
 
 ```bash
 # Generate the plots
-./plotting/scripts/plot.sh ms1137.utah.cloudlab.us ms0820.utah.cloudlab.us
+./plotting/scripts/plot.sh ms1029.utah.cloudlab.us ms1107.utah.cloudlab.us
 ```
 
 Once the script completes, follow its prompt open the following URLs in a browser to view the generated figures, for example:
@@ -183,7 +187,7 @@ After parsing results from both clusters, run the following command on any contr
 
 ```bash
 # generate the plots
-./plotting/scripts/plot.sh ms1137.utah.cloudlab.us ms0820.utah.cloudlab.us
+./plotting/scripts/plot.sh ms1029.utah.cloudlab.us ms1107.utah.cloudlab.us
 ```
 
 Once the script completes, follow its prompt open the following URLs in a browser to view the generated figures, for example:
@@ -221,12 +225,12 @@ After parsing results from both clusters, run the following command on any contr
 
 ```bash
 # Generate the plots
-./plotting/scripts/plot.sh ms1137.utah.cloudlab.us ms0820.utah.cloudlab.us
+./plotting/scripts/plot.sh ms1029.utah.cloudlab.us ms1107.utah.cloudlab.us
 ```
 
 Once the script completes, follow its prompt open the following URLs in a browser to view the generated figures, for example:
 ```
-Fig. 8: http://ms1137.utah.cloudlab.us/fig8.pdf
+Fig. 8: http://ms1029.utah.cloudlab.us/fig8.pdf
 ```
 
 ### Hard faults (manual efforts)
