@@ -51,9 +51,9 @@ Confirm sufficient documentation, key components as described in the paper, and 
 **Exercisability:** (1) _Scripts and data_: Scripts to run experiments are provided in the [./evaluation](./evaluation/) directory: [evaluation/run_all.sh](./evaluation/run_all.sh) runs all benchmarks, and the`run.sh` in each benchmark folder (e.g., [the one in classics](evaluation/classics/run.sh) runs individual benchmarks. Input data are downloadable via`inputs.sh`, which fetches datasets from persistent storage hosted on a Brown University (see [Appendix I](#appendix-input-locations)).  (2) _Execution:_ To facilitate evaluation, we pre-allocate and initialize a 4-node and a 30-node cluster with all input data pre-downloaded, available via the `fractal` account (see HotCRP for passwords). To connect to the _control node_ of each cluster:
 ```bash
 # Connect to the 4-node cluster
-ssh -i fractal.pem fractal@ms1029.utah.cloudlab.us
+ssh -i fractal.pem fractal@ms1044.utah.cloudlab.us
 # Connect to the 30-node cluster
-ssh -i fractal.pem fractal@ms1107.utah.cloudlab.us
+ssh -i fractal.pem fractal@ms1029.utah.cloudlab.us
 ```
 
 To connect to the client container:
@@ -114,7 +114,7 @@ After parsing results from both clusters, run the following command from **one o
 
 ```bash
 # Generate the plots
-./plotting/scripts/plot.sh ms1029.utah.cloudlab.us ms1107.utah.cloudlab.us
+./plotting/scripts/plot.sh ms1044.utah.cloudlab.us ms1029.utah.cloudlab.us
 ```
 
 Once the script completes, follow its prompt open the following URLs in a browser to view the generated figures, for example:
@@ -184,7 +184,7 @@ After parsing results from both clusters, run the following command on any contr
 
 ```bash
 # generate the plots
-./plotting/scripts/plot.sh ms1029.utah.cloudlab.us ms1107.utah.cloudlab.us
+./plotting/scripts/plot.sh ms1044.utah.cloudlab.us ms1029.utah.cloudlab.us
 ```
 
 Once the script completes, follow its prompt open the following URLs in a browser to view the generated figures, for example:
@@ -222,12 +222,12 @@ After parsing results from both clusters, run the following command on any contr
 
 ```bash
 # Generate the plots
-./plotting/scripts/plot.sh ms1029.utah.cloudlab.us ms1107.utah.cloudlab.us
+./plotting/scripts/plot.sh ms1044.utah.cloudlab.us ms1029.utah.cloudlab.us
 ```
 
 Once the script completes, follow its prompt open the following URLs in a browser to view the generated figures, for example:
 ```
-Fig. 8: http://ms1029.utah.cloudlab.us/fig8.pdf
+Fig. 8: http://ms1044.utah.cloudlab.us/fig8.pdf
 ```
 
 ### Hard faults (manual efforts)
