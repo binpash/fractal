@@ -5,7 +5,7 @@
 >
 
 Fractal executes unmodified POSIX shell scripts across a cluster and recovers automatically from node failures.
-It bolts failre tolerance on top of DiSh, a state-of-the-art shell-script distribution system, and is described in an upcoming [NSDI'26](https://www.usenix.org/conference/nsdi26) [paper](#citing-fractal).
+It bolts failure tolerance on top of DiSh, a state-of-the-art shell-script distribution system, and is described in an upcoming [NSDI'26](https://www.usenix.org/conference/nsdi26) [paper](#citing-fractal).
 
 ## Overview:
 
